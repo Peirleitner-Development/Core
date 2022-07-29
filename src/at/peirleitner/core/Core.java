@@ -74,6 +74,18 @@ public final class Core {
 		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDescription().getName().toLowerCase()
 				: BungeeMain.getInstance().getDescription().getName().toLowerCase();
 	}
+	
+	/**
+	 * 
+	 * @return If the admins of this server are performing on a network/proxy.<br>
+	 * This setting is critical as certain data (ex. lastLogin timestamp of a user connection) will be updated on every local (ex. spigot) connection if this is set to <code>false</code>.
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote If you are running a network, set this to <b>true</b>. If you are only running one server instance, set this to <b>false</b>.
+	 */
+	public final boolean isNetwork() {
+		return (boolean) this.getSettingsManager().getByName(this.getPluginName(), "core.is-network").getValue();
+	}
 
 	// | Manager | \\
 
