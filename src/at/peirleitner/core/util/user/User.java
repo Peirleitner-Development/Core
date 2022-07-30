@@ -2,6 +2,11 @@ package at.peirleitner.core.util.user;
 
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
+import at.peirleitner.core.Core;
+import at.peirleitner.core.system.UserSystem;
+
 /**
  * This class represents a User on the local server instance/network.
  * 
@@ -48,6 +53,18 @@ public final class User {
 	public final String getLastKnownName() {
 		return lastKnownName;
 	}
+	
+	/**
+	 * 
+	 * @param name - New name
+	 * @return If the name has been updated
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see UserSystem#setLastKnownName(User, String)
+	 */
+	public final boolean setLastKnownName(@Nonnull String name) {
+		return Core.getInstance().getUserSystem().setLastKnownName(this, name);
+	}
 
 	/**
 	 * 
@@ -68,6 +85,18 @@ public final class User {
 	public final long getLastLogin() {
 		return lastLogin;
 	}
+	
+	/**
+	 * 
+	 * @param lastLogin - Last login
+	 * @return If the TimeStamp has been updated
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see UserSystem#setLastLogin(User, long)
+	 */
+	public final boolean setLastLogin(@Nonnull long lastLogin) {
+		return Core.getInstance().getUserSystem().setLastLogin(this, lastLogin);
+	}
 
 	/**
 	 * 
@@ -78,6 +107,18 @@ public final class User {
 	public final long getLastLogout() {
 		return lastLogout;
 	}
+	
+	/**
+	 * 
+	 * @param lastLogout - Last logout
+	 * @return If the TimeStamp has been updated
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see UserSystem#setLastLogout(User, long)
+	 */
+	public final boolean setLastLogout(@Nonnull long lastLogout) {
+		return Core.getInstance().getUserSystem().setLastLogout(this, lastLogout);
+	}
 
 	/**
 	 * 
@@ -87,6 +128,15 @@ public final class User {
 	 */
 	public final boolean isEnabled() {
 		return enabled;
+	}
+	
+	/**
+	 * 
+	 * @param enabled - New state
+	 * @return If the state has been updated
+	 */
+	public final boolean setEnabled(@Nonnull boolean enabled) {
+		return Core.getInstance().getUserSystem().setEnabled(this, enabled);
 	}
 
 	/**

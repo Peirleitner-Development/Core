@@ -1,5 +1,9 @@
 package at.peirleitner.core.util;
 
+import javax.annotation.Nonnull;
+
+import net.md_5.bungee.api.ChatColor;
+
 /**
  * This enum provides different log levels.
  * 
@@ -7,7 +11,7 @@ package at.peirleitner.core.util;
  * @author Markus Peirleitner (Rengobli)
  *
  */
-public enum LogLevel {
+public enum LogType {
 
 	/**
 	 * Debug message, only necessary for development or debugging purposes.<br>
@@ -17,7 +21,7 @@ public enum LogLevel {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	DEBUG,
+	DEBUG(ChatColor.LIGHT_PURPLE),
 
 	/**
 	 * Informational content, nothing to worry about but still worth mentioning.<br>
@@ -26,7 +30,7 @@ public enum LogLevel {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	INFO,
+	INFO(ChatColor.WHITE),
 
 	/**
 	 * Something unexpected occurred, the system still runs and works as
@@ -36,7 +40,7 @@ public enum LogLevel {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	WARNING,
+	WARNING(ChatColor.YELLOW),
 
 	/**
 	 * Something unexpected occurred, at least some functionality of the system has
@@ -46,7 +50,7 @@ public enum LogLevel {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	ERROR,
+	ERROR(ChatColor.RED),
 
 	/**
 	 * Something unexpected occurred, the system is required to shut down in order
@@ -59,6 +63,16 @@ public enum LogLevel {
 	 * @apiNote This should <b>not</b> be used by third-party developers, as
 	 *          throwing this <u>may</u> result in a server crash.
 	 */
-	CRITICAL;
+	CRITICAL(ChatColor.DARK_RED);
+	
+	private ChatColor color;
+	
+	private LogType(@Nonnull ChatColor color) {
+		this.color = color;
+	}
+	
+	public final ChatColor getColor() {
+		return this.color;
+	}
 
 }
