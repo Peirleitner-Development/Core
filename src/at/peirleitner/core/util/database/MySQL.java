@@ -23,13 +23,8 @@ import at.peirleitner.core.util.LogType;
  */
 public final class MySQL {
 
-	private String pluginName;
-	private String host;
-	private String database;
+	private String pluginName, host, database, username, password, tablePrefix;
 	private int port;
-	private String username;
-	private String password;
-	private String tablePrefix;
 
 	private Connection connection;
 
@@ -51,6 +46,11 @@ public final class MySQL {
 	public MySQL(@Nonnull String pluginName, @Nonnull File f) {
 
 		this.pluginName = pluginName;
+		
+		if(!f.exists()) {
+			Core.getInstance().log(pluginName, LogType.ERROR, "Could not create MySQL Database Instance: Provided file doesn't exist.");
+			return;
+		}
 
 		try {
 
@@ -60,23 +60,23 @@ public final class MySQL {
 
 				String s = it.next();
 
-				if (s.startsWith("\nhost: ")) {
-					this.host = s.replace("\nhost: ", "");
+				if (s.startsWith("host: ")) {
+					this.host = s.replace("host: ", "");
 
-				} else if (s.startsWith("\ndatabase: ")) {
-					this.database = s.replace("\ndatabase: ", "");
+				} else if (s.startsWith("database: ")) {
+					this.database = s.replace("database: ", "");
 
-				} else if (s.startsWith("\nport: ")) {
-					this.port = Integer.valueOf(s.replace("\nport: ", ""));
+				} else if (s.startsWith("port: ")) {
+					this.port = Integer.valueOf(s.replace("port: ", ""));
 
-				} else if (s.startsWith("\nusername: ")) {
-					this.username = s.replace("\nusername: ", "");
+				} else if (s.startsWith("username: ")) {
+					this.username = s.replace("username: ", "");
 
-				} else if (s.startsWith("\npassword: ")) {
-					this.password = s.replace("\npassword: ", "");
+				} else if (s.startsWith("password: ")) {
+					this.password = s.replace("password: ", "");
 
-				} else if (s.startsWith("\ntable-prefix: ")) {
-					this.tablePrefix = s.replace("\ntable-prefix: ", "");
+				} else if (s.startsWith("table-prefix: ")) {
+					this.tablePrefix = s.replace("table-prefix: ", "");
 				}
 
 			}
@@ -85,7 +85,7 @@ public final class MySQL {
 
 		} catch (IOException e) {
 			Core.getInstance().log(pluginName, LogType.ERROR,
-					"Could not create MySQL Instance: File provided does not exist OR error on closing reader: "
+					"Could not create MySQL Instance: Error on closing reader: "
 							+ e.getMessage());
 		}
 

@@ -1,0 +1,6 @@
+name: NetworkCore
+version: '${project.version}'
+author: Markus Peirleitner (Rengobli)
+website: www.peirleitner.at
+
+main: at.peirleitner.core.BungeeMain

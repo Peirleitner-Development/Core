@@ -29,7 +29,7 @@ public class CredentialsFile {
 				f.createNewFile();
 
 				BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-				bw.write("\nhost: localhost");
+				bw.write("host: localhost");
 				bw.write("\ndatabase: core");
 				bw.write("\nport: 3306");
 				bw.write("\nusername: root");
