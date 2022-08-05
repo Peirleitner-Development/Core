@@ -9,8 +9,6 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
-import at.peirleitner.core.util.Setting;
-import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.User;
 
 /**
@@ -30,8 +28,8 @@ public final class UserSystem {
 		this.cachedUsers = new ArrayList<>();
 
 		// Set default settings
-		Core.getInstance().getSettingsManager().create(
-				new Setting<Boolean>(Core.getInstance().getPluginName(), "system.user-system.enable-caching", true));
+		Core.getInstance().getSettingsManager().getProperties().setProperty("core.system.user.enable-caching", "true");
+		Core.getInstance().getSettingsManager().save();
 
 	}
 
@@ -54,8 +52,8 @@ public final class UserSystem {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	private final boolean isCachingEnabled() {
-		return (boolean) Core.getInstance().getSettingsManager()
-				.getByName(Core.getInstance().getPluginName(), "system.user-system.enable-caching").getValue();
+		return Boolean.valueOf(
+				Core.getInstance().getSettingsManager().getProperties().getProperty("core.system.user.enable-caching"));
 	}
 
 	/**
@@ -215,18 +213,6 @@ public final class UserSystem {
 			return false;
 		}
 
-	}
-
-	/**
-	 * 
-	 * @return Default language that will be assigned to a {@link User} upon
-	 *         registration
-	 * @since 1.0.0
-	 * @author Markus Peirleitner (Rengobli)
-	 */
-	public final Language getDefaultLanguage() {
-		return (Language) Core.getInstance().getSettingsManager()
-				.getByName(Core.getInstance().getPluginName(), "system.user-system.default-language").getValue();
 	}
 
 }

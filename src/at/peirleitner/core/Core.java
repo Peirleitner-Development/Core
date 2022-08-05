@@ -11,6 +11,8 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
+import at.peirleitner.core.util.user.Language;
+import at.peirleitner.core.util.user.User;
 
 /**
  * This class represents the Core Instance
@@ -42,17 +44,19 @@ public final class Core {
 		// Initialize
 		instance = this;
 		this.runMode = runMode;
-		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
-		
-		if(!mysql.isConnected()) {
-			this.log(LogType.CRITICAL, "Could not connect towards MySQL Database, Plugin will not work as intended.");
-			return;
-		}
-		
-		this.createTables();
 
 		// Manager
 		this.settingsManager = new SettingsManager();
+
+		// Database
+		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
+
+		if (!mysql.isConnected()) {
+			this.log(LogType.CRITICAL, "Could not connect towards MySQL Database, Plugin will not work as intended.");
+			return;
+		}
+
+		this.createTables();
 
 		// System
 		this.userSystem = new UserSystem();
@@ -68,7 +72,7 @@ public final class Core {
 	public final static Core getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * 
 	 * @return MySQL Instance for the Core
@@ -78,33 +82,31 @@ public final class Core {
 	public final MySQL getMySQL() {
 		return this.mysql;
 	}
-	
+
 	private final void createTables() {
-		
+
 		final Connection connection = this.getMySQL().getConnection();
 		final String prefix = this.getMySQL().getTablePrefix();
-		
+
 		try {
-			
+
 			connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + prefix + "players ("
-					+ "uuid CHAR(36) NOT NULL, "
-					+ "lastKnownName CHAR(16) NOT NULL, "
+					+ "uuid CHAR(36) NOT NULL, " + "lastKnownName CHAR(16) NOT NULL, "
 					+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-					+ "lastLogin BIGINT(255) NOT NULL, "
-					+ "lastLogout BIGINT(255) NOT NULL, "
-					+ "enabled BOOLEAN NOT NULL DEFAULT '1', "
-					+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getUserSystem().getDefaultLanguage().toString() + "', "
-					+ "PRIMARY KEY (uuid));");
-			
+					+ "lastLogin BIGINT(255) NOT NULL, " + "lastLogout BIGINT(255) NOT NULL, "
+					+ "enabled BOOLEAN NOT NULL DEFAULT '1', " + "language VARCHAR(50) NOT NULL DEFAULT '"
+					+ this.getDefaultLanguage().toString() + "', " + "PRIMARY KEY (uuid));");
+
 		} catch (SQLException e) {
 			this.log(LogType.ERROR, "Could not create MySQL Data Tables: " + e.getMessage());
 		}
-		
+
 	}
-	
+
 	/**
 	 * Create a log for the Core (using {@link #getPluginName()})
-	 * @param level - Level
+	 * 
+	 * @param level   - Level
 	 * @param message - Message
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
@@ -116,9 +118,10 @@ public final class Core {
 
 	/**
 	 * Create a log message
+	 * 
 	 * @param pluginName - Name of the plugin that issues this log message
-	 * @param level - Level
-	 * @param message - Message
+	 * @param level      - Level
+	 * @param message    - Message
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see #log(LogType, String)
@@ -155,8 +158,8 @@ public final class Core {
 	 * @see BungeeMain
 	 */
 	public final String getPluginName() {
-		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDescription().getName().toLowerCase()
-				: BungeeMain.getInstance().getDescription().getName().toLowerCase();
+		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDescription().getName()
+				: BungeeMain.getInstance().getDescription().getName();
 	}
 
 	/**
@@ -171,7 +174,20 @@ public final class Core {
 	 *          only running one server instance, set this to <b>false</b>.
 	 */
 	public final boolean isNetwork() {
-		return (boolean) this.getSettingsManager().getByName(this.getPluginName(), "core.is-network").getValue();
+		return Boolean
+				.valueOf(this.getSettingsManager().getProperties().getProperty("core.manager.settings.is-network"));
+	}
+
+	/**
+	 * 
+	 * @return Default language that will be assigned to a {@link User} upon
+	 *         registration
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final Language getDefaultLanguage() {
+		return Language.valueOf(Core.getInstance().getSettingsManager().getProperties()
+				.getProperty("core.manager.settings.default-language"));
 	}
 
 	// | Manager | \\
