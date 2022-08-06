@@ -11,19 +11,28 @@ public class SpigotMain extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		
+
 		if (!this.getDataFolder().exists()) {
 			this.getDataFolder().mkdir();
 		}
-		
+
 		// Initialize
 		instance = this;
 		Core.instance = new Core(RunMode.LOCAL);
-		
+
 		// Commands
-		
+
 		// Listener
 		new PlayerJoinListener();
+
+	}
+	
+	@Override
+	public void onDisable() {
+		
+		if(Core.getInstance().getMySQL().isConnected()) {
+			Core.getInstance().getMySQL().close();
+		}
 		
 	}
 

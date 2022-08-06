@@ -17,12 +17,21 @@ public class BungeeMain extends Plugin {
 
 		instance = this;
 		Core.instance = new Core(RunMode.NETWORK);
-		
+
 		// Commands
-		
+
 		// Listener
 		this.getProxy().getPluginManager().registerListener(this, new LoginListener());
-		
+
+	}
+
+	@Override
+	public void onDisable() {
+
+		if (Core.getInstance().getMySQL().isConnected()) {
+			Core.getInstance().getMySQL().close();
+		}
+
 	}
 
 	public static BungeeMain getInstance() {

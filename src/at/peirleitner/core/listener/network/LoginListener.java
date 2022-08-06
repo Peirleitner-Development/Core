@@ -16,12 +16,15 @@ import net.md_5.bungee.event.EventHandler;
 
 public class LoginListener implements Listener {
 
-	private final String CONNECTION_DISALLOWED_UUID_CANT_BE_VALIDATED = "Could not get UUID for your login request: Connection disallowed.";
-	private final String CONNECTION_DISALLOWED_USER_CANT_BE_VALIDATED = "Could not get User Object for your UUID: Connection disallowed.";
+	private final String CONNECTION_DISALLOWED_UUID_CANT_BE_VALIDATED = "Could not get UUID for your login request: Connection disallowed (Network).";
+	private final String CONNECTION_DISALLOWED_USER_CANT_BE_VALIDATED = "Could not get User Object for your UUID: Connection disallowed (Network).";
 
 	@EventHandler
 	public void onLogin(LoginEvent e) {
 
+		// Tasks will only be performed if network-mode is enabled
+		if(!Core.getInstance().isNetwork()) return;
+		
 		UUID uuid = e.getConnection().getUniqueId();
 
 		// Cancel connection if the UUID can't be validated
@@ -68,6 +71,10 @@ public class LoginListener implements Listener {
 			return;
 		}
 
+		if(!e.isCancelled()) {
+			Core.getInstance().getUserSystem().setLastLogin(user, System.currentTimeMillis());
+		}
+		
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
 
