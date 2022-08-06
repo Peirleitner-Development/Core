@@ -23,7 +23,7 @@ public class CredentialsFile {
 		File f = new File(path + "/mysql.yml");
 
 		if (!f.exists()) {
-			Core.getInstance().log(pluginName, LogType.DEBUG,
+			Core.getInstance().log(pluginName, null, LogType.DEBUG,
 					"Could not find MySQL Data file for Plugin " + pluginName + ", attempting to create a new one..");
 			try {
 				f.createNewFile();
@@ -37,14 +37,14 @@ public class CredentialsFile {
 				bw.write("\ntable-prefix: core_");
 				bw.close();
 
-				Core.getInstance().log(pluginName, LogType.DEBUG, "Successfully created a new MySQL Data file.");
+				Core.getInstance().log(pluginName, null, LogType.DEBUG, "Successfully created a new MySQL Data file.");
 			} catch (IOException e) {
-				Core.getInstance().log(pluginName, LogType.ERROR,
+				Core.getInstance().log(pluginName, null, LogType.ERROR,
 						"Could not create new MySQL Data file: " + e.getMessage());
 				return null;
 			}
 		} else {
-			Core.getInstance().log(pluginName, LogType.DEBUG,
+			Core.getInstance().log(pluginName, null, LogType.DEBUG,
 					"Did not attempt to create a new MySQL Data file because one does already exist.");
 		}
 

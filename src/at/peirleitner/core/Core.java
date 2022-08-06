@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.UserSystem;
@@ -46,13 +47,13 @@ public final class Core {
 		this.runMode = runMode;
 
 		// Manager
-		this.settingsManager = new SettingsManager();
+		this.settingsManager = new SettingsManager(this.getPluginName());
 
 		// Database
 		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
 
 		if (!mysql.isConnected()) {
-			this.log(LogType.CRITICAL, "Could not connect towards MySQL Database, Plugin will not work as intended.");
+			this.log(this.getClass(), LogType.CRITICAL, "Could not connect towards MySQL Database, Plugin will not work as intended.");
 			return;
 		}
 
@@ -60,7 +61,8 @@ public final class Core {
 
 		// System
 		this.userSystem = new UserSystem();
-
+		
+		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode + ". Network-Mode is set to " + this.isNetwork() + ".");
 	}
 
 	/**
@@ -98,7 +100,7 @@ public final class Core {
 					+ this.getDefaultLanguage().toString() + "', " + "PRIMARY KEY (uuid));");
 
 		} catch (SQLException e) {
-			this.log(LogType.ERROR, "Could not create MySQL Data Tables: " + e.getMessage());
+			this.log(this.getClass(), LogType.ERROR, "Could not create MySQL Data Tables: " + e.getMessage());
 		}
 
 	}
@@ -112,8 +114,8 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see #log(String, LogType, String)
 	 */
-	public final void log(@Nonnull LogType level, @Nonnull String message) {
-		this.log(this.getPluginName(), level, message);
+	public final void log(@Nonnull Class<?> c, @Nonnull LogType level, @Nonnull String message) {
+		this.log(this.getPluginName(), c, level, message);
 	}
 
 	/**
@@ -126,9 +128,9 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see #log(LogType, String)
 	 */
-	public final void log(@Nonnull String pluginName, @Nonnull LogType level, @Nonnull String message) {
+	public final void log(@Nonnull String pluginName, @Nullable Class<?> c, @Nonnull LogType level, @Nonnull String message) {
 
-		final String logMessage = "[" + pluginName + "/" + level.toString() + "] " + message;
+		final String logMessage = "[" + pluginName + "/" + (c == null ? "?" : this.logWithSimpleClassNames() ? c.getSimpleName() : c.getName()) + "/" + level.toString() + "] " + message;
 
 		if (this.getRunMode() == RunMode.LOCAL) {
 			org.bukkit.Bukkit.getConsoleSender().sendMessage(level.getColor() + logMessage);
@@ -174,8 +176,7 @@ public final class Core {
 	 *          only running one server instance, set this to <b>false</b>.
 	 */
 	public final boolean isNetwork() {
-		return Boolean
-				.valueOf(this.getSettingsManager().getProperties().getProperty("core.manager.settings.is-network"));
+		return Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.is-network"));
 	}
 
 	/**
@@ -186,8 +187,12 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final Language getDefaultLanguage() {
-		return Language.valueOf(Core.getInstance().getSettingsManager().getProperties()
-				.getProperty("core.manager.settings.default-language"));
+		return Language
+				.valueOf(this.getSettingsManager().getSetting("manager.settings.default-language"));
+	}
+	
+	public final boolean logWithSimpleClassNames() {
+		return this.getSettingsManager() == null ? true : Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.log-with-simple-class-names"));
 	}
 
 	// | Manager | \\

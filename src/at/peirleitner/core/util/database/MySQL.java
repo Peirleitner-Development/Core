@@ -48,7 +48,7 @@ public final class MySQL {
 		this.pluginName = pluginName;
 		
 		if(!f.exists()) {
-			Core.getInstance().log(pluginName, LogType.ERROR, "Could not create MySQL Database Instance: Provided file doesn't exist.");
+			Core.getInstance().log(pluginName, this.getClass(), LogType.ERROR, "Could not create MySQL Database Instance: Provided file doesn't exist.");
 			return;
 		}
 
@@ -84,7 +84,7 @@ public final class MySQL {
 			br.close();
 
 		} catch (IOException e) {
-			Core.getInstance().log(pluginName, LogType.ERROR,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.ERROR,
 					"Could not create MySQL Instance: Error on closing reader: "
 							+ e.getMessage());
 		}
@@ -123,7 +123,7 @@ public final class MySQL {
 		try {
 			return this.connection != null && !connection.isClosed() ? true : false;
 		} catch (SQLException e) {
-			Core.getInstance().log(pluginName, LogType.ERROR,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.ERROR,
 					"Could not check for database connection: " + e.getMessage());
 			return false;
 		}
@@ -142,11 +142,11 @@ public final class MySQL {
 
 			this.connection = DriverManager.getConnection(
 					"jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
-			Core.getInstance().log(pluginName, LogType.INFO,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.INFO,
 					"Successfully connected to the MySQL Database " + database + ".");
 			return true;
 		} catch (SQLException e) {
-			Core.getInstance().log(pluginName, LogType.ERROR,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.ERROR,
 					"Could not connect to the MySQL Database: " + e.getMessage());
 			return false;
 		}
@@ -165,14 +165,14 @@ public final class MySQL {
 		try {
 			if (connection != null && !connection.isClosed()) {
 				connection.close();
-				Core.getInstance().log(pluginName, LogType.INFO, "Successfully closed MySQL Database connection.");
+				Core.getInstance().log(pluginName, this.getClass(), LogType.INFO, "Successfully closed MySQL Database connection.");
 				return true;
 			} else {
-				Core.getInstance().log(pluginName, LogType.INFO, "Could not close database connection: Not connected.");
+				Core.getInstance().log(pluginName, this.getClass(), LogType.INFO, "Could not close database connection: Not connected.");
 				return false;
 			}
 		} catch (SQLException e) {
-			Core.getInstance().log(pluginName, LogType.ERROR,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.ERROR,
 					"Error while attempting to close connection/ST: " + e.getMessage());
 			return false;
 		}

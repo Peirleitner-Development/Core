@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+
 import at.peirleitner.core.BungeeMain;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
@@ -24,15 +26,33 @@ import at.peirleitner.core.util.user.Language;
  */
 public class SettingsManager {
 
+	private final String pluginName;
 	private Properties properties;
 	private boolean initialized = false;
 
-	//TODO: Core/settings/<Plugin>.properties - Save to file with pluginName
-	public SettingsManager() {
-		
+	// TODO: Core/settings/<Plugin>.properties - Save to file with pluginName
+	public SettingsManager(@Nonnull String pluginName) {
+
+		this.pluginName = pluginName;
+		this.createSettingsDirectory();
+
 		this.createProperties();
 		this.loadProperties();
 
+	}
+	
+	private final String getPluginName() {
+		return this.pluginName;
+	}
+
+	private final File getSettingsDirectory() {
+		return new File(this.getDataFolder() + "/settings");
+	}
+
+	private final void createSettingsDirectory() {
+		if (!this.getSettingsDirectory().exists()) {
+			this.getSettingsDirectory().mkdir();
+		}
 	}
 
 	private final void createProperties() {
@@ -41,20 +61,20 @@ public class SettingsManager {
 
 		if (!f.exists()) {
 
-			Core.getInstance().log(LogType.DEBUG, "Could not find file '" + f.getName() + "', attempting to create..");
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Could not find file '" + f.getName() + "', attempting to create..");
 
 			try {
-				
+
 				f.createNewFile();
-				Core.getInstance().log(LogType.DEBUG, "Successfully created a new Settings file.");
-				
+				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Successfully created a new Settings file.");
+
 				this.loadProperties();
-				
+
 			} catch (IOException e) {
-				Core.getInstance().log(LogType.ERROR, "Could not create new Settings file: " + e.getMessage());
+				Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not create new Settings file: " + e.getMessage());
 			}
 		} else {
-			Core.getInstance().log(LogType.DEBUG,
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Did not attempt to create a new Settings file because one does already exist.");
 		}
 
@@ -63,70 +83,75 @@ public class SettingsManager {
 	private final void loadProperties() {
 
 		if (this.getFile() == null || !this.getFile().exists()) {
-			Core.getInstance().log(LogType.DEBUG, "Did not attempt to load settings file because none does exist.");
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not attempt to load settings file because none does exist.");
 			return;
 		}
-		
-		if(this.initialized) {
-			Core.getInstance().log(LogType.DEBUG, "Did not attempt to load settings file because it has already been initialized.");
+
+		if (this.initialized) {
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Did not attempt to load settings file because it has already been initialized.");
 			return;
 		}
-		
+
 		try {
-			
+
 			this.properties = new Properties();
 			this.properties.load(new FileInputStream(this.getFile()));
-			
+
 			this.setDefaultValues();
 			this.initialized = true;
-			
+
 		} catch (IOException e) {
-			Core.getInstance().log(LogType.ERROR, "Error while attempting to load Settings file: " + e.getMessage());
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Error while attempting to load Settings file: " + e.getMessage());
 		}
 
 	}
-	
+
 	private final HashMap<String, String> getDefaultValues() {
-		
+
 		final HashMap<String, String> map = new HashMap<>();
-		final String path = "core.manager.settings.";
-		
+		final String path = "manager.settings.";
+
 		map.put(path + "is-network", "false");
 		map.put(path + "default-language", Language.ENGLISH.toString());
-		
+		map.put(path + "log-with-simple-class-names", "true");
+
 		return map;
 	}
-	
+
 	private final void setDefaultValues() {
-		
+
 		if (this.getFile() == null || !this.getFile().exists()) {
-			Core.getInstance().log(LogType.DEBUG, "Did not attempt to set default values because settings file does not exist.");
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Did not attempt to set default values because settings file does not exist.");
 			return;
 		}
-		
-		for(Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
-			
-			if(this.getProperties().get(entry.getKey()) == null) {
+
+		for (Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
+
+			if (this.getProperties().get(entry.getKey()) == null) {
 				this.getProperties().setProperty(entry.getKey(), entry.getValue());
-				Core.getInstance().log(LogType.DEBUG, "Settings: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "'.");
+				Core.getInstance().log(this.getClass(), LogType.DEBUG,
+						"Settings: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "'.");
 			}
-			
+
 		}
-		
+
 		this.save();
-		
+
 	}
-	
-	public final boolean save() {
-		
+
+	private final boolean save() {
+
 		try {
-			this.getProperties().store(new FileWriter(this.getFile()), "Last update on " + new Date(System.currentTimeMillis()));
+			this.getProperties().store(new FileWriter(this.getFile()),
+					"Last update on " + new Date(System.currentTimeMillis()));
 			return true;
 		} catch (IOException e) {
-			Core.getInstance().log(LogType.ERROR, "Could not save Settings file: " + e.getMessage());
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not save Settings file: " + e.getMessage());
 			return false;
 		}
-		
+
 	}
 
 	private final File getDataFolder() {
@@ -135,15 +160,25 @@ public class SettingsManager {
 	}
 
 	private final File getFile() {
-
-		File f = new File(this.getDataFolder() + "/settings.properties");
-
-		return f;
-
+		return new File(this.getSettingsDirectory() + "/" + this.getPluginName() + ".properties");
 	}
 
-	public final Properties getProperties() {
+	private final Properties getProperties() {
 		return this.properties;
+	}
+
+	public final boolean setSetting(@Nonnull String key, @Nonnull String value) {
+		this.getProperties().setProperty(key, value);
+		return this.save();
+	}
+
+	public final String getSetting(@Nonnull String key) {
+		return this.getProperties().getProperty(key);
+	}
+
+	public final boolean removeSetting(@Nonnull String key) {
+		this.getProperties().remove(key);
+		return this.save();
 	}
 
 }

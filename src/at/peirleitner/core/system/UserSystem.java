@@ -28,8 +28,7 @@ public final class UserSystem {
 		this.cachedUsers = new ArrayList<>();
 
 		// Set default settings
-		Core.getInstance().getSettingsManager().getProperties().setProperty("core.system.user.enable-caching", "true");
-		Core.getInstance().getSettingsManager().save();
+		Core.getInstance().getSettingsManager().setSetting("system.user.enable-caching", "true");
 
 	}
 
@@ -53,7 +52,7 @@ public final class UserSystem {
 	 */
 	private final boolean isCachingEnabled() {
 		return Boolean.valueOf(
-				Core.getInstance().getSettingsManager().getProperties().getProperty("core.system.user.enable-caching"));
+				Core.getInstance().getSettingsManager().getSetting("system.user.enable-caching"));
 	}
 
 	/**
@@ -70,7 +69,7 @@ public final class UserSystem {
 
 		// Return if the name is the same
 		if (user.getLastKnownName().equals(name)) {
-			Core.getInstance().log(LogType.DEBUG, "Did not update lastKnownName of user '" + user.getUUID().toString()
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update lastKnownName of user '" + user.getUUID().toString()
 					+ "' to '" + name + "': Name is the same.");
 			return false;
 		}
@@ -84,12 +83,12 @@ public final class UserSystem {
 			stmt.setString(2, user.getUUID().toString());
 
 			stmt.execute();
-			Core.getInstance().log(LogType.DEBUG,
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Updated lastKnownName of '" + user.getUUID().toString() + "' to '" + name + "'.");
 			return true;
 
 		} catch (SQLException e) {
-			Core.getInstance().log(LogType.WARNING, "Could not update lastKnownName for user '"
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not update lastKnownName for user '"
 					+ user.getLastKnownName() + "' to '" + name + "'/SQL: " + e.getMessage());
 			return false;
 		}
@@ -110,7 +109,7 @@ public final class UserSystem {
 
 		// Return if the name is the same
 		if (user.getLastLogin() == lastLogin) {
-			Core.getInstance().log(LogType.DEBUG, "Did not update lastLogin of user '" + user.getUUID().toString()
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update lastLogin of user '" + user.getUUID().toString()
 					+ "' to '" + lastLogin + "': TimeStamp is the same.");
 			return false;
 		}
@@ -124,12 +123,12 @@ public final class UserSystem {
 			stmt.setString(2, user.getUUID().toString());
 
 			stmt.execute();
-			Core.getInstance().log(LogType.DEBUG,
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Updated lastLogin of '" + user.getUUID().toString() + "' to '" + lastLogin + "'.");
 			return true;
 
 		} catch (SQLException e) {
-			Core.getInstance().log(LogType.WARNING, "Could not update lastLogin for user '" + user.getLastKnownName()
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not update lastLogin for user '" + user.getLastKnownName()
 					+ "' to '" + lastLogin + "'/SQL: " + e.getMessage());
 			return false;
 		}
@@ -150,7 +149,7 @@ public final class UserSystem {
 
 		// Return if the name is the same
 		if (user.getLastLogout() == lastLogout) {
-			Core.getInstance().log(LogType.DEBUG, "Did not update lastLogout of user '" + user.getUUID().toString()
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update lastLogout of user '" + user.getUUID().toString()
 					+ "' to '" + lastLogout + "': TimeStamp is the same.");
 			return false;
 		}
@@ -164,12 +163,12 @@ public final class UserSystem {
 			stmt.setString(2, user.getUUID().toString());
 
 			stmt.execute();
-			Core.getInstance().log(LogType.DEBUG,
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Updated lastLogout of '" + user.getUUID().toString() + "' to '" + lastLogout + "'.");
 			return true;
 
 		} catch (SQLException e) {
-			Core.getInstance().log(LogType.WARNING, "Could not update lastLogout for user '" + user.getLastKnownName()
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not update lastLogout for user '" + user.getLastKnownName()
 					+ "' to '" + lastLogout + "'/SQL: " + e.getMessage());
 			return false;
 		}
@@ -189,7 +188,7 @@ public final class UserSystem {
 
 		// Return if enabled state is the same
 		if (user.isEnabled() && enabled || !user.isEnabled() && !enabled) {
-			Core.getInstance().log(LogType.DEBUG, "Did not update enabled state of user '" + user.getUUID().toString()
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update enabled state of user '" + user.getUUID().toString()
 					+ ": State is already set to '" + enabled + "'.");
 			return false;
 		}
@@ -203,12 +202,12 @@ public final class UserSystem {
 			stmt.setString(2, user.getUUID().toString());
 
 			stmt.execute();
-			Core.getInstance().log(LogType.DEBUG,
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Updated enabled state of '" + user.getUUID().toString() + "' to '" + enabled + "'.");
 			return true;
 
 		} catch (SQLException e) {
-			Core.getInstance().log(LogType.WARNING, "Could not update enabled state for user '"
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not update enabled state for user '"
 					+ user.getLastKnownName() + "' to '" + enabled + "'/SQL: " + e.getMessage());
 			return false;
 		}
