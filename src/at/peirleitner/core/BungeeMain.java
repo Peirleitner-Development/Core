@@ -1,6 +1,7 @@
 package at.peirleitner.core;
 
 import at.peirleitner.core.listener.network.LoginListener;
+import at.peirleitner.core.listener.network.PlayerDisconnectListener;
 import at.peirleitner.core.util.RunMode;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -22,6 +23,7 @@ public class BungeeMain extends Plugin {
 
 		// Listener
 		this.getProxy().getPluginManager().registerListener(this, new LoginListener());
+		this.getProxy().getPluginManager().registerListener(this, new PlayerDisconnectListener());
 
 	}
 

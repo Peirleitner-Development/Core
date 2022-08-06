@@ -10,7 +10,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.User;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.event.EventHandler;
 
 public class AsyncPlayerPreLoginListener implements Listener {
@@ -18,8 +17,6 @@ public class AsyncPlayerPreLoginListener implements Listener {
 	public AsyncPlayerPreLoginListener() {
 		SpigotMain.getInstance().getServer().getPluginManager().registerEvents(this, SpigotMain.getInstance());
 	}
-
-	private final String CONNECTION_DISALLOWED_USER_CANT_BE_VALIDATED = "Could not get User Object for your UUID: Connection disallowed (Local).";
 
 	@EventHandler
 	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
@@ -31,23 +28,22 @@ public class AsyncPlayerPreLoginListener implements Listener {
 		UUID uuid = e.getUniqueId();
 		User user = Core.getInstance().getUserSystem().getUser(uuid);
 
-		// Cancel connection if the User can't be validated
+		// Don't check for disabled accounts if the account doesn't even exist.
 		if (user == null) {
-			e.setLoginResult(Result.KICK_OTHER);
-			e.setKickMessage(ChatColor.RED + CONNECTION_DISALLOWED_USER_CANT_BE_VALIDATED);
-			Core.getInstance().log(this.getClass(), LogType.WARNING,
-					"Could not get User Object for UUID '" + uuid.toString() + "': Connection disallowed.");
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not get User Object for UUID '"
+					+ uuid.toString() + "': Not attempting to cancel disabled account login.");
 			return;
 		}
-		
+
 		// Cancel connection if the User's Account has been disabled
-		if(!user.isEnabled()) {
-			
+		if (!user.isEnabled()) {
+
 			e.setLoginResult(Result.KICK_OTHER);
-			e.setKickMessage("Account disabled"); //TODO:
-			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Disallowed connection for User '" + user.getUUID().toString() + "/" + user.getLastKnownName() + "': Account is disabled.");
+			e.setKickMessage("Account disabled"); // TODO:
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Disallowed connection for User '"
+					+ user.getUUID().toString() + "/" + user.getLastKnownName() + "': Account is disabled.");
 			return;
-			
+
 		}
 
 	}

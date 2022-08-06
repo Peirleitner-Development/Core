@@ -23,8 +23,9 @@ public class LoginListener implements Listener {
 	public void onLogin(LoginEvent e) {
 
 		// Tasks will only be performed if network-mode is enabled
-		if(!Core.getInstance().isNetwork()) return;
-		
+		if (!Core.getInstance().isNetwork())
+			return;
+
 		UUID uuid = e.getConnection().getUniqueId();
 
 		// Cancel connection if the UUID can't be validated
@@ -50,11 +51,13 @@ public class LoginListener implements Listener {
 					"Could not get User Object for UUID '" + uuid.toString() + "': Connection disallowed.");
 			return;
 		}
-		
+
 		// Check for User Account State
-		if(!user.isEnabled()) {
+		if (!user.isEnabled()) {
 			e.setCancelled(true);
-			e.setCancelReason(new TextComponent("Account disabled")); //TODO:
+			e.setCancelReason(new TextComponent("Account disabled")); // TODO:
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Disallowed connection for User '"
+					+ user.getUUID().toString() + "/" + user.getLastKnownName() + "': Account is disabled.");
 			return;
 		}
 
@@ -78,10 +81,15 @@ public class LoginListener implements Listener {
 			return;
 		}
 
-		if(!e.isCancelled()) {
+		if (!e.isCancelled()) {
 			Core.getInstance().getUserSystem().setLastLogin(user, System.currentTimeMillis());
+
+			if (Core.getInstance().getUserSystem().isCachingEnabled()) {
+				Core.getInstance().getUserSystem().getCachedUsers().add(user);
+			}
+
 		}
-		
+
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
 

@@ -35,7 +35,7 @@ public final class UserSystem {
 		
 		// Load Data into Cache
 		if(this.isCachingEnabled()) {
-			this.loadUsersFromDatabase();
+//			this.loadUsersFromDatabase(); - Don't load, just add/remove them on Join/Quit
 		}
 
 	}
@@ -70,7 +70,18 @@ public final class UserSystem {
 
 	}
 
+	/**
+	 * Load all Users from the Database inside the {@link #getCachedUsers()} collection.
+	 * @return If all Users have been moved inside the Cache
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote This should not be used. Players are cached and removed on Join/Quit, depending on the {@link Core#isNetwork()} mode.
+	 * @apiNote <b>This will override the existing {@link #getCachedUsers()} collection</b>.
+	 */
+	@SuppressWarnings("unused")
 	private final boolean loadUsersFromDatabase() {
+		
+		this.getCachedUsers().clear();
 		
 		try {
 			
@@ -169,7 +180,7 @@ public final class UserSystem {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	private final boolean isCachingEnabled() {
+	public final boolean isCachingEnabled() {
 		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting("system.user.enable-caching"));
 	}
 

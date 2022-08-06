@@ -63,6 +63,11 @@ public class PlayerJoinListener implements Listener {
 		
 		if(!Core.getInstance().isNetwork()) {
 			Core.getInstance().getUserSystem().setLastLogin(user, System.currentTimeMillis());
+			
+			if(Core.getInstance().getUserSystem().isCachingEnabled()) {
+				Core.getInstance().getUserSystem().getCachedUsers().add(user);
+			}
+			
 		}
 
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
