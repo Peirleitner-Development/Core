@@ -8,7 +8,8 @@ public class BungeeMain extends Plugin {
 
 	private static BungeeMain instance;
 
-	public BungeeMain() {
+	@Override
+	public void onEnable() {
 
 		if (!this.getDataFolder().exists()) {
 			this.getDataFolder().mkdir();

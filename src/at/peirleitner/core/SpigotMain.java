@@ -9,7 +9,12 @@ public class SpigotMain extends JavaPlugin {
 
 	private static SpigotMain instance;
 
-	public SpigotMain() {
+	@Override
+	public void onEnable() {
+		
+		if (!this.getDataFolder().exists()) {
+			this.getDataFolder().mkdir();
+		}
 		
 		// Initialize
 		instance = this;
