@@ -115,6 +115,7 @@ public class SettingsManager {
 		map.put(path + "is-network", "false");
 		map.put(path + "default-language", Language.ENGLISH.toString());
 		map.put(path + "log-with-simple-class-names", "true");
+		map.put(path + "maintenance", "false");
 
 		return map;
 	}

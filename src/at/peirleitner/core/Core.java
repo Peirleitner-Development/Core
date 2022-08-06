@@ -1,7 +1,10 @@
 package at.peirleitner.core;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +30,8 @@ public final class Core {
 	public static Core instance;
 	private final MySQL mysql;
 
+	public final String table_users = "users";
+	
 	// Manager
 	private SettingsManager settingsManager;
 
@@ -90,14 +95,26 @@ public final class Core {
 		final Connection connection = this.getMySQL().getConnection();
 		final String prefix = this.getMySQL().getTablePrefix();
 
+		final Collection<String> statements = new ArrayList<>();
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " ("
+				+ "uuid CHAR(36) NOT NULL, " 
+				+ "lastKnownName CHAR(16) NOT NULL, "
+				+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', " 
+				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "enabled BOOLEAN NOT NULL DEFAULT '1', " 
+				+ "language VARCHAR(50) NOT NULL DEFAULT '"
+				+ this.getDefaultLanguage().toString() + "', " 
+				+ "PRIMARY KEY (uuid));");
+		
 		try {
 
-			connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + prefix + "players ("
-					+ "uuid CHAR(36) NOT NULL, " + "lastKnownName CHAR(16) NOT NULL, "
-					+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-					+ "lastLogin BIGINT(255) NOT NULL, " + "lastLogout BIGINT(255) NOT NULL, "
-					+ "enabled BOOLEAN NOT NULL DEFAULT '1', " + "language VARCHAR(50) NOT NULL DEFAULT '"
-					+ this.getDefaultLanguage().toString() + "', " + "PRIMARY KEY (uuid));");
+			for(String s : statements) {
+				
+				PreparedStatement stmt = connection.prepareStatement(s);
+				stmt.execute();
+				
+			}
 
 		} catch (SQLException e) {
 			this.log(this.getClass(), LogType.ERROR, "Could not create MySQL Data Tables: " + e.getMessage());
