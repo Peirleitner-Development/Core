@@ -2,6 +2,7 @@ package at.peirleitner.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.util.RunMode;
 
@@ -24,6 +25,7 @@ public class SpigotMain extends JavaPlugin {
 
 		// Listener
 		new PlayerJoinListener();
+		new AsyncPlayerPreLoginListener();
 
 	}
 	

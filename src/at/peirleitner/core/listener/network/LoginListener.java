@@ -50,6 +50,13 @@ public class LoginListener implements Listener {
 					"Could not get User Object for UUID '" + uuid.toString() + "': Connection disallowed.");
 			return;
 		}
+		
+		// Check for User Account State
+		if(!user.isEnabled()) {
+			e.setCancelled(true);
+			e.setCancelReason(new TextComponent("Account disabled")); //TODO:
+			return;
+		}
 
 		// Check for network maintenance
 		if (this.isMaintenance()) {

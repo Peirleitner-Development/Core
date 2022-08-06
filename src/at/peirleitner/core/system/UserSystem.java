@@ -32,6 +32,11 @@ public final class UserSystem {
 
 		// Set default settings
 		Core.getInstance().getSettingsManager().setSetting("system.user.enable-caching", "true");
+		
+		// Load Data into Cache
+		if(this.isCachingEnabled()) {
+			this.loadUsersFromDatabase();
+		}
 
 	}
 
@@ -65,6 +70,27 @@ public final class UserSystem {
 
 	}
 
+	private final boolean loadUsersFromDatabase() {
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().getMySQL().getTablePrefix() + Core.getInstance().table_users);
+			ResultSet rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				this.getCachedUsers().add(this.getUserFromResultSet(rs));
+			}
+			
+			Core.getInstance().log(this.getClass(), LogType.INFO, "Cached " + this.getCachedUsers().size() + " Users from Database.");
+			return true;
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not load Users into Cache/SQL: " + e.getMessage());
+			return false;
+		}
+		
+	}
+	
 	private final User getUserFromResultSet(@Nonnull ResultSet rs) throws SQLException {
 
 		UUID uuid = UUID.fromString(rs.getString(1));
