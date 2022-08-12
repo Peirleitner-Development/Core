@@ -9,6 +9,7 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
@@ -34,6 +35,7 @@ public final class Core {
 	
 	// Manager
 	private SettingsManager settingsManager;
+	private LanguageManager languageManager;
 
 	// System
 	private UserSystem userSystem;
@@ -53,6 +55,9 @@ public final class Core {
 
 		// Manager
 		this.settingsManager = new SettingsManager(this.getPluginName());
+		this.languageManager = new LanguageManager(this.getPluginName());
+		
+		this.registerMessages();
 
 		// Database
 		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
@@ -222,6 +227,29 @@ public final class Core {
 	 */
 	public final SettingsManager getSettingsManager() {
 		return this.settingsManager;
+	}
+	
+	/**
+	 * 
+	 * @return Manager for Messages
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final LanguageManager getLanguageManager() {
+		return this.languageManager;
+	}
+	
+	private final void registerMessages() {
+		
+		if(this.getRunMode() == RunMode.NETWORK) {
+			
+		} else if(this.getRunMode() == RunMode.LOCAL) {
+			
+			// Listener
+			languageManager.registerNewMessage("listener.player-command-pre-process.unknown-command", "&7The command &f{0} &7could not be validated.");
+			
+		}
+		
 	}
 
 	// | System | \\

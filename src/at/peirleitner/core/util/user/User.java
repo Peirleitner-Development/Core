@@ -1,8 +1,15 @@
 package at.peirleitner.core.util.user;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import at.peirleitner.core.Core;
+import at.peirleitner.core.manager.LanguageManager;
+import at.peirleitner.core.util.RunMode;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * This class represents a User on the local server instance/network.
@@ -126,6 +133,30 @@ public final class User {
 	 */
 	public final void setLanguage(Language language) {
 		this.language = language;
+	}
+
+	public final void sendMessage(@Nonnull LanguageManager languageManager, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+
+		String message = languageManager.getMessage(key, replacements);
+
+		if (prefix) {
+			message = languageManager.getPrefix() + message;
+		}
+
+		if (Core.getInstance().getRunMode() == RunMode.NETWORK) {
+
+			net.md_5.bungee.api.connection.ProxiedPlayer pp = net.md_5.bungee.api.ProxyServer.getInstance()
+					.getPlayer(this.getUUID());
+			pp.sendMessage(
+					new net.md_5.bungee.api.chat.TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+
+		} else {
+
+			org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+
+		}
+
 	}
 
 }
