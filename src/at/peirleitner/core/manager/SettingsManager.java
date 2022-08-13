@@ -74,8 +74,8 @@ public class SettingsManager {
 				Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not create new Settings file: " + e.getMessage());
 			}
 		} else {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to create a new Settings file because one does already exist.");
+//			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+//					"Did not attempt to create a new Settings file because one does already exist.");
 		}
 
 	}

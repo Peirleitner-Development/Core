@@ -7,10 +7,12 @@ import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.local.LocalScoreboard;
 
 public class SpigotMain extends JavaPlugin {
 
 	private static SpigotMain instance;
+	private LocalScoreboard localScoreboard;
 
 	@Override
 	public void onEnable() {
@@ -22,7 +24,8 @@ public class SpigotMain extends JavaPlugin {
 		// Initialize
 		instance = this;
 		Core.instance = new Core(RunMode.LOCAL);
-
+		this.localScoreboard = new LocalScoreboard();
+		
 		// Commands
 
 		// Listener
@@ -44,6 +47,10 @@ public class SpigotMain extends JavaPlugin {
 
 	public static SpigotMain getInstance() {
 		return instance;
+	}
+	
+	public final LocalScoreboard getLocalScoreboard() {
+		return this.localScoreboard;
 	}
 
 }

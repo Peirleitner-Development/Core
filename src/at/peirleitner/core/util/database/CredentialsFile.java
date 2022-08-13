@@ -44,8 +44,8 @@ public class CredentialsFile {
 				return null;
 			}
 		} else {
-			Core.getInstance().log(pluginName, null, LogType.DEBUG,
-					"Did not attempt to create a new MySQL Data file because one does already exist.");
+//			Core.getInstance().log(pluginName, null, LogType.DEBUG,
+//					"Did not attempt to create a new MySQL Data file because one does already exist.");
 		}
 
 		return f;

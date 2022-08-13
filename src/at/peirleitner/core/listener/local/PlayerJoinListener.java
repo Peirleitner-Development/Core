@@ -72,6 +72,7 @@ public class PlayerJoinListener implements Listener {
 
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
+		SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
 
 	}
 

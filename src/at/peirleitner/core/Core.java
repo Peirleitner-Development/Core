@@ -9,6 +9,9 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.UserSystem;
@@ -30,6 +33,7 @@ public final class Core {
 	private final RunMode runMode;
 	public static Core instance;
 	private final MySQL mysql;
+	private final Gson gson;
 
 	public final String table_users = "users";
 	
@@ -52,6 +56,7 @@ public final class Core {
 		// Initialize
 		instance = this;
 		this.runMode = runMode;
+		this.gson = new GsonBuilder().setPrettyPrinting().create();
 
 		// Manager
 		this.settingsManager = new SettingsManager(this.getPluginName());
@@ -83,6 +88,16 @@ public final class Core {
 	 */
 	public final static Core getInstance() {
 		return instance;
+	}
+	
+	/**
+	 * 
+	 * @return Gson instance
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final Gson getGson() {
+		return this.gson;
 	}
 
 	/**

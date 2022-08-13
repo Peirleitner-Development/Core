@@ -118,8 +118,8 @@ public class LanguageManager {
 						"Could not create new Messages file: " + e.getMessage());
 			}
 		} else {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to create a new Messages file because one does already exist.");
+//			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+//					"Did not attempt to create a new Messages file because one does already exist.");
 		}
 
 	}
@@ -159,7 +159,7 @@ public class LanguageManager {
 
 		map.put("prefix", "&9Core> &f");
 		map.put("main.action-may-only-be-performed-by-a-player", "&7This action may only be performed by a player.");
-		map.put("main.no-permission", "&7You are missing the permission &f{0}&7.");
+		map.put("main.no-permission", "&cYou are not allowed to perform this action.");
 		map.put("main.action-requires-item-in-main-hand", "&7This action requires you to hold an item in your main hand.");
 
 		return map;
