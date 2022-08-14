@@ -366,5 +366,41 @@ public final class UserSystem {
 		}
 
 	}
+	
+	public final boolean setLanguage(@Nonnull User user, @Nonnull Language language) {
+
+		// Return if enabled state is the same
+		if (user.getLanguage() == language) {
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update language of user '"
+					+ user.getUUID().toString() + ": Language is already set to '" + language.toString() + "'.");
+			return false;
+		}
+
+		// Database Query
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
+							+ Core.getInstance().table_users + " SET language = ? WHERE uuid = ?");
+			stmt.setString(1, language.toString());
+			stmt.setString(2, user.getUUID().toString());
+
+			stmt.execute();
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Updated language of '" + user.getUUID().toString() + "' to '" + language.toString() + "'.");
+
+			if (this.isCachingEnabled()) {
+				user.setLanguage(language);
+			}
+
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not update language for user '"
+					+ user.getLastKnownName() + "' to '" + language.toString() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
 
 }

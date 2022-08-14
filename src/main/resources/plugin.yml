@@ -5,3 +5,8 @@ website: www.peirleitner.at
 api-version: 1.19
 
 main: at.peirleitner.core.SpigotMain
+
+commands:
+  language:
+    usage: </command>
+    description: Language Management

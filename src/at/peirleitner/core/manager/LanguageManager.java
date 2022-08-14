@@ -95,6 +95,12 @@ public class LanguageManager {
 		try {
 			p.load(new FileInputStream(this.getFile(pluginName, language)));
 		} catch (FileNotFoundException e) {
+			
+			if(language != this.getDefaultLanguage()) {
+//				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Plugin '" + pluginName + "' does not offer a translation for the language '" + language.toString() + "'.");
+				return this.getProperties(pluginName, this.getDefaultLanguage());
+			}
+			
 			this.createProperties(pluginName);
 			return this.getProperties(pluginName, language);
 		} catch (IOException e) {
@@ -238,6 +244,10 @@ public class LanguageManager {
 	public final boolean isMessageRegistered(@Nonnull String pluginName, @Nonnull Language language,
 			@Nonnull String key) {
 		return this.getProperties(pluginName, language).getProperty(key) == null ? false : true;
+	}
+	
+	public final String getMessage(@Nonnull PredefinedMessage predefinedMessage) {
+		return this.getMessage(Core.getInstance().getPluginName(), this.getDefaultLanguage(), predefinedMessage.getPath(), null);
 	}
 
 	public final String getMessage(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key,

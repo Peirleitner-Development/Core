@@ -4,7 +4,9 @@ import javax.annotation.Nonnull;
 
 public enum CorePermission {
 
-	MAIN_LOGIN_BYPASS_MAINTENANCE("core.login.bypass.maintenance");
+	MAIN_LOGIN_BYPASS_MAINTENANCE("core.login.bypass.maintenance"),
+	COMMAND_LANGUAGE("core.command.language")
+	;
 	
 	private String permission;
 	
