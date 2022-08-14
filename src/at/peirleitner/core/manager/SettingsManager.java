@@ -116,6 +116,17 @@ public class SettingsManager {
 		map.put(path + "default-language", Language.ENGLISH.toString());
 		map.put(path + "log-with-simple-class-names", "true");
 		map.put(path + "maintenance", "false");
+		map.put(path + "server-name", "Example.com");
+		map.put(path + "tab.header", 
+				"&8&m---------------------------------------\n"
+				+ "&9{0}\n"
+				+ "&7Global Players online&8: &f{1}&7/&f{2}\n"
+				+ "&7Current connected to&8: &f{3}\n");
+		map.put(path + "tab.footer", 
+				"\n"
+				+ "&7Server Help&8: &f/help\n"
+				+ "&7Online-Store&8: &f/store\n"
+				+ "&7Request Support&8: &f/support");
 
 		return map;
 	}

@@ -60,7 +60,7 @@ public final class Core {
 
 		// Manager
 		this.settingsManager = new SettingsManager(this.getPluginName());
-		this.languageManager = new LanguageManager(this.getPluginName());
+		this.languageManager = new LanguageManager();
 		
 		this.registerMessages();
 
@@ -261,7 +261,7 @@ public final class Core {
 		} else if(this.getRunMode() == RunMode.LOCAL) {
 			
 			// Listener
-			languageManager.registerNewMessage("listener.player-command-pre-process.unknown-command", "&7The command &f{0} &7could not be validated.");
+			languageManager.registerNewMessage(this.getPluginName(), "listener.player-command-pre-process.unknown-command", "&7The command &f{0} &7could not be validated.");
 			
 		}
 		

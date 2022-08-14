@@ -2,6 +2,7 @@ package at.peirleitner.core.manager;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
@@ -34,32 +35,11 @@ import at.peirleitner.core.util.user.User;
  */
 public class LanguageManager {
 
-	private boolean initialized = false;
-	private final String pluginName;
-	private Properties messages;
-
-	public LanguageManager(@Nonnull String pluginName) {
-
-		// Initialize
-		this.pluginName = pluginName;
+	public LanguageManager() {
 
 		// Create default data
 		this.createDirectory();
-		this.createProperties();
-		this.loadProperties(this.getDefaultLanguage());
 
-	}
-
-	public final String getPluginName() {
-		return this.pluginName;
-	}
-	
-	public final void setPrefix(@Nonnull String prefix) {
-		this.registerNewMessage(PredefinedMessage.PREFIX.getPath(), prefix);
-	}
-	
-	public final String getPrefix() {
-		return this.getMessage(PredefinedMessage.PREFIX.getPath(), null);
 	}
 
 	private final File getDataFolder() {
@@ -93,13 +73,27 @@ public class LanguageManager {
 
 	}
 
-	private final File getFile(@Nonnull Language language) {
-		return new File(this.getDirectory(language) + "/" + this.getPluginName() + ".properties");
+	private final File getFile(@Nonnull String pluginName, @Nonnull Language language) {
+		return new File(this.getDirectory(language) + "/" + pluginName + ".properties");
+	}
+	
+	private final Properties getProperties(@Nonnull String pluginName, @Nonnull Language language) {
+		Properties p = new Properties();
+		try {
+			p.load(new FileInputStream(this.getFile(pluginName, language)));
+		} catch (FileNotFoundException e) {
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not get Properties file for language '" + language.toString() + "': File not found.");
+			return null;
+		} catch (IOException e) {
+			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not get Properties file for language '" + language.toString() + "':" + e.getMessage());
+			return null;
+		}
+		return p;
 	}
 
-	private final void createProperties() {
+	private final void createProperties(@Nonnull String pluginName) {
 
-		File f = this.getFile(this.getDefaultLanguage());
+		File f = this.getFile(pluginName, this.getDefaultLanguage());
 
 		if (!f.exists()) {
 
@@ -110,8 +104,9 @@ public class LanguageManager {
 
 				f.createNewFile();
 				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Successfully created a new Messages file.");
-
-				this.loadProperties(this.getDefaultLanguage());
+				
+				// This will only set the default values for the default language
+				this.setDefaultValues(pluginName);
 
 			} catch (IOException e) {
 				Core.getInstance().log(this.getClass(), LogType.ERROR,
@@ -120,35 +115,6 @@ public class LanguageManager {
 		} else {
 //			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 //					"Did not attempt to create a new Messages file because one does already exist.");
-		}
-
-	}
-
-	private final void loadProperties(@Nonnull Language language) {
-
-		if (this.getFile(language) == null || !this.getFile(language).exists()) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to load messages file because none does exist.");
-			return;
-		}
-
-		if (this.initialized) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to load messages file because it has already been initialized.");
-			return;
-		}
-
-		try {
-
-			this.messages = new Properties();
-			this.messages.load(new FileInputStream(this.getFile(language)));
-			this.setDefaultValues();
-
-			this.initialized = true;
-
-		} catch (IOException e) {
-			Core.getInstance().log(this.getClass(), LogType.ERROR,
-					"Error while attempting to load Messages file: " + e.getMessage());
 		}
 
 	}
@@ -164,9 +130,9 @@ public class LanguageManager {
 
 		return map;
 	}
-
-	private final Properties getMessages() {
-		return this.messages;
+	
+	public final String getPrefix(@Nonnull String pluginName, @Nonnull Language language) {
+		return this.getMessage(pluginName, language, PredefinedMessage.PREFIX.getPath(), null);
 	}
 
 	/**
@@ -181,7 +147,7 @@ public class LanguageManager {
 		return Language.ENGLISH;
 	}
 
-	private final void setDefaultValues() {
+	private final void setDefaultValues(@Nonnull String pluginName) {
 
 		Language defaultLanguage = this.getDefaultLanguage();
 
@@ -189,16 +155,18 @@ public class LanguageManager {
 		if (!pluginName.equals(Core.getInstance().getPluginName()))
 			return;
 
-		if (this.getFile(defaultLanguage) == null || !this.getFile(defaultLanguage).exists()) {
+		if (!this.getFile(pluginName, defaultLanguage).exists()) {
 			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Did not attempt to set default values because Messages file does not exist.");
 			return;
 		}
+		
+		Properties p = this.getProperties(pluginName, defaultLanguage);
 
 		for (Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
 
-			if (!this.isMessageRegistered(entry.getKey())) {
-				this.getMessages().setProperty(entry.getKey(), entry.getValue());
+			if (!this.isMessageRegistered(pluginName, defaultLanguage, entry.getKey())) {
+				p.setProperty(entry.getKey(), entry.getValue());
 				Core.getInstance().log(this.getClass(), LogType.DEBUG,
 						"Messages: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "' (Main Default Values).");
 			}
@@ -214,7 +182,7 @@ public class LanguageManager {
 		Language language = this.getDefaultLanguage();
 
 		try {
-			this.getMessages().store(new FileWriter(this.getFile(language)),
+			this.getProperties(pluginName, language).store(new FileWriter(this.getFile(pluginName, language)),
 					"Last update on " + new Date(System.currentTimeMillis()));
 			return true;
 		} catch (IOException e) {
@@ -224,22 +192,33 @@ public class LanguageManager {
 
 	}
 
-	public final boolean registerNewMessage(@Nonnull String key, @Nonnull String value) {
+	/**
+	 * Register a new message for the {@link #getDefaultLanguage()}.
+	 * @param pluginName - Name of the plugin
+	 * @param key - Unique identifier
+	 * @param value - Message
+	 * @return If a new message has been registered
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see #isMessageRegistered(String, Language, String)
+	 * @apiNote This will fail if the message has already been registered
+	 */
+	public final boolean registerNewMessage(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
 
-		if (this.isMessageRegistered(key))
+		if (this.isMessageRegistered(pluginName, this.getDefaultLanguage(), key))
 			return false;
 
-		this.getMessages().setProperty(key, value);
+		this.getProperties(pluginName, this.getDefaultLanguage()).setProperty(key, value);
 		return this.save(pluginName);
 	}
 
-	public final boolean isMessageRegistered(@Nonnull String key) {
-		return this.getMessages().getProperty(key) == null ? false : true;
+	public final boolean isMessageRegistered(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key) {
+		return this.getProperties(pluginName, language).getProperty(key) == null ? false : true;
 	}
 
-	public final String getMessage(@Nonnull String key, @Nullable List<String> replacements) {
+	public final String getMessage(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key, @Nullable List<String> replacements) {
 
-		String message = this.getMessages().getProperty(key);
+		String message = this.getProperties(pluginName, language).getProperty(key);
 
 		if (replacements != null && !replacements.isEmpty()) {
 

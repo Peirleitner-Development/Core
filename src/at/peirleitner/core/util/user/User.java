@@ -135,12 +135,12 @@ public final class User {
 		this.language = language;
 	}
 
-	public final void sendMessage(@Nonnull LanguageManager languageManager, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+	public final void sendMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
 
-		String message = languageManager.getMessage(key, replacements);
+		String message = Core.getInstance().getLanguageManager().getMessage(pluginName, this.getLanguage(), key, replacements);
 
 		if (prefix) {
-			message = languageManager.getPrefix() + message;
+			message = Core.getInstance().getLanguageManager().getPrefix(pluginName, this.getLanguage()) + message;
 		}
 
 		if (Core.getInstance().getRunMode() == RunMode.NETWORK) {

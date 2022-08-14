@@ -18,27 +18,26 @@ public class PlayerCommandPreProcessListener implements Listener {
 	public PlayerCommandPreProcessListener() {
 		SpigotMain.getInstance().getServer().getPluginManager().registerEvents(this, SpigotMain.getInstance());
 	}
-	
+
 	@EventHandler
 	public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e) {
-		
+
 		Player p = e.getPlayer();
 		User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
 		String cmd = e.getMessage().split(" ")[0];
-		
+
 		HelpTopic ht = Bukkit.getHelpMap().getHelpTopic(cmd);
-		
-		if(ht == null) {
-			
+
+		if (ht == null) {
+
 			e.setCancelled(true);
-			
-			user.sendMessage(
-					Core.getInstance().getLanguageManager(),
-					"listener.player-command-pre-process.unknown-command", Arrays.asList(cmd), true);
+
+			user.sendMessage(Core.getInstance().getPluginName(), "listener.player-command-pre-process.unknown-command",
+					Arrays.asList(cmd), true);
 			return;
-			
+
 		}
-		
+
 	}
-	
+
 }
