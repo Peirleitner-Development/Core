@@ -118,12 +118,22 @@ public class SettingsManager {
 		map.put(path + "log-with-simple-class-names", "true");
 		map.put(path + "maintenance", "false");
 		map.put(path + "server-name", "Example.com");
+		map.put(path + "chat.use-core-chat-format", "true");
+		map.put(path + "chat.chat-format", "{player}&8: {message}");
 
 		return map;
 	}
 	
 	public final String getServerName() {
 		return this.getSetting(PredefinedMessage.SERVER_NAME.getPath());
+	}
+	
+	public final boolean isChatFormatEnabled() {
+		return Boolean.valueOf(this.getSetting("manager.settings.chat.use-core-chat-format"));
+	}
+	
+	public final String getChatFormat() {
+		return this.getSetting("manager.settings.chat.chat-format");
 	}
 
 	private final void setDefaultValues() {

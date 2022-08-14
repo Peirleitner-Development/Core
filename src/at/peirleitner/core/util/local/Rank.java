@@ -16,13 +16,15 @@ public class Rank {
 	private String name;
 	private String displayName;
 	private String color;
+	private RankType rankType;
 	private boolean isDefault;
 
-	public Rank(@Nonnull int priority, @Nonnull String name, @Nonnull String displayName, @Nonnull String color, @Nonnull boolean isDefault) {
+	public Rank(@Nonnull int priority, @Nonnull String name, @Nonnull String displayName, @Nonnull String color, @Nonnull RankType rankType, @Nonnull boolean isDefault) {
 		this.priority = priority;
 		this.name = name;
 		this.displayName = displayName;
 		this.color = color;
+		this.rankType = rankType;
 		this.isDefault = isDefault;
 	}
 
@@ -48,6 +50,10 @@ public class Rank {
 	
 	public String getColoredDisplayName() {
 		return ChatColor.of(this.getColor()) + this.getDisplayName();
+	}
+	
+	public RankType getRankType() {
+		return this.rankType;
 	}
 	
 	public boolean isDefault() {

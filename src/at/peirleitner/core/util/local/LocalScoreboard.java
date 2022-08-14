@@ -92,8 +92,8 @@ public class LocalScoreboard {
 				
 				// Fill with default values
 				List<Rank> defaultValues = new ArrayList<>();
-				defaultValues.add(new Rank(200, "Administrator", "Admin", "#7a0d05", false));
-				defaultValues.add(new Rank(100, "Player", "Player", "#8c8484", true));
+				defaultValues.add(new Rank(200, "Administrator", "Admin", "#7a0d05", RankType.STAFF, false));
+				defaultValues.add(new Rank(100, "Player", "Player", "#8c8484", RankType.USER, true));
 				
 				String s = Core.getInstance().getGson().toJson(defaultValues);
 				BufferedWriter bw = new BufferedWriter(new FileWriter(ranksFile));
@@ -108,6 +108,10 @@ public class LocalScoreboard {
 		
 		this.loadRanks();
 		
+	}
+	
+	public final List<Rank> getRanks() {
+		return this.ranks;
 	}
 
 	@SuppressWarnings("serial")
@@ -273,7 +277,7 @@ public class LocalScoreboard {
 		return this.getDefaultRank();
 	}
 	
-	private final Rank getDefaultRank() {
+	public final Rank getDefaultRank() {
 		
 		for(Rank rank : this.ranks) {
 			if(rank.isDefault()) return rank;
