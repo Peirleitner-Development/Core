@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -85,7 +86,7 @@ public class PlayerJoinListener implements Listener {
 			@Override
 			public void run() {
 				
-				p.setPlayerListHeader(getTabHeader(user));
+				p.setPlayerListHeaderFooter(getTabHeader(user), getTabFooter(user));
 				
 			}
 		}.runTaskAsynchronously(SpigotMain.getInstance());
@@ -97,7 +98,16 @@ public class PlayerJoinListener implements Listener {
 	}
 	
 	private final String getTabHeader(@Nonnull User user) {
-		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_HEADER.getPath(), Arrays.asList(""));
+		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_HEADER.getPath(), Arrays.asList(
+				Core.getInstance().getSettingsManager().getServerName(),
+				"" + Bukkit.getOnlinePlayers().size(),
+				"" + Bukkit.getMaxPlayers(),
+				Bukkit.getServer().getName()
+				));
+	}
+	
+	private final String getTabFooter(@Nonnull User user) {
+		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_FOOTER.getPath(), null);
 	}
 
 }

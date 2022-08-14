@@ -9,8 +9,8 @@ public enum PredefinedMessage {
 	NO_PERMISSION("main.no-permission"),
 	REQUIRES_ITEM_IN_MAIN_HAND("main.action-requires-item-in-main-hand"),
 	SERVER_NAME("manager.settings.server-name"),
-	TAB_HEADER("manager.settings.tab.header"),
-	TAB_FOOTER("manager.settings.tab.footer")
+	TAB_HEADER("tab.header"),
+	TAB_FOOTER("tab.footer")
 	;
 	
 	private final String path;

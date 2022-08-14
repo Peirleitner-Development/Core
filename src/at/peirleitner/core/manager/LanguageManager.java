@@ -22,6 +22,7 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * Manager for message handling.<br>
@@ -34,6 +35,18 @@ import at.peirleitner.core.util.user.User;
  *
  */
 public class LanguageManager {
+
+	private final String getMessageNotFoundString(@Nonnull String pluginName, @Nonnull String key) {
+		return "&cCould not get message key '&e" + key + "&c' for plugin '&e" + pluginName
+				+ "&c', please contact the administrator.";
+	}
+	
+	/**
+	 * Hosting that powers this server. Message can be replaced inside the language file.
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	private final String POWERED_BY_NAME = "Nayola.net";
 
 	public LanguageManager() {
 
@@ -76,16 +89,17 @@ public class LanguageManager {
 	private final File getFile(@Nonnull String pluginName, @Nonnull Language language) {
 		return new File(this.getDirectory(language) + "/" + pluginName + ".properties");
 	}
-	
+
 	private final Properties getProperties(@Nonnull String pluginName, @Nonnull Language language) {
 		Properties p = new Properties();
 		try {
 			p.load(new FileInputStream(this.getFile(pluginName, language)));
 		} catch (FileNotFoundException e) {
-			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not get Properties file for language '" + language.toString() + "': File not found.");
-			return null;
+			this.createProperties(pluginName);
+			return this.getProperties(pluginName, language);
 		} catch (IOException e) {
-			Core.getInstance().log(this.getClass(), LogType.WARNING, "Could not get Properties file for language '" + language.toString() + "':" + e.getMessage());
+			Core.getInstance().log(this.getClass(), LogType.WARNING,
+					"Could not get Properties file for language '" + language.toString() + "':" + e.getMessage());
 			return null;
 		}
 		return p;
@@ -104,7 +118,7 @@ public class LanguageManager {
 
 				f.createNewFile();
 				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Successfully created a new Messages file.");
-				
+
 				// This will only set the default values for the default language
 				this.setDefaultValues(pluginName);
 
@@ -126,11 +140,18 @@ public class LanguageManager {
 		map.put("prefix", "&9Core> &f");
 		map.put("main.action-may-only-be-performed-by-a-player", "&7This action may only be performed by a player.");
 		map.put("main.no-permission", "&cYou are not allowed to perform this action.");
-		map.put("main.action-requires-item-in-main-hand", "&7This action requires you to hold an item in your main hand.");
+		map.put("main.action-requires-item-in-main-hand",
+				"&7This action requires you to hold an item in your main hand.");
+		map.put("tab.header", "&8&m---------------------------------------\n" + "&9{0}\n\n"
+				+ "&7Global Players online&8: &f{1}&7/&f{2}\n" + "&7Currently connected to&8: &f{3}\n");
+		map.put("tab.footer", "\n" + "&7Server Help&8: &f/help\n" + "&7Online-Store&8: &f/store\n"
+				+ "&7Request Support&8: &f/support\n\n"
+				+ "&7Powered by &9" + this.POWERED_BY_NAME
+				+ "\n&8&m---------------------------------------");
 
 		return map;
 	}
-	
+
 	public final String getPrefix(@Nonnull String pluginName, @Nonnull Language language) {
 		return this.getMessage(pluginName, language, PredefinedMessage.PREFIX.getPath(), null);
 	}
@@ -160,29 +181,29 @@ public class LanguageManager {
 					"Did not attempt to set default values because Messages file does not exist.");
 			return;
 		}
-		
+
 		Properties p = this.getProperties(pluginName, defaultLanguage);
 
 		for (Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
 
 			if (!this.isMessageRegistered(pluginName, defaultLanguage, entry.getKey())) {
 				p.setProperty(entry.getKey(), entry.getValue());
-				Core.getInstance().log(this.getClass(), LogType.DEBUG,
-						"Messages: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "' (Main Default Values).");
+				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Messages: Added default key '" + entry.getKey()
+						+ "' with value '" + entry.getValue() + "' (Main Default Values).");
 			}
 
 		}
 
-		this.save(pluginName);
+		this.save(pluginName, p);
 
 	}
 
-	private final boolean save(@Nonnull String pluginName) {
+	private final boolean save(@Nonnull String pluginName, @Nonnull Properties properties) {
 
 		Language language = this.getDefaultLanguage();
 
 		try {
-			this.getProperties(pluginName, language).store(new FileWriter(this.getFile(pluginName, language)),
+			properties.store(new FileWriter(this.getFile(pluginName, language)),
 					"Last update on " + new Date(System.currentTimeMillis()));
 			return true;
 		} catch (IOException e) {
@@ -194,9 +215,10 @@ public class LanguageManager {
 
 	/**
 	 * Register a new message for the {@link #getDefaultLanguage()}.
+	 * 
 	 * @param pluginName - Name of the plugin
-	 * @param key - Unique identifier
-	 * @param value - Message
+	 * @param key        - Unique identifier
+	 * @param value      - Message
 	 * @return If a new message has been registered
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
@@ -208,18 +230,45 @@ public class LanguageManager {
 		if (this.isMessageRegistered(pluginName, this.getDefaultLanguage(), key))
 			return false;
 
-		this.getProperties(pluginName, this.getDefaultLanguage()).setProperty(key, value);
-		return this.save(pluginName);
+		Properties p = this.getProperties(pluginName, this.getDefaultLanguage());
+		p.setProperty(key, value);
+		return this.save(pluginName, p);
 	}
 
-	public final boolean isMessageRegistered(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key) {
+	public final boolean isMessageRegistered(@Nonnull String pluginName, @Nonnull Language language,
+			@Nonnull String key) {
 		return this.getProperties(pluginName, language).getProperty(key) == null ? false : true;
 	}
 
-	public final String getMessage(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key, @Nullable List<String> replacements) {
+	public final String getMessage(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key,
+			@Nullable List<String> replacements) {
+
+		// Replace language to default one if the specified translation isn't available.
+		if (this.getFile(pluginName, language) == null) {
+			language = this.getDefaultLanguage();
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Could not get message key '" + key + "' of plugin '" + pluginName + "' for language '"
+							+ language.toString() + "', replacing it with default language '"
+							+ this.getDefaultLanguage().toString() + "'.");
+		}
 
 		String message = this.getProperties(pluginName, language).getProperty(key);
 
+		// Load default messages if the plugin is the core itself
+		if (message == null) {
+
+			if (pluginName.equals(Core.getInstance().getPluginName())) {
+				this.setDefaultValues(pluginName);
+				message = this.getProperties(pluginName, language).getProperty(key);
+			} else {
+				message = this.getMessageNotFoundString(pluginName, key);
+				Core.getInstance().log(this.getClass(), LogType.WARNING,
+						"Could not get message key '" + key + "' for plugin '" + pluginName + "': Non existent.");
+			}
+
+		}
+
+		// Replace if not empty
 		if (replacements != null && !replacements.isEmpty()) {
 
 			for (int i = 0; i < replacements.size(); i++) {
@@ -228,7 +277,7 @@ public class LanguageManager {
 
 		}
 
-		return message;
+		return ChatColor.translateAlternateColorCodes('&', message);
 	}
 
 }
