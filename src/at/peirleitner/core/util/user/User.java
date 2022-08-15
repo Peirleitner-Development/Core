@@ -175,5 +175,9 @@ public final class User {
 
 		return Core.getInstance().getDefaultRank();
 	}
+	
+	public final String getDisplayName() {
+		return this.getRank().getChatColor() + this.getLastKnownName();
+	}
 
 }
