@@ -16,6 +16,7 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 
@@ -120,6 +121,8 @@ public class SettingsManager {
 		map.put(path + "server-name", "Example.com");
 		map.put(path + "chat.use-core-chat-format", "true");
 		map.put(path + "chat.chat-format", "{player}&8: {message}");
+		map.put(path + "saveType", "-1");
+		map.put(path + "use-tab-header", "true");
 
 		return map;
 	}
@@ -134,6 +137,14 @@ public class SettingsManager {
 	
 	public final String getChatFormat() {
 		return this.getSetting("manager.settings.chat.chat-format");
+	}
+	
+	public final SaveType getSaveType() {
+		return Core.getInstance().getSaveTypeByID(Integer.valueOf(this.getSetting("manager.settings.saveType")));
+	}
+	
+	public final boolean isUseTabHeader() {
+		return Boolean.valueOf(this.getSetting("manager.settings.use-tab-header"));
 	}
 
 	private final void setDefaultValues() {
@@ -176,7 +187,7 @@ public class SettingsManager {
 				: SpigotMain.getInstance().getDataFolder();
 	}
 
-	private final File getFile() {
+	public final File getFile() {
 		return new File(this.getSettingsDirectory() + "/" + this.getPluginName() + ".properties");
 	}
 

@@ -2,24 +2,28 @@ package at.peirleitner.core.util.database;
 
 import javax.annotation.Nonnull;
 
-import org.bukkit.Material;
-
 public class SaveType {
 
-	private String name;
-	private Material icon;
+	private final int id;
+	private final String name;
+	private final String iconName;
 
-	public SaveType(@Nonnull String name, @Nonnull Material icon) {
+	public SaveType(@Nonnull int id, @Nonnull String name, @Nonnull String iconName) {
+		this.id = id;
 		this.name = name;
-		this.icon = icon;
+		this.iconName = iconName;
+	}
+
+	public final int getID() {
+		return id;
 	}
 
 	public final String getName() {
 		return name;
 	}
 
-	public final Material getIcon() {
-		return icon;
+	public final String getIconName() {
+		return iconName;
 	}
 
 }

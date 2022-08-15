@@ -129,7 +129,7 @@ public final class UserSystem {
 
 		// Return if the User has already been registered
 		if(this.isRegistered(uuid)) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not attempt to register new User for UUID '" + uuid.toString() + "': Player already registered.");
+//			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not attempt to register new User for UUID '" + uuid.toString() + "': Player already registered.");
 			return false;
 		}
 		

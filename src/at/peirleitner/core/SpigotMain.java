@@ -1,6 +1,12 @@
 package at.peirleitner.core;
 
+import java.util.Arrays;
+
+import javax.annotation.Nonnull;
+
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandLanguage;
@@ -12,6 +18,8 @@ import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.local.LocalScoreboard;
+import at.peirleitner.core.util.user.PredefinedMessage;
+import at.peirleitner.core.util.user.User;
 
 public class SpigotMain extends JavaPlugin {
 
@@ -41,6 +49,9 @@ public class SpigotMain extends JavaPlugin {
 		new PlayerQuitListener();
 		new PlayerCommandPreProcessListener();
 		new AsyncPlayerChatListener();
+		
+		// Run
+		this.startTabHeaderRunnable();
 
 	}
 	
@@ -76,6 +87,42 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.language.language-updated", "&7Your language has been updated to &f{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.language.language-not-found", "&cCould not validate language &e{0}&c. Available&8: &e{1}&c.");
 		
+	}
+	
+	private final void startTabHeaderRunnable() {
+		
+		if(!Core.getInstance().isNetwork() && Core.getInstance().getSettingsManager().isUseTabHeader()) {
+			
+			new BukkitRunnable() {
+				
+				@Override
+				public void run() {
+					
+					Bukkit.getOnlinePlayers().forEach(player -> {
+						
+						User user = Core.getInstance().getUserSystem().getUser(player.getUniqueId());
+						player.setPlayerListHeaderFooter(getTabHeader(user), getTabFooter(user));
+						
+					});
+					
+				}
+			}.runTaskTimerAsynchronously(this, 20L * 2, 20L * 2);
+			
+		}
+		
+	}
+	
+	private final String getTabHeader(@Nonnull User user) {
+		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_HEADER.getPath(), Arrays.asList(
+				Core.getInstance().getSettingsManager().getServerName(),
+				"" + Bukkit.getOnlinePlayers().size(),
+				"" + Bukkit.getMaxPlayers(),
+				Bukkit.getServer().getName()
+				));
+	}
+	
+	private final String getTabFooter(@Nonnull User user) {
+		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_FOOTER.getPath(), null);
 	}
 
 }

@@ -1,21 +1,14 @@
 package at.peirleitner.core.listener.local;
 
-import java.util.Arrays;
-
-import javax.annotation.Nonnull;
-
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.CorePermission;
-import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
 
@@ -67,47 +60,24 @@ public class PlayerJoinListener implements Listener {
 					"Could not get User Object for UUID '" + p.getUniqueId().toString() + "': Connection disallowed.");
 			return;
 		}
-		
-		if(!Core.getInstance().isNetwork()) {
+
+		if (!Core.getInstance().isNetwork()) {
 			Core.getInstance().getUserSystem().setLastLogin(user, System.currentTimeMillis());
-			
-			if(Core.getInstance().getUserSystem().isCachingEnabled()) {
+
+			if (Core.getInstance().getUserSystem().isCachingEnabled()) {
 				Core.getInstance().getUserSystem().getCachedUsers().add(user);
 			}
-			
+
 		}
 
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
 		SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
-		
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() {
-				
-				p.setPlayerListHeaderFooter(getTabHeader(user), getTabFooter(user));
-				
-			}
-		}.runTaskAsynchronously(SpigotMain.getInstance());
 
 	}
 
 	private final boolean isMaintenance() {
 		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting("manager.settings.maintenance"));
-	}
-	
-	private final String getTabHeader(@Nonnull User user) {
-		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_HEADER.getPath(), Arrays.asList(
-				Core.getInstance().getSettingsManager().getServerName(),
-				"" + Bukkit.getOnlinePlayers().size(),
-				"" + Bukkit.getMaxPlayers(),
-				Bukkit.getServer().getName()
-				));
-	}
-	
-	private final String getTabFooter(@Nonnull User user) {
-		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_FOOTER.getPath(), null);
 	}
 
 }

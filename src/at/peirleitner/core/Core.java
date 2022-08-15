@@ -2,6 +2,7 @@ package at.peirleitner.core;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,13 +10,12 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.bukkit.Material;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
@@ -37,18 +37,20 @@ public final class Core {
 	public static Core instance;
 	private final MySQL mysql;
 	private final Gson gson;
+	private Collection<SaveType> saveTypes;
 
 	public final String table_saveType = "saveType";
 	public final String table_users = "users";
 	public final String table_stats = "stats";
 	public final String table_shop = "shop";
-	
+
 	// Manager
 	private SettingsManager settingsManager;
 	private LanguageManager languageManager;
 
 	// System
 	private UserSystem userSystem;
+	private StatSystem statSystem;
 
 	/**
 	 * Create a new Instance
@@ -63,27 +65,42 @@ public final class Core {
 		instance = this;
 		this.runMode = runMode;
 		this.gson = new GsonBuilder().setPrettyPrinting().create();
+		this.saveTypes = new ArrayList<>();
 
 		// Manager
 		this.settingsManager = new SettingsManager(this.getPluginName());
 		this.languageManager = new LanguageManager();
-		
+
 		this.registerMessages();
 
 		// Database
 		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
 
 		if (!mysql.isConnected()) {
-			this.log(this.getClass(), LogType.CRITICAL, "Could not connect towards MySQL Database, Plugin will not work as intended.");
+			this.log(this.getClass(), LogType.CRITICAL,
+					"Could not connect towards MySQL Database, Plugin will not work as intended.");
 			return;
 		}
 
 		this.createTables();
+		this.loadSaveTypes();
 
 		// System
 		this.userSystem = new UserSystem();
-		
-		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode + ". Network-Mode is set to " + this.isNetwork() + ".");
+		this.statSystem = new StatSystem();
+
+		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
+				+ ". Network-Mode is set to " + this.isNetwork() + ".");
+
+		// Checks
+		if (this.getSettingsManager().getSaveType() == null) {
+			this.log(this.getClass(), LogType.WARNING,
+					"SaveType has not been set inside '" + this.getSettingsManager().getFile().getPath()
+							+ "', database interaction will not work on some systems until this has been set.");
+		} else {
+			this.log(this.getClass(), LogType.INFO, "Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
+		}
+
 	}
 
 	/**
@@ -95,7 +112,7 @@ public final class Core {
 	public final static Core getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * 
 	 * @return Gson instance
@@ -116,6 +133,18 @@ public final class Core {
 		return this.mysql;
 	}
 
+	public Collection<SaveType> getSaveTypes() {
+		return this.saveTypes;
+	}
+
+	public SaveType getSaveTypeByName(@Nonnull String name) {
+		return this.saveTypes.stream().filter(st -> st.getName().equalsIgnoreCase(name)).findAny().orElse(null);
+	}
+	
+	public SaveType getSaveTypeByID(@Nonnull int id) {
+		return this.saveTypes.stream().filter(st -> st.getID() == id).findAny().orElse(null);
+	}
+
 	private final void createTables() {
 
 		final Connection connection = this.getMySQL().getConnection();
@@ -123,34 +152,26 @@ public final class Core {
 
 		final Collection<String> statements = new ArrayList<>();
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "("
-				+ "name VARCHAR(50) NOT NULL, "
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "PRIMARY KEY (name));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " ("
-				+ "uuid CHAR(36) NOT NULL, " 
-				+ "lastKnownName CHAR(16) NOT NULL, "
-				+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-				+ "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', " 
-				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', "
-				+ "enabled BOOLEAN NOT NULL DEFAULT '1', " 
-				+ "language VARCHAR(50) NOT NULL DEFAULT '"
-				+ this.getDefaultLanguage().toString() + "', " 
+				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "PRIMARY KEY (id));");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
+				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
+				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', " + "enabled BOOLEAN NOT NULL DEFAULT '1', "
+				+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getDefaultLanguage().toString() + "', "
 				+ "PRIMARY KEY (uuid));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " ("
-				+ "uuid CHAR(36) NOT NULL, "
-				+ "saveType VARCHAR(50) NOT NULL, "
-				+ "statistic VARCHAR(50) NOT NULL, "
-				+ "amount INT NOT NULL DEFAULT '-1', "
-				+ "PRIMARY KEY (uuid, saveType, statistic), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(name));");
-		
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " (" + "uuid CHAR(36) NOT NULL, "
+				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
+				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
+				+ this.table_saveType + "(id));");
+
 		try {
 
-			for(String s : statements) {
-				
+			for (String s : statements) {
+
 				PreparedStatement stmt = connection.prepareStatement(s);
 				stmt.execute();
-				
+
 			}
 
 		} catch (SQLException e) {
@@ -158,37 +179,78 @@ public final class Core {
 		}
 
 	}
-	
+
 	public final void createDefaultSaveTypes() {
-		
-		if(!this.getMySQL().isConnected()) {
-			this.log(this.getClass(), LogType.WARNING, "Could not create default SaveTypes: Connection towards MySQL Database is not established.");
+
+		if (!this.getMySQL().isConnected()) {
+			this.log(this.getClass(), LogType.WARNING,
+					"Could not create default SaveTypes: Connection towards MySQL Database is not established.");
 			return;
 		}
-		
+
+		if (!this.getSaveTypes().isEmpty()) {
+			this.log(this.getClass(), LogType.WARNING,
+					"Did not allow to create default SaveTypes because some do already exist.");
+			return;
+		}
+
 		Collection<SaveType> defaultSaveTypes = new ArrayList<>(4);
-		defaultSaveTypes.add(new SaveType("SkyBlock", Material.GRASS_BLOCK));
-		defaultSaveTypes.add(new SaveType("CityBuild", Material.IRON_PICKAXE));
-		defaultSaveTypes.add(new SaveType("KnockOut", Material.STICK));
-		defaultSaveTypes.add(new SaveType("BedWars", Material.RED_BED));
-		
-		for(SaveType st : defaultSaveTypes) {
-			
+		defaultSaveTypes.add(new SaveType(0, "SkyBlock", "GRASS_BLOCK"));
+		defaultSaveTypes.add(new SaveType(0, "CityBuild", "IRON_PICKAXE"));
+		defaultSaveTypes.add(new SaveType(0, "KnockOut", "STICK"));
+		defaultSaveTypes.add(new SaveType(0, "BedWars", "RED_BED"));
+
+		for (SaveType st : defaultSaveTypes) {
+
 			try {
-				
-				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO " + this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon) VALUES (?, ?);");
+
+				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
+						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon) VALUES (?, ?);");
 				stmt.setString(1, st.getName());
-				stmt.setString(2, st.getIcon().toString());
-				
+				stmt.setString(2, st.getIconName());
+
 				stmt.execute();
-				this.log(this.getClass(), LogType.INFO, "Created default SaveType '" + st.getName() + "' with icon '" + st.getIcon().toString() + "'.");
-				
+				this.log(this.getClass(), LogType.INFO,
+						"Created default SaveType '" + st.getName() + "' with icon '" + st.getIconName() + "'.");
+
 			} catch (SQLException e) {
 				this.log(this.getClass(), LogType.ERROR, "Could not create default SaveTypes/SQL: " + e.getMessage());
 			}
-			
+
 		}
-		
+
+		this.loadSaveTypes();
+
+	}
+
+	private final void loadSaveTypes() {
+
+		this.saveTypes.clear();
+
+		try {
+
+			PreparedStatement stmt = this.getMySQL().getConnection()
+					.prepareStatement("SELECT * FROM " + this.getMySQL().getTablePrefix() + this.table_saveType);
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				String iconName = rs.getString(3);
+
+				SaveType st = new SaveType(id, name, iconName);
+				this.saveTypes.add(st);
+
+				this.log(this.getClass(), LogType.DEBUG, "Loaded SaveType '" + st.getIconName() + "' with name '"
+						+ st.getName() + "' and icon '" + st.getIconName() + "'.");
+
+			}
+
+		} catch (SQLException e) {
+			this.log(this.getClass(), LogType.ERROR, "Could not load SaveTypes from Database/SQL: " + e.getMessage());
+		}
+
 	}
 
 	/**
@@ -214,9 +276,12 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see #log(LogType, String)
 	 */
-	public final void log(@Nonnull String pluginName, @Nullable Class<?> c, @Nonnull LogType level, @Nonnull String message) {
+	public final void log(@Nonnull String pluginName, @Nullable Class<?> c, @Nonnull LogType level,
+			@Nonnull String message) {
 
-		final String logMessage = "[" + pluginName + "/" + (c == null ? "?" : this.logWithSimpleClassNames() ? c.getSimpleName() : c.getName()) + "/" + level.toString() + "] " + message;
+		final String logMessage = "[" + pluginName + "/"
+				+ (c == null ? "?" : this.logWithSimpleClassNames() ? c.getSimpleName() : c.getName()) + "/"
+				+ level.toString() + "] " + message;
 
 		if (this.getRunMode() == RunMode.LOCAL) {
 			org.bukkit.Bukkit.getConsoleSender().sendMessage(level.getColor() + logMessage);
@@ -273,12 +338,12 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final Language getDefaultLanguage() {
-		return Language
-				.valueOf(this.getSettingsManager().getSetting("manager.settings.default-language"));
+		return Language.valueOf(this.getSettingsManager().getSetting("manager.settings.default-language"));
 	}
-	
+
 	public final boolean logWithSimpleClassNames() {
-		return this.getSettingsManager() == null ? true : Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.log-with-simple-class-names"));
+		return this.getSettingsManager() == null ? true
+				: Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.log-with-simple-class-names"));
 	}
 
 	// | Manager | \\
@@ -292,7 +357,7 @@ public final class Core {
 	public final SettingsManager getSettingsManager() {
 		return this.settingsManager;
 	}
-	
+
 	/**
 	 * 
 	 * @return Manager for Messages
@@ -302,18 +367,20 @@ public final class Core {
 	public final LanguageManager getLanguageManager() {
 		return this.languageManager;
 	}
-	
+
 	private final void registerMessages() {
-		
-		if(this.getRunMode() == RunMode.NETWORK) {
-			
-		} else if(this.getRunMode() == RunMode.LOCAL) {
-			
+
+		if (this.getRunMode() == RunMode.NETWORK) {
+
+		} else if (this.getRunMode() == RunMode.LOCAL) {
+
 			// Listener
-			languageManager.registerNewMessage(this.getPluginName(), "listener.player-command-pre-process.unknown-command", "&7The command &f{0} &7could not be validated.");
-			
+			languageManager.registerNewMessage(this.getPluginName(),
+					"listener.player-command-pre-process.unknown-command",
+					"&7The command &f{0} &7could not be validated.");
+
 		}
-		
+
 	}
 
 	// | System | \\
@@ -326,6 +393,16 @@ public final class Core {
 	 */
 	public final UserSystem getUserSystem() {
 		return this.userSystem;
+	}
+
+	/**
+	 * 
+	 * @return System for Statistics
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final StatSystem getStatSystem() {
+		return this.statSystem;
 	}
 
 }
