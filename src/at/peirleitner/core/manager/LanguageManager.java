@@ -289,5 +289,24 @@ public class LanguageManager {
 
 		return ChatColor.translateAlternateColorCodes('&', message);
 	}
+	
+	public final void broadcastMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+		
+		if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
+			
+			for(org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+				
+				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
+				user.sendMessage(pluginName, key, replacements, prefix);
+				
+			}
+			
+		}
+		
+	}
+	
+	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements) {
+		//TODO: To all that have a special permission
+	}
 
 }
