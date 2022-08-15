@@ -2,6 +2,7 @@ package at.peirleitner.core;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -32,6 +33,7 @@ public class SpigotMain extends JavaPlugin {
 		
 		// Commands
 		new CommandLanguage();
+		new CommandCore();
 
 		// Listener
 		new PlayerJoinListener();
@@ -65,6 +67,11 @@ public class SpigotMain extends JavaPlugin {
 		String pluginName = Core.getInstance().getPluginName();
 		
 		// Command
+		languageManager.registerNewMessage(pluginName, "command.core.syntax", "&fCore Management\n"
+				+ "&f/core\n"
+				+ "  &9loadDefaultSaveTypes &7- &fLoad default SaveTypes");
+		languageManager.registerNewMessage(pluginName, "command.core.loadDefaultSaveTypes.info", "&7Loading of default SaveTypes has been finished, see console for further details.");
+		
 		languageManager.registerNewMessage(pluginName, "command.language.current-language", "&7Current language&8: &f{0}&7. Use &f/language <New Language> &7to change it. Available&8: &f{1}&7.");
 		languageManager.registerNewMessage(pluginName, "command.language.language-updated", "&7Your language has been updated to &f{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.language.language-not-found", "&cCould not validate language &e{0}&c. Available&8: &e{1}&c.");

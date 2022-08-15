@@ -9,6 +9,8 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.bukkit.Material;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -19,6 +21,7 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
+import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.User;
 
@@ -35,7 +38,10 @@ public final class Core {
 	private final MySQL mysql;
 	private final Gson gson;
 
+	public final String table_saveType = "saveType";
 	public final String table_users = "users";
+	public final String table_stats = "stats";
+	public final String table_shop = "shop";
 	
 	// Manager
 	private SettingsManager settingsManager;
@@ -116,6 +122,10 @@ public final class Core {
 		final String prefix = this.getMySQL().getTablePrefix();
 
 		final Collection<String> statements = new ArrayList<>();
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "("
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "PRIMARY KEY (name));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " ("
 				+ "uuid CHAR(36) NOT NULL, " 
 				+ "lastKnownName CHAR(16) NOT NULL, "
@@ -126,6 +136,13 @@ public final class Core {
 				+ "language VARCHAR(50) NOT NULL DEFAULT '"
 				+ this.getDefaultLanguage().toString() + "', " 
 				+ "PRIMARY KEY (uuid));");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " ("
+				+ "uuid CHAR(36) NOT NULL, "
+				+ "saveType VARCHAR(50) NOT NULL, "
+				+ "statistic VARCHAR(50) NOT NULL, "
+				+ "amount INT NOT NULL DEFAULT '-1', "
+				+ "PRIMARY KEY (uuid, saveType, statistic), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(name));");
 		
 		try {
 
@@ -140,6 +157,38 @@ public final class Core {
 			this.log(this.getClass(), LogType.ERROR, "Could not create MySQL Data Tables: " + e.getMessage());
 		}
 
+	}
+	
+	public final void createDefaultSaveTypes() {
+		
+		if(!this.getMySQL().isConnected()) {
+			this.log(this.getClass(), LogType.WARNING, "Could not create default SaveTypes: Connection towards MySQL Database is not established.");
+			return;
+		}
+		
+		Collection<SaveType> defaultSaveTypes = new ArrayList<>(4);
+		defaultSaveTypes.add(new SaveType("SkyBlock", Material.GRASS_BLOCK));
+		defaultSaveTypes.add(new SaveType("CityBuild", Material.IRON_PICKAXE));
+		defaultSaveTypes.add(new SaveType("KnockOut", Material.STICK));
+		defaultSaveTypes.add(new SaveType("BedWars", Material.RED_BED));
+		
+		for(SaveType st : defaultSaveTypes) {
+			
+			try {
+				
+				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO " + this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon) VALUES (?, ?);");
+				stmt.setString(1, st.getName());
+				stmt.setString(2, st.getIcon().toString());
+				
+				stmt.execute();
+				this.log(this.getClass(), LogType.INFO, "Created default SaveType '" + st.getName() + "' with icon '" + st.getIcon().toString() + "'.");
+				
+			} catch (SQLException e) {
+				this.log(this.getClass(), LogType.ERROR, "Could not create default SaveTypes/SQL: " + e.getMessage());
+			}
+			
+		}
+		
 	}
 
 	/**
