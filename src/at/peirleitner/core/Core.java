@@ -80,6 +80,7 @@ public final class Core {
 		this.saveTypes = new ArrayList<>();
 		this.ranks = new ArrayList<>();
 		this.ranksFile = new File(this.getDataFolder().getPath() + "/ranks.json");
+		this.loadRanks();
 
 		// Manager
 		this.settingsManager = new SettingsManager();
