@@ -203,6 +203,10 @@ public class SettingsManager {
 	public final String getSetting(@Nonnull String key) {
 		return this.getProperties().getProperty(key);
 	}
+	
+	public final boolean isSetting(@Nonnull String key) 	{
+		return Boolean.valueOf(this.getSetting(key));
+	}
 
 	public final boolean removeSetting(@Nonnull String key) {
 		this.getProperties().remove(key);
