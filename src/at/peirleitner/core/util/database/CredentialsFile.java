@@ -7,19 +7,13 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-import at.peirleitner.core.BungeeMain;
 import at.peirleitner.core.Core;
-import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
-import at.peirleitner.core.util.RunMode;
 
 public class CredentialsFile {
 
-	public final static File getCredentialsFile(@Nonnull String pluginName) {
+	public final static File getCredentialsFile(@Nonnull String pluginName, @Nonnull String path) {
 
-		RunMode runMode = Core.getInstance().getRunMode();
-		File path = runMode == RunMode.LOCAL ? SpigotMain.getInstance().getDataFolder()
-				: BungeeMain.getInstance().getDataFolder();
 		File f = new File(path + "/mysql.yml");
 
 		if (!f.exists()) {

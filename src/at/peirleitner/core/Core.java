@@ -1,5 +1,6 @@
 package at.peirleitner.core;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -74,7 +75,7 @@ public final class Core {
 		this.registerMessages();
 
 		// Database
-		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName()));
+		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName(), this.getDataFolder().getPath()));
 
 		if (!mysql.isConnected()) {
 			this.log(this.getClass(), LogType.CRITICAL,
@@ -131,6 +132,10 @@ public final class Core {
 	 */
 	public final MySQL getMySQL() {
 		return this.mysql;
+	}
+	
+	public final File getDataFolder() {
+		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDataFolder() : BungeeMain.getInstance().getDataFolder();
 	}
 
 	public Collection<SaveType> getSaveTypes() {
