@@ -305,6 +305,22 @@ public class LanguageManager {
 		
 	}
 	
+	public final void sendMessage(@Nonnull org.bukkit.command.CommandSender cs, @Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+		
+		if(cs instanceof org.bukkit.entity.Player) {
+			
+			org.bukkit.entity.Player p = (org.bukkit.entity.Player) cs;
+			User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
+			user.sendMessage(pluginName, key, replacements, prefix);
+			return;
+			
+		}
+		
+		String message = this.getMessage(pluginName, getDefaultLanguage(), key, replacements);
+		cs.sendMessage((prefix ? getPrefix(pluginName, getDefaultLanguage()) : "") + message);
+		
+	}
+	
 	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements) {
 		//TODO: To all that have a special permission
 	}
