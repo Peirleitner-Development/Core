@@ -96,7 +96,7 @@ public class LoginListener implements Listener {
 	}
 
 	private final boolean isMaintenance() {
-		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting("manager.settings.maintenance"));
+		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "manager.settings.maintenance"));
 	}
 
 }

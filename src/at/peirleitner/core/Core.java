@@ -69,7 +69,7 @@ public final class Core {
 		this.saveTypes = new ArrayList<>();
 
 		// Manager
-		this.settingsManager = new SettingsManager(this.getPluginName());
+		this.settingsManager = new SettingsManager();
 		this.languageManager = new LanguageManager();
 
 		this.registerMessages();
@@ -96,7 +96,7 @@ public final class Core {
 		// Checks
 		if (this.getSettingsManager().getSaveType() == null) {
 			this.log(this.getClass(), LogType.WARNING,
-					"SaveType has not been set inside '" + this.getSettingsManager().getFile().getPath()
+					"SaveType has not been set inside '" + this.getSettingsManager().getFile(this.getPluginName()).getPath()
 							+ "', database interaction will not work on some systems until this has been set.");
 		} else {
 			this.log(this.getClass(), LogType.INFO, "Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
@@ -332,7 +332,7 @@ public final class Core {
 	 *          only running one server instance, set this to <b>false</b>.
 	 */
 	public final boolean isNetwork() {
-		return Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.is-network"));
+		return Boolean.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.is-network"));
 	}
 
 	/**
@@ -343,12 +343,12 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final Language getDefaultLanguage() {
-		return Language.valueOf(this.getSettingsManager().getSetting("manager.settings.default-language"));
+		return Language.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.default-language"));
 	}
 
 	public final boolean logWithSimpleClassNames() {
 		return this.getSettingsManager() == null ? true
-				: Boolean.valueOf(this.getSettingsManager().getSetting("manager.settings.log-with-simple-class-names"));
+				: Boolean.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.log-with-simple-class-names"));
 	}
 
 	// | Manager | \\

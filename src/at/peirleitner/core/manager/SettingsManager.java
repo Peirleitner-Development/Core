@@ -2,6 +2,7 @@ package at.peirleitner.core.manager;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
@@ -11,11 +12,8 @@ import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
-import at.peirleitner.core.BungeeMain;
 import at.peirleitner.core.Core;
-import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
-import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
@@ -28,23 +26,8 @@ import at.peirleitner.core.util.user.PredefinedMessage;
  */
 public class SettingsManager {
 
-	private final String pluginName;
-	private Properties properties;
-	private boolean initialized = false;
-
-	// TODO: Core/settings/<Plugin>.properties - Save to file with pluginName
-	public SettingsManager(@Nonnull String pluginName) {
-
-		this.pluginName = pluginName;
+	public SettingsManager() {
 		this.createSettingsDirectory();
-
-		this.createProperties();
-		this.loadProperties();
-
-	}
-	
-	private final String getPluginName() {
-		return this.pluginName;
 	}
 
 	private final File getSettingsDirectory() {
@@ -57,54 +40,29 @@ public class SettingsManager {
 		}
 	}
 
-	private final void createProperties() {
+	private final void createProperties(@Nonnull String pluginName) {
 
-		File f = this.getFile();
+		File f = this.getFile(pluginName);
 
 		if (!f.exists()) {
 
-			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Could not find file '" + f.getName() + "', attempting to create..");
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Could not find file '" + f.getName() + "', attempting to create..");
 
 			try {
 
 				f.createNewFile();
 				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Successfully created a new Settings file.");
 
-				this.loadProperties();
+				this.setDefaultValues(pluginName);
 
 			} catch (IOException e) {
-				Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not create new Settings file: " + e.getMessage());
+				Core.getInstance().log(this.getClass(), LogType.ERROR,
+						"Could not create new Settings file: " + e.getMessage());
 			}
 		} else {
 //			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 //					"Did not attempt to create a new Settings file because one does already exist.");
-		}
-
-	}
-
-	private final void loadProperties() {
-
-		if (this.getFile() == null || !this.getFile().exists()) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not attempt to load settings file because none does exist.");
-			return;
-		}
-
-		if (this.initialized) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to load settings file because it has already been initialized.");
-			return;
-		}
-
-		try {
-
-			this.properties = new Properties();
-			this.properties.load(new FileInputStream(this.getFile()));
-
-			this.setDefaultValues();
-			this.initialized = true;
-
-		} catch (IOException e) {
-			Core.getInstance().log(this.getClass(), LogType.ERROR, "Error while attempting to load Settings file: " + e.getMessage());
 		}
 
 	}
@@ -126,54 +84,59 @@ public class SettingsManager {
 
 		return map;
 	}
-	
+
 	public final String getServerName() {
-		return this.getSetting(PredefinedMessage.SERVER_NAME.getPath());
+		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_NAME.getPath());
 	}
-	
+
 	public final boolean isChatFormatEnabled() {
-		return Boolean.valueOf(this.getSetting("manager.settings.chat.use-core-chat-format"));
+		return Boolean.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.use-core-chat-format"));
 	}
-	
+
 	public final String getChatFormat() {
-		return this.getSetting("manager.settings.chat.chat-format");
+		return this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.chat-format");
 	}
-	
+
 	public final SaveType getSaveType() {
-		return Core.getInstance().getSaveTypeByID(Integer.valueOf(this.getSetting("manager.settings.saveType")));
+		return Core.getInstance().getSaveTypeByID(Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.saveType")));
 	}
-	
+
 	public final boolean isUseTabHeader() {
-		return Boolean.valueOf(this.getSetting("manager.settings.use-tab-header"));
+		return Boolean.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.use-tab-header"));
 	}
 
-	private final void setDefaultValues() {
+	private final void setDefaultValues(@Nonnull String pluginName) {
 
-		if (this.getFile() == null || !this.getFile().exists()) {
+		if (this.getFile(pluginName) == null || !this.getFile(pluginName).exists()) {
 			Core.getInstance().log(this.getClass(), LogType.DEBUG,
 					"Did not attempt to set default values because settings file does not exist.");
 			return;
 		}
 
+		// Only set default values for the Core Instance
+		if (!pluginName.equals(Core.getInstance().getPluginName()))
+			return;
+
+		Properties p = this.getProperties(pluginName);
+
 		for (Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
 
-			if (this.getProperties().get(entry.getKey()) == null) {
-				this.getProperties().setProperty(entry.getKey(), entry.getValue());
+			if (this.getProperties(pluginName).get(entry.getKey()) == null) {
+				p.setProperty(entry.getKey(), entry.getValue());
 				Core.getInstance().log(this.getClass(), LogType.DEBUG,
 						"Settings: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "'.");
 			}
 
 		}
 
-		this.save();
+		this.save(pluginName, p);
 
 	}
 
-	private final boolean save() {
+	private final boolean save(String pluginName, Properties p) {
 
 		try {
-			this.getProperties().store(new FileWriter(this.getFile()),
-					"Last update on " + new Date(System.currentTimeMillis()));
+			p.store(new FileWriter(this.getFile(pluginName)), "Last update on " + new Date(System.currentTimeMillis()));
 			return true;
 		} catch (IOException e) {
 			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not save Settings file: " + e.getMessage());
@@ -183,34 +146,46 @@ public class SettingsManager {
 	}
 
 	private final File getDataFolder() {
-		return Core.getInstance().getRunMode() == RunMode.NETWORK ? BungeeMain.getInstance().getDataFolder()
-				: SpigotMain.getInstance().getDataFolder();
+		return Core.getInstance().getDataFolder();
 	}
 
-	public final File getFile() {
-		return new File(this.getSettingsDirectory() + "/" + this.getPluginName() + ".properties");
+	public final File getFile(@Nonnull String pluginName) {
+		return new File(this.getSettingsDirectory() + "/" + pluginName + ".properties");
 	}
 
-	private final Properties getProperties() {
-		return this.properties;
+	private final Properties getProperties(@Nonnull String pluginName) {
+		Properties p = new Properties();
+		try {
+			p.load(new FileInputStream(this.getFile(pluginName)));
+		} catch (FileNotFoundException e) {
+			this.createProperties(pluginName);
+			return this.getProperties(pluginName);
+		} catch (IOException e) {
+			Core.getInstance().log(this.getClass(), LogType.WARNING,
+					"Could not get settings file for plugin '" + pluginName + "': " + e.getMessage());
+			return null;
+		}
+		return p;
 	}
 
-	public final boolean setSetting(@Nonnull String key, @Nonnull String value) {
-		this.getProperties().setProperty(key, value);
-		return this.save();
+	public final boolean setSetting(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
+		Properties p = this.getProperties(pluginName);
+		p.setProperty(key, value);
+		return this.save(pluginName, p);
 	}
 
-	public final String getSetting(@Nonnull String key) {
-		return this.getProperties().getProperty(key);
-	}
-	
-	public final boolean isSetting(@Nonnull String key) 	{
-		return Boolean.valueOf(this.getSetting(key));
+	public final String getSetting(@Nonnull String pluginName, @Nonnull String key) {
+		return this.getProperties(pluginName).getProperty(key);
 	}
 
-	public final boolean removeSetting(@Nonnull String key) {
-		this.getProperties().remove(key);
-		return this.save();
+	public final boolean isSetting(@Nonnull String pluginName, @Nonnull String key) {
+		return Boolean.valueOf(this.getSetting(pluginName, key));
+	}
+
+	public final boolean removeSetting(@Nonnull String pluginName, @Nonnull String key) {
+		Properties p = this.getProperties(pluginName);
+		p.remove(key);
+		return this.save(pluginName, p);
 	}
 
 }

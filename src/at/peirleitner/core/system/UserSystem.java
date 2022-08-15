@@ -31,7 +31,7 @@ public final class UserSystem {
 		this.cachedUsers = new ArrayList<>();
 
 		// Set default settings
-		Core.getInstance().getSettingsManager().setSetting("system.user.enable-caching", "true");
+		Core.getInstance().getSettingsManager().setSetting(Core.getInstance().getPluginName(), "system.user.enable-caching", "true");
 		
 		// Load Data into Cache
 		if(this.isCachingEnabled()) {
@@ -181,7 +181,7 @@ public final class UserSystem {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final boolean isCachingEnabled() {
-		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting("system.user.enable-caching"));
+		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "system.user.enable-caching"));
 	}
 
 	/**
