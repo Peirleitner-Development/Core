@@ -1,16 +1,23 @@
 package at.peirleitner.core;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -23,6 +30,8 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.local.Rank;
+import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.User;
 
@@ -39,6 +48,8 @@ public final class Core {
 	private final MySQL mysql;
 	private final Gson gson;
 	private Collection<SaveType> saveTypes;
+	private final Collection<Rank> ranks;
+	private File ranksFile;
 
 	public final String table_saveType = "saveType";
 	public final String table_users = "users";
@@ -67,6 +78,8 @@ public final class Core {
 		this.runMode = runMode;
 		this.gson = new GsonBuilder().setPrettyPrinting().create();
 		this.saveTypes = new ArrayList<>();
+		this.ranks = new ArrayList<>();
+		this.ranksFile = new File(this.getDataFolder().getPath() + "/ranks.json");
 
 		// Manager
 		this.settingsManager = new SettingsManager();
@@ -75,7 +88,8 @@ public final class Core {
 		this.registerMessages();
 
 		// Database
-		this.mysql = new MySQL(this.getPluginName(), CredentialsFile.getCredentialsFile(this.getPluginName(), this.getDataFolder().getPath()));
+		this.mysql = new MySQL(this.getPluginName(),
+				CredentialsFile.getCredentialsFile(this.getPluginName(), this.getDataFolder().getPath()));
 
 		if (!mysql.isConnected()) {
 			this.log(this.getClass(), LogType.CRITICAL,
@@ -96,10 +110,12 @@ public final class Core {
 		// Checks
 		if (this.getSettingsManager().getSaveType() == null) {
 			this.log(this.getClass(), LogType.WARNING,
-					"SaveType has not been set inside '" + this.getSettingsManager().getFile(this.getPluginName()).getPath()
+					"SaveType has not been set inside '"
+							+ this.getSettingsManager().getFile(this.getPluginName()).getPath()
 							+ "', database interaction will not work on some systems until this has been set.");
 		} else {
-			this.log(this.getClass(), LogType.INFO, "Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
+			this.log(this.getClass(), LogType.INFO,
+					"Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
 		}
 
 	}
@@ -133,9 +149,10 @@ public final class Core {
 	public final MySQL getMySQL() {
 		return this.mysql;
 	}
-	
+
 	public final File getDataFolder() {
-		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDataFolder() : BungeeMain.getInstance().getDataFolder();
+		return this.getRunMode() == RunMode.LOCAL ? SpigotMain.getInstance().getDataFolder()
+				: BungeeMain.getInstance().getDataFolder();
 	}
 
 	public Collection<SaveType> getSaveTypes() {
@@ -145,9 +162,93 @@ public final class Core {
 	public SaveType getSaveTypeByName(@Nonnull String name) {
 		return this.saveTypes.stream().filter(st -> st.getName().equalsIgnoreCase(name)).findAny().orElse(null);
 	}
-	
+
 	public SaveType getSaveTypeByID(@Nonnull int id) {
 		return this.saveTypes.stream().filter(st -> st.getID() == id).findAny().orElse(null);
+	}
+
+	@SuppressWarnings("serial")
+	private final void loadRanks() {
+
+		// Create
+		if (!this.ranksFile.exists()) {
+			try {
+
+				// Create File
+				this.ranksFile.createNewFile();
+
+				// Fill with default values
+				List<Rank> defaultValues = new ArrayList<>();
+				defaultValues.add(new Rank(200, "Administrator", "Admin", "#7a0d05", RankType.STAFF, false));
+				defaultValues.add(new Rank(100, "Player", "Player", "#8c8484", RankType.USER, true));
+
+				String s = Core.getInstance().getGson().toJson(defaultValues);
+				BufferedWriter bw = new BufferedWriter(new FileWriter(ranksFile));
+				bw.write(s);
+				bw.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		// Load
+		try {
+
+			FileReader fr = new FileReader(this.ranksFile);
+			List<Rank> loaded = Core.getInstance().getGson().fromJson(fr, new TypeToken<ArrayList<Rank>>() {
+			}.getType());
+
+			if (loaded != null) {
+				this.ranks.addAll(loaded);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
+
+	}
+
+	public final Collection<Rank> getRanks() {
+		return this.ranks;
+	}
+
+	public final Rank getRankByPriority(@Nonnull int id) {
+		return this.ranks.stream().filter(rank -> rank.getPriority() == id).findAny().orElse(null);
+	}
+
+	public final List<Rank> getInRightOrder() {
+
+		List<Integer> list = new ArrayList<>();
+
+		for (Rank rank : this.ranks) {
+			list.add(rank.getPriority());
+		}
+
+		Collections.sort(list, Collections.reverseOrder());
+
+		List<Rank> ranks = new ArrayList<>();
+
+		for (int i : list) {
+			Rank rank = this.getRankByPriority(i);
+			ranks.add(rank);
+		}
+
+		return ranks;
+	}
+
+	public final Rank getDefaultRank() {
+
+		for (Rank rank : this.ranks) {
+			if (rank.isDefault())
+				return rank;
+		}
+
+		return null;
 	}
 
 	private final void createTables() {
@@ -332,7 +433,8 @@ public final class Core {
 	 *          only running one server instance, set this to <b>false</b>.
 	 */
 	public final boolean isNetwork() {
-		return Boolean.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.is-network"));
+		return Boolean
+				.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.is-network"));
 	}
 
 	/**
@@ -343,12 +445,14 @@ public final class Core {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final Language getDefaultLanguage() {
-		return Language.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.default-language"));
+		return Language.valueOf(
+				this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.default-language"));
 	}
 
 	public final boolean logWithSimpleClassNames() {
 		return this.getSettingsManager() == null ? true
-				: Boolean.valueOf(this.getSettingsManager().getSetting(this.getPluginName(), "manager.settings.log-with-simple-class-names"));
+				: Boolean.valueOf(this.getSettingsManager().getSetting(this.getPluginName(),
+						"manager.settings.log-with-simple-class-names"));
 	}
 
 	// | Manager | \\

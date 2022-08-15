@@ -1,20 +1,7 @@
 package at.peirleitner.core.util.local;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,13 +11,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import com.google.common.reflect.TypeToken;
-
-import at.peirleitner.core.BungeeMain;
 import at.peirleitner.core.Core;
-import at.peirleitner.core.SpigotMain;
-import at.peirleitner.core.util.LogType;
-import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.user.User;
 
 public class LocalScoreboard {
@@ -68,10 +49,6 @@ public class LocalScoreboard {
 	}
 
 	private Map<Player, Scoreboard> scoreboard;
-	private List<Rank> ranks;
-	private File ranksFile = new File(
-			(Core.getInstance().getRunMode() == RunMode.NETWORK ? BungeeMain.getInstance().getDataFolder().getPath()
-					: SpigotMain.getInstance().getDataFolder().getPath()) + "/ranks.json");
 
 	public Scoreboard getPlayerScoreboard(Player p) {
 		if (!scoreboard.containsKey(p))
@@ -82,58 +59,7 @@ public class LocalScoreboard {
 	public LocalScoreboard() {
 		this.scoreboard = new HashMap<Player, Scoreboard>();
 		DEFAULT_TEAMS_ENABLED = true;
-		this.ranks = new ArrayList<>();
-		
-		if(!this.ranksFile.exists()) {
-			try {
-				
-				// Create File
-				this.ranksFile.createNewFile();
-				
-				// Fill with default values
-				List<Rank> defaultValues = new ArrayList<>();
-				defaultValues.add(new Rank(200, "Administrator", "Admin", "#7a0d05", RankType.STAFF, false));
-				defaultValues.add(new Rank(100, "Player", "Player", "#8c8484", RankType.USER, true));
-				
-				String s = Core.getInstance().getGson().toJson(defaultValues);
-				BufferedWriter bw = new BufferedWriter(new FileWriter(ranksFile));
-				bw.write(s);
-				bw.close();
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		this.loadRanks();
-		
-	}
-	
-	public final List<Rank> getRanks() {
-		return this.ranks;
-	}
 
-	@SuppressWarnings("serial")
-	private final void loadRanks() {
-		
-		try {
-			
-			FileReader fr = new FileReader(this.ranksFile);
-			List<Rank> loaded = Core.getInstance().getGson().fromJson(fr, new TypeToken<ArrayList<Rank>>() {
-			}.getType());
-			
-			if(loaded != null) {
-				this.ranks.addAll(loaded);
-			}
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
-		
 	}
 
 	public void resetDefaultTeams(Player p) {
@@ -182,7 +108,7 @@ public class LocalScoreboard {
 		// }
 
 		Scoreboard s = this.getPlayerScoreboard(p);
-		for (Rank rank : this.ranks) {
+		for (Rank rank : Core.getInstance().getRanks()) {
 			Team t = s.getTeam("" + rank.getPriority());
 			if (t == null) {
 				t = s.registerNewTeam("" + rank.getPriority());
@@ -193,9 +119,7 @@ public class LocalScoreboard {
 			// t.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
 
 			// Tab prefix is set down below to be able to display guilds since 1.0.1
-			t.setPrefix((!rank.isDefault()
-					? rank.getColoredDisplayName() + " "
-					: ""));
+			t.setPrefix((!rank.isDefault() ? rank.getColoredDisplayName() + " " : ""));
 //			t.setSuffix(g == null ? "" : " " + ChatColor.GRAY + "[" + g.getColor() + g.getTag() + ChatColor.GRAY + "]");
 
 			t.setColor(ChatColor.GRAY);
@@ -212,10 +136,12 @@ public class LocalScoreboard {
 			o.setDisplayName(ChatColor.YELLOW + "Level");
 //			o.getScore(all.getName()).setScore(user.getLevel()); // TODO: Update to real level
 
-			Team t = getPlayerScoreboard(p).getTeam("" + this.getRank(all).getPriority());
+			Rank rank = user.getRank();
+			
+			Team t = getPlayerScoreboard(p).getTeam("" + rank.getPriority());
 			t.addEntry(all.getName());
 
-			Rank rank = this.getRank(all);
+			
 
 			// Set the tab prefix here
 			all.setPlayerListName((!rank.isDefault()
@@ -237,53 +163,6 @@ public class LocalScoreboard {
 //		t.addEntry(p.getName());
 
 		p.setScoreboard(s);
-	}
-	
-	private final Rank getRankByPriority(@Nonnull int id) {
-		return this.ranks.stream().filter(rank -> rank.getPriority() == id).findAny().orElse(null);
-	}
-	
-	private final List<Rank> getInRightOrder() {
-		
-		List<Integer> list = new ArrayList<>();
-		
-		for(Rank rank : this.ranks) {
-			list.add(rank.getPriority());
-		}
-		
-		Collections.sort(list, Collections.reverseOrder());
-		
-		List<Rank> ranks = new ArrayList<>();
-		
-		for(int i : list) {
-			Rank rank = this.getRankByPriority(i);
-			ranks.add(rank);
-		}
-		
-		
-		return ranks;
-	}
-
-	private final Rank getRank(@Nonnull Player p) {
-		
-		for(Rank rank : this.getInRightOrder()) {
-			
-			if(p.hasPermission("Core.rank." + rank.getName().toLowerCase())) {
-				return rank;
-			}
-			
-		}
-		
-		return this.getDefaultRank();
-	}
-	
-	public final Rank getDefaultRank() {
-		
-		for(Rank rank : this.ranks) {
-			if(rank.isDefault()) return rank;
-		}
-		
-		return null;
 	}
 
 }

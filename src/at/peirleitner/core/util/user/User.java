@@ -7,8 +7,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
-import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.local.Rank;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -135,9 +135,11 @@ public final class User {
 		this.language = language;
 	}
 
-	public final void sendMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+	public final void sendMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
+			@Nonnull boolean prefix) {
 
-		String message = Core.getInstance().getLanguageManager().getMessage(pluginName, this.getLanguage(), key, replacements);
+		String message = Core.getInstance().getLanguageManager().getMessage(pluginName, this.getLanguage(), key,
+				replacements);
 
 		if (prefix) {
 			message = Core.getInstance().getLanguageManager().getPrefix(pluginName, this.getLanguage()) + message;
@@ -157,6 +159,21 @@ public final class User {
 
 		}
 
+	}
+
+	public final Rank getRank() {
+
+		org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
+		
+		for (Rank rank : Core.getInstance().getInRightOrder()) {
+
+			if (p.hasPermission("Core.rank." + rank.getName().toLowerCase())) {
+				return rank;
+			}
+
+		}
+
+		return Core.getInstance().getDefaultRank();
 	}
 
 }
