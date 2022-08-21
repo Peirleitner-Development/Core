@@ -19,7 +19,7 @@ public class CommandCore implements CommandExecutor {
 		SpigotMain.getInstance().getCommand("core").setExecutor(this);
 	}
 
-	private final String VERSION_OUTPUT = ChatColor.translateAlternateColorCodes('&', "&f{0} &7version &f{1} &7by &f{2}&7. Website&8: &f{3}&7.");
+	private final String VERSION_OUTPUT = ChatColor.translateAlternateColorCodes('&', "&9{0} &7version &9{1} &7by &9{2}&7. Website&8: &9{3}&7.");
 	
 	@Override
 	public boolean onCommand(CommandSender cs, Command cmd, String arg, String[] args) {

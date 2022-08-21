@@ -165,10 +165,22 @@ public final class User {
 
 	}
 
+	/**
+	 * 
+	 * @return If this User should be treated as immune against restrictions (for example bans)
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public final boolean isImmune() {
 		return immune;
 	}
 
+	/**
+	 * 
+	 * @return If this User should be treated with a freepass (for example should always have all Kits available)
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public final boolean hasFreepass() {
 		return freepass;
 	}

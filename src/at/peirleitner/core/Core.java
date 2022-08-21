@@ -480,16 +480,12 @@ public final class Core {
 		return this.languageManager;
 	}
 
+	@Deprecated
 	private final void registerMessages() {
 
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
-
-			// Listener
-			languageManager.registerNewMessage(this.getPluginName(),
-					"listener.player-command-pre-process.unknown-command",
-					"&7The command &f{0} &7could not be validated.");
 
 		}
 
