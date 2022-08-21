@@ -153,12 +153,20 @@ public final class User {
 
 			net.md_5.bungee.api.connection.ProxiedPlayer pp = net.md_5.bungee.api.ProxyServer.getInstance()
 					.getPlayer(this.getUUID());
+			
+			//TODO: Add message to cache, up to a maximum and display it on joining
+			if(pp == null) return;
+			
 			pp.sendMessage(
 					new net.md_5.bungee.api.chat.TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
 
 		} else {
 
 			org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
+			
+			//TODO: Add message to cache, up to a maximum and display it on joining
+			if(p == null) return;
+			
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 
 		}

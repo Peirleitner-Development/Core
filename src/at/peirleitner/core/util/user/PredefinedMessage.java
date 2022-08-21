@@ -11,7 +11,8 @@ public enum PredefinedMessage {
 	SERVER_NAME("manager.settings.server-name"),
 	TAB_HEADER("tab.header"),
 	TAB_FOOTER("tab.footer"),
-	WORLD_DOES_NOT_EXIST("main.world-does-not-exist")
+	WORLD_DOES_NOT_EXIST("main.world-does-not-exist"),
+	TARGET_PLAYER_NOT_FOUND("main.target-player-not-found")
 	;
 	
 	private final String path;
