@@ -111,8 +111,10 @@ public final class UserSystem {
 		long lastLogout = rs.getLong(5);
 		boolean enabled = rs.getBoolean(6);
 		Language language = Language.valueOf(rs.getString(7));
+		boolean immune = rs.getBoolean(8);
+		boolean freepass = rs.getBoolean(9);
 
-		User user = new User(uuid, lastKnownName, registered, lastLogin, lastLogout, enabled, language);
+		User user = new User(uuid, lastKnownName, registered, lastLogin, lastLogout, enabled, language, immune, freepass);
 
 		return user;
 	}
@@ -146,7 +148,7 @@ public final class UserSystem {
 
 			if (this.isCachingEnabled()) {
 				User user = new User(uuid, name, System.currentTimeMillis(), -1, -1, true,
-						Core.getInstance().getDefaultLanguage());
+						Core.getInstance().getDefaultLanguage(), false, false);
 				this.getCachedUsers().add(user);
 			}
 

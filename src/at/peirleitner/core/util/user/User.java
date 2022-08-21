@@ -26,9 +26,11 @@ public final class User {
 	private long lastLogout;
 	private boolean enabled;
 	private Language language;
+	private boolean immune;
+	private boolean freepass;
 
 	public User(UUID uuid, String lastKnownName, long registered, long lastLogin, long lastLogout, boolean enabled,
-			Language language) {
+			Language language, boolean immune, boolean freepass) {
 		this.uuid = uuid;
 		this.lastKnownName = lastKnownName;
 		this.registered = registered;
@@ -36,6 +38,8 @@ public final class User {
 		this.lastLogout = lastLogout;
 		this.enabled = enabled;
 		this.language = language;
+		this.immune = immune;
+		this.freepass = freepass;
 	}
 
 	/**
@@ -161,10 +165,18 @@ public final class User {
 
 	}
 
+	public final boolean isImmune() {
+		return immune;
+	}
+
+	public final boolean hasFreepass() {
+		return freepass;
+	}
+
 	public final Rank getRank() {
 
 		org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
-		
+
 		for (Rank rank : Core.getInstance().getInRightOrder()) {
 
 			if (p.hasPermission("Core.rank." + rank.getName().toLowerCase())) {
@@ -175,7 +187,7 @@ public final class User {
 
 		return Core.getInstance().getDefaultRank();
 	}
-	
+
 	public final String getDisplayName() {
 		return this.getRank().getChatColor() + this.getLastKnownName();
 	}

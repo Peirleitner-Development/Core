@@ -266,6 +266,8 @@ public final class Core {
 				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
 				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', " + "enabled BOOLEAN NOT NULL DEFAULT '1', "
 				+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getDefaultLanguage().toString() + "', "
+				+ "immune BOOLEAN NOT NULL DEFAULT '0', "
+				+ "freepass BOOLEAN NOT NULL DEFAULT '0', "
 				+ "PRIMARY KEY (uuid));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " (" + "uuid CHAR(36) NOT NULL, "
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
