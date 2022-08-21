@@ -10,7 +10,8 @@ public enum PredefinedMessage {
 	REQUIRES_ITEM_IN_MAIN_HAND("main.action-requires-item-in-main-hand"),
 	SERVER_NAME("manager.settings.server-name"),
 	TAB_HEADER("tab.header"),
-	TAB_FOOTER("tab.footer")
+	TAB_FOOTER("tab.footer"),
+	WORLD_DOES_NOT_EXIST("main.world-does-not-exist")
 	;
 	
 	private final String path;
