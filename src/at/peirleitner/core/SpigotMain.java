@@ -15,6 +15,7 @@ import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
 import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
+import at.peirleitner.core.manager.GUIManager;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.local.LocalScoreboard;
@@ -25,6 +26,8 @@ public class SpigotMain extends JavaPlugin {
 
 	private static SpigotMain instance;
 	private LocalScoreboard localScoreboard;
+	
+	private GUIManager guiManager;
 
 	@Override
 	public void onEnable() {
@@ -38,6 +41,9 @@ public class SpigotMain extends JavaPlugin {
 		Core.instance = new Core(RunMode.LOCAL);
 		this.localScoreboard = new LocalScoreboard();
 		this.registerMessages();
+		
+		// Manager
+		this.guiManager = new GUIManager();
 		
 		// Commands
 		new CommandLanguage();
@@ -68,6 +74,10 @@ public class SpigotMain extends JavaPlugin {
 		return instance;
 	}
 	
+	public final GUIManager getGUIManager() {
+		return this.guiManager;
+	}
+	
 	public final LocalScoreboard getLocalScoreboard() {
 		return this.localScoreboard;
 	}
@@ -76,6 +86,11 @@ public class SpigotMain extends JavaPlugin {
 		
 		LanguageManager languageManager = Core.getInstance().getLanguageManager();
 		String pluginName = Core.getInstance().getPluginName();
+		
+		// GUI
+		languageManager.registerNewMessage(pluginName, "gui.gui-builder.item.current-page", "&7Current Page&7: &9{0}&7/&9{1}");
+		languageManager.registerNewMessage(pluginName, "gui.gui-builder.item.next-page", "&7Next Page");
+		languageManager.registerNewMessage(pluginName, "gui.gui-builder.item.previous-page", "&7Previous Page");
 		
 		// Command
 		languageManager.registerNewMessage(pluginName, "command.core.syntax", "&fCore Management\n"
