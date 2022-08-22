@@ -150,7 +150,7 @@ public class LanguageManager {
 				"&7This action requires you to hold an item in your main hand.");
 		map.put("main.world-does-not-exist", "&cThe specified world doesn't exist.");
 		map.put("main.target-player-not-found", "&cThe specified player could not be found.");
-		map.put("main.cant-target-yourself", "You can't target yourself for this action.");
+		map.put("main.cant-target-yourself", "&cYou can't target yourself for this action.");
 		map.put("tab.header", "&8&m---------------------------------------\n" + "&9{0}\n\n"
 				+ "&7Global Players online&8: &f{1}&7/&f{2}\n" + "&7Currently connected to&8: &f{3}\n");
 		map.put("tab.footer", "\n" + "&7Server Help&8: &f/help\n" + "&7Online-Store&8: &f/store\n"
