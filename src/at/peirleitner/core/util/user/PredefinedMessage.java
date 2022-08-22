@@ -12,7 +12,8 @@ public enum PredefinedMessage {
 	TAB_HEADER("tab.header"),
 	TAB_FOOTER("tab.footer"),
 	WORLD_DOES_NOT_EXIST("main.world-does-not-exist"),
-	TARGET_PLAYER_NOT_FOUND("main.target-player-not-found")
+	TARGET_PLAYER_NOT_FOUND("main.target-player-not-found"),
+	CANT_TARGET_YOURSELF("main.cant-target-yourself")
 	;
 	
 	private final String path;
