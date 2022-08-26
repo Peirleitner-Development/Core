@@ -102,6 +102,10 @@ public final class MySQL {
 	public final String getTablePrefix() {
 		return this.tablePrefix;
 	}
+	
+	public final void setTablePrefix(@Nonnull String prefix) {
+		this.tablePrefix = prefix;
+	}
 
 	/**
 	 * 
