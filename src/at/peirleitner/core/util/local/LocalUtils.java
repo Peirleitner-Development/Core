@@ -43,8 +43,8 @@ public class LocalUtils {
 		double x = Double.valueOf(s[1]);
 		double y = Double.valueOf(s[2]);
 		double z = Double.valueOf(s[3]);
-		float yaw = Long.valueOf(s[4]);
-		float pitch = Long.valueOf(s[5]);
+		float yaw = Float.valueOf(s[4]);
+		float pitch = Float.valueOf(s[5]);
 		
 		return new CustomLocation(worldName, x, y, z, yaw, pitch);
 	}
