@@ -1,13 +1,16 @@
 package at.peirleitner.core.util.local;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+
 public class CustomLocation {
 
-	private String worldName;
-	private double x;
-	private double y;
-	private double z;
-	private float yaw;
-	private float pitch;
+	private final String worldName;
+	private final double x;
+	private final double y;
+	private final double z;
+	private final float yaw;
+	private final float pitch;
 
 	public CustomLocation(String worldName, double x, double y, double z, float yaw, float pitch) {
 		this.worldName = worldName;
@@ -18,33 +21,37 @@ public class CustomLocation {
 		this.pitch = pitch;
 	}
 
-	public String getWorldName() {
+	public final String getWorldName() {
 		return worldName;
 	}
 
-	public double getX() {
+	public final double getX() {
 		return x;
 	}
 
-	public double getY() {
+	public final double getY() {
 		return y;
 	}
 
-	public double getZ() {
+	public final double getZ() {
 		return z;
 	}
 
-	public float getYaw() {
+	public final float getYaw() {
 		return yaw;
 	}
 
-	public float getPitch() {
+	public final float getPitch() {
 		return pitch;
 	}
 	
 	@Override
 	public String toString() {
 		return worldName + ";" + x + ";" + y + ";" + z + ";" + yaw + ";" + pitch;
+	}
+	
+	public final Location getLocation() {
+		return new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
 	}
 
 }
