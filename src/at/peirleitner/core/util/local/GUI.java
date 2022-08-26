@@ -79,7 +79,7 @@ public class GUI implements Listener {
 	private ItemStack getNextPageItemSack(@Nonnull User user) {
 		return new ItemBuilder(Material.PLAYER_HEAD).skullowner("MHF_ArrowRight")
 				.name(Core.getInstance().getLanguageManager().getMessage(SpigotMain.getInstance().getDescription().getName(), user.getLanguage(),
-						"gui.gui-builder.item.current-page", null))
+						"gui.gui-builder.item.next-page", null))
 				.build();
 	}
 

@@ -1,2 +1,3 @@
 Tab Header & Footer for Network-Mode
 Block-List -> Can't send msg, tpa, ... (Also removes as friend etc.), can't see their messages in chat either
+Load messages on start
