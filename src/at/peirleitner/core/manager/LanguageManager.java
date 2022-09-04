@@ -19,6 +19,7 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
@@ -304,6 +305,8 @@ public class LanguageManager {
 				
 			}
 			
+		} else {
+			//TODO: Network-Mode
 		}
 		
 	}
@@ -324,8 +327,23 @@ public class LanguageManager {
 		
 	}
 	
-	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements) {
-		//TODO: To all that have a special permission
+	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+		
+		if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
+			
+			for(org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+				
+				if(!all.hasPermission(CorePermission.NOTIFY_STAFF.getPermission())) continue;
+				
+				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
+				user.sendMessage(pluginName, key, replacements, prefix);
+				
+			}
+			
+		} else {
+			//TODO: Network-Mode
+		}
+		
 	}
 
 }
