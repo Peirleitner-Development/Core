@@ -135,7 +135,7 @@ public final class UserSystem {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().table_users + " WHERE lastKnownName = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().getMySQL().getTablePrefix() + Core.getInstance().table_users + " WHERE lastKnownName = ?");
 			stmt.setString(1, lastKnownName);
 			
 			ResultSet rs = stmt.executeQuery();
