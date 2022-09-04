@@ -196,6 +196,8 @@ public final class User {
 	public final Rank getRank() {
 
 		org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
+		
+		if(p == null) return Core.getInstance().getDefaultRank();
 
 		for (Rank rank : Core.getInstance().getInRightOrder()) {
 
