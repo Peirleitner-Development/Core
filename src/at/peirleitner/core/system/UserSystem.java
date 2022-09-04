@@ -122,6 +122,37 @@ public final class UserSystem {
 	public final User getUser(@Nonnull UUID uuid) {
 		return this.getUserFromCache(uuid) == null ? this.getUserFromDatabase(uuid) : this.getUserFromCache(uuid);
 	}
+	
+	public final User getByLastKnownName(@Nonnull String lastKnownName) {
+		
+		if(this.isCachingEnabled() && !this.getCachedUsers().isEmpty()) {
+			
+			for(User user : this.getCachedUsers()) {
+				if(user.getLastKnownName().equalsIgnoreCase(lastKnownName)) return user;
+			}
+			
+		}
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().table_users + " WHERE lastKnownName = ?");
+			stmt.setString(1, lastKnownName);
+			
+			ResultSet rs = stmt.executeQuery();
+			
+			if(rs.next()) {
+				return getUserFromResultSet(rs);
+			} else {
+				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not return User by last Known Name since none can be found");
+				return null;
+			}
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not get User '" + lastKnownName + "' by last known name/SQL: " + e.getMessage());
+			return null;
+		}
+		
+	}
 
 	public final boolean isRegistered(@Nonnull UUID uuid) {
 		return this.getUser(uuid) == null ? false : true;
