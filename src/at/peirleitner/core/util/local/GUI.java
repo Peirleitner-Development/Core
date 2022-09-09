@@ -28,7 +28,7 @@ import net.md_5.bungee.api.ChatColor;
  * If the filled in Items exceed the Size of the Inventory you will also be able
  * to navigate back and fourth between pages.
  * 
- * @since 1.0.1
+ * @since 1.0.0
  * @author Markus Peirleitner (Rengobli)
  */
 public class GUI implements Listener {
