@@ -30,6 +30,18 @@ public class GameMap implements GameMapData {
 	public GameMap() {
 	}
 
+	public GameMap(String name, SaveType saveType, Material icon, UUID creator, Collection<UUID> contributors,
+			GameMapState state, Collection<CustomLocation> spawns, boolean isTeams) {
+		this.name = name;
+		this.saveType = saveType;
+		this.icon = icon;
+		this.creator = creator;
+		this.contributors = contributors;
+		this.state = state;
+		this.spawns = spawns;
+		this.isTeams = isTeams;
+	}
+
 	@Override
 	public final String getName() {
 		return name;
