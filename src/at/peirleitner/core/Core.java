@@ -55,6 +55,7 @@ public final class Core {
 	public final String table_users = "users";
 	public final String table_stats = "stats";
 	public final String table_shop = "shop";
+	public final String table_maps = "maps";
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -273,6 +274,17 @@ public final class Core {
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " ("
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "saveType INT NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "creator CHAR(36) NOT NULL, "
+				+ "contributors VARCHAR(500), "
+				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
+				+ "spawns MEDIUMTEXT NOT NULL, "
+				+ "teams BOOLEAN NOT NULL DEFAULT '0', "
+				+ "PRIMARY KEY(name, saveType), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
 
 		try {
 
