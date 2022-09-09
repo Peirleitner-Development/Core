@@ -1,17 +1,21 @@
 package at.peirleitner.core.util.local;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.bukkit.Material;
 
 import at.peirleitner.core.util.database.SaveType;
 
+/**
+ * Wrapper for {@link GameMapData}
+ * 
+ * @since 1.0.0
+ * @author Markus Peirleitner (Rengobli)
+ *
+ */
 public class GameMap implements GameMapData {
 
 	private String name;
@@ -23,17 +27,7 @@ public class GameMap implements GameMapData {
 	private Collection<CustomLocation> spawns;
 	private boolean isTeams;
 
-	public GameMap(@Nonnull String name, @Nonnull SaveType saveType, @Nullable Material icon, @Nonnull UUID creator,
-			@Nullable List<UUID> contributors, @Nonnull GameMapState state, @Nullable List<CustomLocation> spawns,
-			@Nonnull boolean isTeams) {
-		this.name = name;
-		this.saveType = saveType;
-		this.icon = (icon == null ? this.getDefaultIcon() : icon);
-		this.creator = creator;
-		this.contributors = (contributors == null ? new ArrayList<>() : contributors);
-		this.state = state;
-		this.spawns = (spawns == null ? new ArrayList<>() : spawns);
-		this.isTeams = isTeams;
+	public GameMap() {
 	}
 
 	@Override
@@ -119,7 +113,7 @@ public class GameMap implements GameMapData {
 	public final void setTeams(boolean isTeams) {
 		this.isTeams = isTeams;
 	}
-	
+
 	public final boolean updateToDatabase() {
 		return false;
 	}
