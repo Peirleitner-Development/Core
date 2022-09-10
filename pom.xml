@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>at.peirleitner</groupId>
 	<artifactId>Core</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<description>Core System</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -122,7 +122,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.8</version>
+			<version>2.9.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Holywaffle TeamSpeak3 API -->

@@ -1,0 +1,16 @@
+name: LocalCore
+version: '${project.version}'
+author: Markus Peirleitner (Rengobli)
+website: www.peirleitner.at
+api-version: 1.19
+
+main: at.peirleitner.core.SpigotMain
+
+commands:
+  core:
+    usage: </command>
+    description: Version output and main administration tool
+  language:
+    usage: </command>
+    description: Language Management
+    aliases: [lang, sprache]
