@@ -13,7 +13,7 @@ import at.peirleitner.core.util.database.SaveType;
 
 public class StatSystem {
 
-	private final String table = Core.getInstance().table_stats;
+	private final String table = Core.getInstance().getTableStats();
 	private final SaveType saveType = Core.getInstance().getSettingsManager().getSaveType();
 
 	/**

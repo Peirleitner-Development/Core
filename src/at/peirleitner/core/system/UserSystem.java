@@ -23,6 +23,7 @@ import at.peirleitner.core.util.user.User;
  */
 public final class UserSystem {
 
+	private final String table = Core.getInstance().getTableUsers();
 	private Collection<User> cachedUsers;
 
 	public UserSystem() {
@@ -49,8 +50,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("SELECT * FROM " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " WHERE uuid = ?");
+					.prepareStatement("SELECT * FROM " + table + " WHERE uuid = ?");
 			stmt.setString(1, uuid.toString());
 
 			ResultSet rs = stmt.executeQuery();
@@ -85,7 +85,7 @@ public final class UserSystem {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().getMySQL().getTablePrefix() + Core.getInstance().table_users);
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + table);
 			ResultSet rs = stmt.executeQuery();
 			
 			while(rs.next()) {
@@ -135,7 +135,7 @@ public final class UserSystem {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + Core.getInstance().getMySQL().getTablePrefix() + Core.getInstance().table_users + " WHERE lastKnownName = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + table + " WHERE lastKnownName = ?");
 			stmt.setString(1, lastKnownName);
 			
 			ResultSet rs = stmt.executeQuery();
@@ -170,8 +170,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("INSERT INTO " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " (uuid, lastKnownName) VALUES (?, ?);");
+					.prepareStatement("INSERT INTO " + table + " (uuid, lastKnownName) VALUES (?, ?);");
 			stmt.setString(1, uuid.toString());
 			stmt.setString(2, name);
 
@@ -240,8 +239,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " SET lastKnownName = ? WHERE uuid = ?");
+					.prepareStatement("UPDATE " + table + " SET lastKnownName = ? WHERE uuid = ?");
 			stmt.setString(1, name);
 			stmt.setString(2, user.getUUID().toString());
 
@@ -286,8 +284,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " SET lastLogin = ? WHERE uuid = ?");
+					.prepareStatement("UPDATE " + table + " SET lastLogin = ? WHERE uuid = ?");
 			stmt.setLong(1, lastLogin);
 			stmt.setString(2, user.getUUID().toString());
 
@@ -332,8 +329,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " SET lastLogout = ? WHERE uuid = ?");
+					.prepareStatement("UPDATE " + table + " SET lastLogout = ? WHERE uuid = ?");
 			stmt.setLong(1, lastLogout);
 			stmt.setString(2, user.getUUID().toString());
 
@@ -377,8 +373,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " SET enabled = ? WHERE uuid = ?");
+					.prepareStatement("UPDATE " + table + " SET enabled = ? WHERE uuid = ?");
 			stmt.setBoolean(1, enabled);
 			stmt.setString(2, user.getUUID().toString());
 
@@ -413,8 +408,7 @@ public final class UserSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("UPDATE " + Core.getInstance().getMySQL().getTablePrefix()
-							+ Core.getInstance().table_users + " SET language = ? WHERE uuid = ?");
+					.prepareStatement("UPDATE " + table + " SET language = ? WHERE uuid = ?");
 			stmt.setString(1, language.toString());
 			stmt.setString(2, user.getUUID().toString());
 

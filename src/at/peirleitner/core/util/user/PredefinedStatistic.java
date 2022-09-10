@@ -8,7 +8,14 @@ public enum PredefinedStatistic {
 	DEATHS("Deaths", "deaths"), 
 	VICTORIES("Victories", "victories"),
 	LOSSES("Losses", "losses"), 
-	GAMES_PLAYED("Games played", "games_played");
+	GAMES_PLAYED("Games played", "games_played"),
+	
+	/**
+	 * @since 1.0.1
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	ASSISTS("Assists", "assists")
+	;
 
 	private final String name;
 	private final String dataName;
