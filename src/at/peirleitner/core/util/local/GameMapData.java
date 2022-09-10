@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import at.peirleitner.core.util.database.SaveType;
 
 /**
- * This interface specified data of a GameMap
+ * This interface specifies data of a GameMap
  * 
  * @since 1.0.0
  * @author Markus Peirleitner (Rengobli)
