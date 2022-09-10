@@ -51,11 +51,11 @@ public final class Core {
 	private final Collection<Rank> ranks;
 	private File ranksFile;
 
-	public final String table_saveType = "saveType";
-	public final String table_users = "users";
-	public final String table_stats = "stats";
-	public final String table_shop = "shop";
-	public final String table_maps = "maps";
+	private final String table_saveType = "saveType";
+	private final String table_users = "users";
+	private final String table_stats = "stats";
+	private final String table_shop = "shop";
+	private final String table_maps = "maps";
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -150,6 +150,60 @@ public final class Core {
 	 */
 	public final MySQL getMySQL() {
 		return this.mysql;
+	}
+
+	private final String getTablePrefix() {
+		return this.getMySQL().isConnected() ? this.getMySQL().getTablePrefix() : "NOT_CONNECTED_";
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_saveType}
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableSaveType() {
+		return this.getTablePrefix() + table_saveType;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_users}
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableUsers() {
+		return this.getTablePrefix() + table_users;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_stats}
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableStats() {
+		return this.getTablePrefix() + table_stats;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_shop}
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableShop() {
+		return this.getTablePrefix() + table_shop;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_maps}
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableMaps() {
+		return this.getTablePrefix() + table_maps;
 	}
 
 	public final File getDataFolder() {
@@ -267,24 +321,19 @@ public final class Core {
 				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
 				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', " + "enabled BOOLEAN NOT NULL DEFAULT '1', "
 				+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getDefaultLanguage().toString() + "', "
-				+ "immune BOOLEAN NOT NULL DEFAULT '0', "
-				+ "freepass BOOLEAN NOT NULL DEFAULT '0', "
+				+ "immune BOOLEAN NOT NULL DEFAULT '0', " + "freepass BOOLEAN NOT NULL DEFAULT '0', "
 				+ "PRIMARY KEY (uuid));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " (" + "uuid CHAR(36) NOT NULL, "
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " ("
-				+ "name VARCHAR(50) NOT NULL, "
-				+ "saveType INT NOT NULL, "
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "creator CHAR(36) NOT NULL, "
-				+ "contributors VARCHAR(500), "
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" + "name VARCHAR(50) NOT NULL, "
+				+ "saveType INT NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "creator CHAR(36) NOT NULL, " + "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
-				+ "spawns MEDIUMTEXT NOT NULL, "
-				+ "teams BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY(name, saveType), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
+				+ "spawns MEDIUMTEXT NOT NULL, " + "teams BOOLEAN NOT NULL DEFAULT '0', "
+				+ "PRIMARY KEY(name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
+				+ "(id));");
 
 		try {
 
