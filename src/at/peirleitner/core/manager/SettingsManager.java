@@ -28,6 +28,7 @@ public class SettingsManager {
 
 	public SettingsManager() {
 		this.createSettingsDirectory();
+		this.createProperties(Core.getInstance().getPluginName());
 	}
 
 	private final File getSettingsDirectory() {
@@ -154,6 +155,7 @@ public class SettingsManager {
 	}
 
 	private final Properties getProperties(@Nonnull String pluginName) {
+		
 		Properties p = new Properties();
 		try {
 			p.load(new FileInputStream(this.getFile(pluginName)));

@@ -64,7 +64,7 @@ public class SpigotMain extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		
-		if(Core.getInstance().getMySQL().isConnected()) {
+		if(Core.getInstance().getMySQL() != null && Core.getInstance().getMySQL().isConnected()) {
 			Core.getInstance().getMySQL().close();
 		}
 		
