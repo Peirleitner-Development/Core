@@ -170,6 +170,19 @@ public class SettingsManager {
 		return p;
 	}
 
+	/**
+	 * Register a new setting. This will only use {@link #setSetting(String, String, String)} if the setting doesn't exist.
+	 * @param pluginName - Name of the Plugin
+	 * @param key - Unique key
+	 * @param value - Value
+	 * @return If the setting has been registered
+	 * @since 1.0.2
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean registerSetting(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
+		return this.getSetting(pluginName, key) == null ? this.setSetting(pluginName, key, value) : false;
+	}
+	
 	public final boolean setSetting(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
 		Properties p = this.getProperties(pluginName);
 		p.setProperty(key, value);
