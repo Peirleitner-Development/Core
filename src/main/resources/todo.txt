@@ -3,3 +3,4 @@ Block-List -> Can't send msg, tpa, ... (Also removes as friend etc.), can't see 
 Load messages on start
 save last rank in database to display with correct color
 language phrases
+add ranks with command ingame
