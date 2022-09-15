@@ -331,7 +331,7 @@ public final class Core {
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" 
-				+ "id AUTO_INCREMENT NOT NULL, "
+				+ "id INT AUTO_INCREMENT NOT NULL, "
 				+ "name VARCHAR(50) NOT NULL, "
 				+ "saveType INT NOT NULL, " 
 				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "

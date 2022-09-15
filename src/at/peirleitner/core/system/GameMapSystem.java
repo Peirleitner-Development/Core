@@ -74,7 +74,7 @@ public class GameMapSystem {
 	}
 
 	public final boolean isMapCachingEnabled() {
-		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "cache-game-maps");
+		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "manager.settings.cache-game-maps");
 	}
 
 	public final GameMap getMap(@Nonnull int id) {
