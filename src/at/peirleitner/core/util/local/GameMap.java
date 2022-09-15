@@ -130,4 +130,12 @@ public class GameMap implements GameMapData {
 		return false;
 	}
 
+	@Override
+	public final String toString() {
+		return "GameMap[name=" + name + ",saveType={" + saveType.toString() + "},icon=" + icon.toString() + ",creator="
+				+ creator.toString() + ",contributors={" + (contributors == null ? "null" : contributors.toString())
+				+ "},state=" + state.toString() + ",spawns={" + (spawns == null ? "null" : spawns.toString())
+				+ "},teams=" + isTeams + "]";
+	}
+
 }

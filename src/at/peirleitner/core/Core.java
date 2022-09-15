@@ -331,7 +331,7 @@ public final class Core {
 				+ "saveType INT NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
 				+ "creator CHAR(36) NOT NULL, " + "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
-				+ "spawns MEDIUMTEXT NOT NULL, " + "teams BOOLEAN NOT NULL DEFAULT '0', "
+				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', "
 				+ "PRIMARY KEY(name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
 				+ "(id));");
 

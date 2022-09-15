@@ -2,5 +2,6 @@ Tab Header & Footer for Network-Mode
 Block-List -> Can't send msg, tpa, ... (Also removes as friend etc.), can't see their messages in chat either
 Load messages on start
 save last rank in database to display with correct color
-language phrases
+language phrases: Yes, No, Set, Not set, None, Purchase, Equip
 add ranks with command ingame
+Add 'created' column on 'core_maps'

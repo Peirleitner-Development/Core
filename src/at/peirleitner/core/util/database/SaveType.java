@@ -26,4 +26,9 @@ public class SaveType {
 		return iconName;
 	}
 
+	@Override
+	public final String toString() {
+		return "SaveType[id=" + id + ",name=" + name + ",iconName=" + iconName + "]";
+	}
+	
 }
