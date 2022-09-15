@@ -16,6 +16,8 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.local.GameMap;
 import at.peirleitner.core.util.local.GameMapState;
+import at.peirleitner.core.util.user.User;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * System used to interact with {@link GameMap}s
@@ -247,7 +249,7 @@ public class GameMapSystem {
 
 	}
 
-	private final void cache(@Nonnull GameMap map) {
+	public final void cache(@Nonnull GameMap map) {
 
 		if (!this.isMapCachingEnabled())
 			return;
@@ -280,6 +282,30 @@ public class GameMapSystem {
 		boolean teams = rs.getBoolean(9);
 
 		return new GameMap(id, name, saveType, iconName, creator, contributors, state, spawns, teams);
+	}
+	
+	public final String getContributorsAsString(@Nonnull GameMap map) {
+
+		StringBuilder sb = new StringBuilder();
+
+		if (map.getContributors() == null || map.getContributors().isEmpty()) {
+			sb.append(ChatColor.GRAY + "None");
+		} else {
+
+			int current = 0;
+			int max = map.getContributors().size();
+
+			for (UUID uuid : map.getContributors()) {
+
+				current++;
+				User user = Core.getInstance().getUserSystem().getUser(uuid);
+				sb.append(user.getDisplayName() + (current >= max ? "" : ChatColor.GRAY + ", "));
+
+			}
+
+		}
+
+		return sb.toString();
 	}
 
 }
