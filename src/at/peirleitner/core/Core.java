@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
@@ -64,6 +65,7 @@ public final class Core {
 	// System
 	private UserSystem userSystem;
 	private StatSystem statSystem;
+	private GameMapSystem gameMapSystem;
 
 	/**
 	 * Create a new Instance
@@ -105,6 +107,7 @@ public final class Core {
 		// System
 		this.userSystem = new UserSystem();
 		this.statSystem = new StatSystem();
+		this.gameMapSystem = new GameMapSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -327,12 +330,17 @@ public final class Core {
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" + "name VARCHAR(50) NOT NULL, "
-				+ "saveType INT NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "creator CHAR(36) NOT NULL, " + "contributors VARCHAR(500), "
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" 
+				+ "id AUTO_INCREMENT NOT NULL, "
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "saveType INT NOT NULL, " 
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "creator CHAR(36) NOT NULL, " 
+				+ "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
-				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY(name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
+				+ "spawns MEDIUMTEXT, " 
+				+ "teams BOOLEAN NOT NULL DEFAULT '0', "
+				+ "PRIMARY KEY(id, name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
 				+ "(id));");
 
 		try {
@@ -572,6 +580,16 @@ public final class Core {
 	 */
 	public final StatSystem getStatSystem() {
 		return this.statSystem;
+	}
+	
+	/**
+	 * 
+	 * @return GameMap System
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final GameMapSystem getGameMapSystem() {
+		return this.gameMapSystem;
 	}
 
 }
