@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -26,6 +27,15 @@ public class LocalUtils {
 		float pitch = location.getPitch();
 
 		return new CustomLocation(worldName, x, y, z, yaw, pitch);
+	}
+	
+	/**
+	 * @param customLocation
+	 * @return
+	 * @since 1.0.3
+	 */
+	public static Location getLocation(@Nonnull CustomLocation customLocation) {
+		return new Location(Bukkit.getWorld(customLocation.getWorldName()), customLocation.getX(), customLocation.getY(), customLocation.getZ(), customLocation.getYaw(), customLocation.getPitch());
 	}
 
 	public static String itemStackArrayToBase64(ItemStack[] items) throws IllegalStateException {
