@@ -35,9 +35,38 @@ public class GameMapSystem {
 		this.cachedMaps = new ArrayList<>();
 
 		// Load Data
+		this.loadMaps();
 
 	}
 
+	private final void loadMaps() {
+		
+		if(!this.isMapCachingEnabled()) {
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not load Maps because caching has been disabled.");
+			return;
+		}
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + this.table);
+			ResultSet rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				
+				GameMap map = this.getByResultSet(rs);
+				this.cachedMaps.add(map);
+				
+			}
+			
+			Core.getInstance().log(this.getClass(), LogType.INFO, "Cached " + this.cachedMaps.size() + " Maps from Database.");
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not load Maps from Database/SQL: " + e.getMessage());
+			return;
+		}
+		
+	}
+	
 	public final boolean isMapCachingEnabled() {
 		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "cache-game-maps");
 	}
