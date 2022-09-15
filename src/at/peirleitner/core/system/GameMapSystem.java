@@ -74,7 +74,8 @@ public class GameMapSystem {
 	}
 
 	public final boolean isMapCachingEnabled() {
-		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "manager.settings.cache-game-maps");
+		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(),
+				"manager.settings.cache-game-maps");
 	}
 
 	public final GameMap getMap(@Nonnull int id) {
@@ -249,6 +250,43 @@ public class GameMapSystem {
 
 	}
 
+	/**
+	 * Update the State of a Map
+	 * @param map - Map
+	 * @param state - New State
+	 * @return If the State has been updated
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean setState(@Nonnull GameMap map, @Nonnull GameMapState state) {
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET state = ? WHERE id = ?");
+			stmt.setString(1, state.toString());
+			stmt.setInt(2, map.getID());
+
+			GameMapState old = map.getState();
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setState(state);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated State of Map '" + map.getID() + "' from '"
+					+ old.toString() + "' to '" + state.toString() + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set State of Map '" + map.getID()
+					+ "' to '" + state.toString() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
 	public final void cache(@Nonnull GameMap map) {
 
 		if (!this.isMapCachingEnabled())
@@ -283,7 +321,7 @@ public class GameMapSystem {
 
 		return new GameMap(id, name, saveType, iconName, creator, contributors, state, spawns, teams);
 	}
-	
+
 	public final String getContributorsAsString(@Nonnull GameMap map) {
 
 		StringBuilder sb = new StringBuilder();
