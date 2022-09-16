@@ -49,7 +49,7 @@ public class GlobalUtils {
 
 		return sb.toString();
 	}
-
+	
 	/**
 	 * 
 	 * @param string
@@ -70,6 +70,17 @@ public class GlobalUtils {
 		return new CustomLocation(worldName, x, y, z, yaw, pitch);
 	}
 	
+	public static String getCustomLocationStringFromList(@Nonnull Collection<CustomLocation> locations) {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(CustomLocation cl : locations) {
+			sb.append(cl.toString() + ":");
+		}
+		
+		return sb.toString();
+	}
+	
 	/**
 	 * 
 	 * @param string - String to translate
@@ -77,9 +88,9 @@ public class GlobalUtils {
 	 * @return Collection of CustomLocations
 	 * @since 1.0.3
 	 */
-	public static Collection<CustomLocation> getCustomLocationListFromString(@Nonnull String string, @Nonnull String separator) {
+	public static Collection<CustomLocation> getCustomLocationListFromString(@Nonnull String string) {
 		
-		String[] s = string.split(separator);
+		String[] s = string.split(":");
 		Collection<CustomLocation> locs = new ArrayList<>(s.length);
 		
 		for(String str : s) {

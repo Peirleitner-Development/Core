@@ -250,9 +250,167 @@ public class GameMapSystem {
 
 	}
 
+	public final boolean setName(@Nonnull GameMap map, @Nonnull String name) {
+
+		name = ChatColor.stripColor(name);
+		
+		if(map.getName().equalsIgnoreCase(name)) return false;
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET name = ? WHERE id = ?");
+			stmt.setString(1, name);
+			stmt.setInt(2, map.getID());
+
+			String old = map.getName();
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setName(name);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Updated Name of Map '" + map.getID() + "' from '" + old + "' to '" + name + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR,
+					"Could not set Name of Map '" + map.getID() + "' to '" + name + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
+	public final boolean setSaveType(@Nonnull GameMap map, @Nonnull SaveType saveType) {
+
+		if(map.getSaveType() == saveType) return false;
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET saveType = ? WHERE id = ?");
+			stmt.setInt(1, saveType.getID());
+			stmt.setInt(2, map.getID());
+
+			SaveType old = map.getSaveType();
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setSaveType(saveType);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated SaveType of Map '" + map.getID()
+					+ "' from '" + old.getName() + "' to '" + saveType.getName() + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set saveType of Map '" + map.getID()
+					+ "' to '" + saveType.getName() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
+	public final boolean setIcon(@Nonnull GameMap map, @Nonnull String iconName) {
+
+		if(map.getIconName().equalsIgnoreCase(iconName)) return false;
+ 		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET icon = ? WHERE id = ?");
+			stmt.setString(1, iconName);
+			stmt.setInt(2, map.getID());
+
+			String old = map.getIconName();
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setIconName(iconName);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Icon of Map '" + map.getID()
+					+ "' from '" + old + "' to '" + iconName + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set Icon of Map '" + map.getID()
+					+ "' to '" + iconName + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+	
+	public final boolean setCreator(@Nonnull GameMap map, @Nonnull UUID creator) {
+
+		if(map.getCreator().equals(creator)) return false;
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET creator = ? WHERE id = ?");
+			stmt.setString(1, creator.toString());
+			stmt.setInt(2, map.getID());
+
+			String old = map.getCreator().toString();
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setCreator(creator);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Creator of Map '" + map.getID()
+					+ "' from '" + old + "' to '" + creator.toString() + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set Creator of Map '" + map.getID()
+					+ "' to '" + creator.toString() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+	
+	public final boolean setContributors(@Nonnull GameMap map, @Nonnull Collection<UUID> contributors) {
+
+		if(map.hasContributors() && map.getContributors() == contributors) return false;
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET contributors = ? WHERE id = ?");
+			stmt.setString(1, GlobalUtils.getUuidString(contributors, ";"));
+			stmt.setInt(2, map.getID());
+
+			String old = GlobalUtils.getUuidString(map.getContributors(), ";");
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setContributors(contributors);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Contributors of Map '" + map.getID()
+					+ "' from '" + old + "' to '" + GlobalUtils.getUuidString(contributors, ";") + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set Contributors of Map '" + map.getID()
+					+ "' to '" + GlobalUtils.getUuidString(contributors, ";") + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
 	/**
 	 * Update the State of a Map
-	 * @param map - Map
+	 * 
+	 * @param map   - Map
 	 * @param state - New State
 	 * @return If the State has been updated
 	 * @since 1.0.3
@@ -260,6 +418,8 @@ public class GameMapSystem {
 	 */
 	public final boolean setState(@Nonnull GameMap map, @Nonnull GameMapState state) {
 
+		if(map.getState() == state) return false;
+		
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
@@ -286,7 +446,68 @@ public class GameMapSystem {
 		}
 
 	}
+	
+	public final boolean setSpawns(@Nonnull GameMap map, @Nonnull Collection<CustomLocation> spawns) {
 
+		if(map.hasSpawns() && map.getSpawns() == spawns) return false;
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET spawns = ? WHERE id = ?");
+			stmt.setString(1, GlobalUtils.getCustomLocationStringFromList(spawns));
+			stmt.setInt(2, map.getID());
+
+			stmt.executeUpdate();
+
+			if (this.isMapCachingEnabled()) {
+				map.setSpawns(spawns);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Spawns of Map '" + map.getID() + ".");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set Spawns of Map '" + map.getID()
+					+ "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+	
+	public final boolean setTeams(@Nonnull GameMap map, @Nonnull boolean teams) {
+
+		if(map.isTeams() && teams || !map.isTeams() && !teams) {
+//			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Did not update Teams of Map '" + map.getID() + "' because the value would be identical.");
+			return false;
+		}
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + this.table + " SET teams = ? WHERE id = ?");
+			stmt.setBoolean(1, teams);
+			stmt.setInt(2, map.getID());
+
+			stmt.executeUpdate();
+			
+			boolean old = map.isTeams();
+
+			if (this.isMapCachingEnabled()) {
+				map.setTeams(teams);
+			}
+
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Teams of Map '" + map.getID() + " from '" + old + "' to '" + teams + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not update Teams of Map '" + map.getID()
+					+ "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+	
 	public final void cache(@Nonnull GameMap map) {
 
 		if (!this.isMapCachingEnabled())
@@ -314,7 +535,7 @@ public class GameMapSystem {
 
 		Collection<CustomLocation> spawns = new ArrayList<>();
 		if (rs.getString(8) != null && !rs.getString(8).equals("")) {
-			spawns = GlobalUtils.getCustomLocationListFromString(rs.getString(8), ":");
+			spawns = GlobalUtils.getCustomLocationListFromString(rs.getString(8));
 		}
 
 		boolean teams = rs.getBoolean(9);
