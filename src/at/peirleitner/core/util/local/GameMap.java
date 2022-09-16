@@ -105,6 +105,16 @@ public class GameMap implements GameMapData {
 	public final void setCreator(UUID creator) {
 		this.creator = creator;
 	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isCreator(@Nonnull UUID uuid) {
+		return this.getCreator().equals(uuid);
+	}
 
 	@Override
 	public final Collection<UUID> getContributors() {
@@ -118,6 +128,16 @@ public class GameMap implements GameMapData {
 	public final boolean hasContributors() {
 		return this.getContributors() == null || this.getContributors().isEmpty() ? false : true;
 	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isContributor(@Nonnull UUID uuid) {
+		return !this.hasContributors() ? false : this.getContributors().contains(uuid);
+	}
 
 	@Override
 	public final GameMapState getState() {
@@ -126,6 +146,16 @@ public class GameMap implements GameMapData {
 
 	public final void setState(GameMapState state) {
 		this.state = state;
+	}
+	
+	/**
+	 * 
+	 * @param state
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isState(@Nonnull GameMapState state) {
+		return this.state == state;
 	}
 
 	@Override

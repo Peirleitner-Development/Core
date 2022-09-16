@@ -1,5 +1,7 @@
 package at.peirleitner.core.util.local;
 
+import javax.annotation.Nonnull;
+
 /**
  * This class defines the current state saved inside {@link GameMapData}
  * 
@@ -15,7 +17,7 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	AWAITING_APPROVAL,
+	AWAITING_APPROVAL("WOODEN_PICKAXE"),
 
 	/**
 	 * Approved by Build Lead
@@ -23,7 +25,7 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	APPROVED,
+	APPROVED("STONE_PICKAXE"),
 
 	/**
 	 * Marked as done by the Creator, waiting for check by Build Lead
@@ -31,7 +33,7 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	DONE,
+	DONE("IRON_PICKAXE"),
 
 	/**
 	 * Build Lead approved this Map for productive use
@@ -39,7 +41,7 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	FINISHED,
+	FINISHED("DIAMOND_PICKAXE"),
 
 	/**
 	 * Map has been soft-deleted (File still exists)
@@ -47,7 +49,7 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	DELETED,
+	DELETED("BARRIER"),
 
 	/**
 	 * Map isn't available for selective use by the GameCore
@@ -55,6 +57,22 @@ public enum GameMapState {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	DAMAGED;
+	DAMAGED("ANVIL");
+	
+	private final String iconName;
+	
+	private GameMapState(@Nonnull String iconName) {
+		this.iconName = iconName;
+	}
+	
+	/**
+	 * 
+	 * @return Icon Name for {@link GUI}s
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getIconName() {
+		return this.iconName;
+	}
 
 }
