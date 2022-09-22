@@ -387,9 +387,10 @@ public final class Core {
 			try {
 
 				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
-						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon) VALUES (?, ?);");
+						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon, worldType) VALUES (?, ?, ?);");
 				stmt.setString(1, st.getName());
 				stmt.setString(2, st.getIconName());
+				stmt.setString(3, st.getWorldType().toString());
 
 				stmt.execute();
 				this.log(this.getClass(), LogType.INFO,
