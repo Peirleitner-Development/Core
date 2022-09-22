@@ -31,6 +31,7 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.SaveType.WorldType;
 import at.peirleitner.core.util.local.Rank;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
@@ -317,8 +318,11 @@ public final class Core {
 
 		final Collection<String> statements = new ArrayList<>();
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "("
-				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, "
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "PRIMARY KEY (id));");
+				+ "id INT AUTO_INCREMENT NOT NULL, " 
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', " 
+				+ "PRIMARY KEY (id));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
 				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
 				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
@@ -373,10 +377,10 @@ public final class Core {
 		}
 
 		Collection<SaveType> defaultSaveTypes = new ArrayList<>(4);
-		defaultSaveTypes.add(new SaveType(0, "SkyBlock", "GRASS_BLOCK"));
-		defaultSaveTypes.add(new SaveType(0, "CityBuild", "IRON_PICKAXE"));
-		defaultSaveTypes.add(new SaveType(0, "KnockOut", "STICK"));
-		defaultSaveTypes.add(new SaveType(0, "BedWars", "RED_BED"));
+		defaultSaveTypes.add(new SaveType(0, "SkyBlock", "GRASS_BLOCK", WorldType.VOID));
+		defaultSaveTypes.add(new SaveType(0, "CityBuild", "IRON_PICKAXE", WorldType.NORMAL));
+		defaultSaveTypes.add(new SaveType(0, "KnockOut", "STICK", WorldType.VOID));
+		defaultSaveTypes.add(new SaveType(0, "BedWars", "RED_BED", WorldType.VOID));
 
 		for (SaveType st : defaultSaveTypes) {
 
@@ -416,12 +420,12 @@ public final class Core {
 				int id = rs.getInt(1);
 				String name = rs.getString(2);
 				String iconName = rs.getString(3);
+				WorldType worldType = WorldType.valueOf(rs.getString(4));
 
-				SaveType st = new SaveType(id, name, iconName);
+				SaveType st = new SaveType(id, name, iconName, worldType);
 				this.saveTypes.add(st);
 
-				this.log(this.getClass(), LogType.DEBUG, "Loaded SaveType '" + st.getIconName() + "' with name '"
-						+ st.getName() + "' and icon '" + st.getIconName() + "'.");
+				this.log(this.getClass(), LogType.DEBUG, "Loaded SaveType '" + st.toString() + "'.");
 
 			}
 
