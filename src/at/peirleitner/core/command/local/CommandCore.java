@@ -1,6 +1,10 @@
 package at.peirleitner.core.command.local;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.sql.PreparedStatement;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
@@ -8,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -16,6 +21,7 @@ import com.google.gson.JsonParser;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.UUIDFetcher;
 import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
 import net.md_5.bungee.api.ChatColor;
@@ -54,26 +60,54 @@ public class CommandCore implements CommandExecutor {
 				return true;
 			} else if (args[0].equalsIgnoreCase("importOldJsonData")) {
 
-				try {
-					JsonParser parser = new JsonParser();
-					JsonArray a = (JsonArray) parser.parse(new FileReader(Core.getInstance().getDataFolder() + "/players.json"));
-
-					int i=1;
-					for (Object o : a) {
-						JsonObject person = (JsonObject) o;
-
-						String uuid = person.get("uuid").toString();
-						String rank = person.get("rank").toString();
-						long firstJoinTimestamp = person.get("firstJoinTimestamp").getAsLong();
-						long lastQuitTimestamp = person.get("lastQuitTimestamp").getAsLong();
+				
+				new BukkitRunnable() {
+					
+					@Override
+					public void run() {
 						
-						Core.getInstance().log(getClass(), LogType.INFO, "Import #" + i + ": [uuid=" + uuid + ",rank=" + rank + ",firstJoinTimestamp=" + firstJoinTimestamp + ",lastQuitTimestamp=" + lastQuitTimestamp + "]");
-						i++;
+						String c = "";
+						
+						try {
+							JsonParser parser = new JsonParser();
+							JsonArray a = (JsonArray) parser.parse(new FileReader(Core.getInstance().getDataFolder() + "/players.json"));
+
+							File f = new File(Core.getInstance().getDataFolder() + "/sql.txt");
+							if(!f.exists()) {
+								f.createNewFile();
+							}
+							
+							FileWriter fw = new FileWriter(f);
+							
+							int i=1;
+							Core.getInstance().log(getClass(), LogType.INFO, "--- START IMPORT JSON DATA ---");
+							for (Object o : a) {
+								JsonObject person = (JsonObject) o;
+
+								String uuid = person.get("uuid").getAsString();
+								String rank = person.get("rank").getAsString();
+								long firstJoinTimestamp = person.get("firstJoinTimestamp").getAsLong();
+								long lastQuitTimestamp = person.get("lastQuitTimestamp").getAsLong();
+								UUID realUUID = UUID.fromString(uuid);
+								String name = UUIDFetcher.getName(realUUID);
+								fw.write("INSERT IGNORE INTO players (uuid, lastKnownName, registered, lastLogin, lastLogout, rank) VALUES ('" + uuid + "', '" + name + "', '" + firstJoinTimestamp + "', '" + firstJoinTimestamp + "', '" + lastQuitTimestamp + "', '" + rank + "');\n");
+								Core.getInstance().log(getClass(), LogType.INFO, "Imported old JSON-Data (#" + i + ") for UUID '" + uuid + "'.");
+								i++;
+//								Core.getInstance().log(getClass(), LogType.INFO, "Import #" + i + ": [uuid=" + uuid + ",rank=" + rank + ",firstJoinTimestamp=" + firstJoinTimestamp + ",lastQuitTimestamp=" + lastQuitTimestamp + "]");
+//								i++;
+								
+							}
+							
+							fw.close();
+							Core.getInstance().log(getClass(), LogType.INFO, "--- END IMPORT JSON DATA ---");
+							
+						}catch(Exception ex) {
+							Core.getInstance().log(this.getClass(), LogType.ERROR, "Error on import: " + ex.getMessage() + ",uuid='" + c + "'");
+							ex.printStackTrace();
+						}
 						
 					}
-				}catch(Exception ex) {
-					Core.getInstance().log(this.getClass(), LogType.ERROR, "Error on import: " + ex.getMessage());
-				}
+				}.runTaskAsynchronously(SpigotMain.getInstance());
 
 				return true;
 			} else {
