@@ -556,6 +556,10 @@ public class GameMapSystem {
 			
 			stmt.executeUpdate();
 			
+			if(this.isMapCachingEnabled()) {
+				this.cachedMaps.remove(map);
+			}
+			
 			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Deleted Map '" + id + "' from Database.");
 			return true;
 			
