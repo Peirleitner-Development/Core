@@ -532,6 +532,39 @@ public class GameMapSystem {
 		}
 
 	}
+	
+	/**
+	 * This is going to <b>hard-delete</b> the Map from the Database.
+	 * @param id - ID of the Map
+	 * @return If the Map has been deleted
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote Use {@link #setState(GameMap, GameMapState)} with {@link GameMapState#DELETED} to mark the map as soft-deleted.
+	 */
+	public final boolean delete(@Nonnull int id) {
+		
+		GameMap map = this.getMap(id);
+		
+		if(map == null) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not delete Map '" + id + "' because none with that ID could be found.");
+			return false;
+		}
+		
+		try {
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("DELETE FROM " + this.table + " WHERE id = ?");
+			stmt.setInt(1, map.getID());
+			
+			stmt.executeUpdate();
+			
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Deleted Map '" + id + "' from Database.");
+			return true;
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not delete Map '" + map.getID() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+		
+	}
 
 	public final void cache(@Nonnull GameMap map) {
 
