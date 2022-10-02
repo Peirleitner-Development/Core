@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import org.bukkit.Material;
 
+import at.peirleitner.core.util.CustomLocation;
 import at.peirleitner.core.util.database.SaveType;
 
 /**
@@ -18,9 +19,10 @@ import at.peirleitner.core.util.database.SaveType;
  */
 public class GameMap implements GameMapData {
 
+	private int id;
 	private String name;
 	private SaveType saveType;
-	private Material icon;
+	private String iconName;
 	private UUID creator;
 	private Collection<UUID> contributors;
 	private GameMapState state;
@@ -30,16 +32,38 @@ public class GameMap implements GameMapData {
 	public GameMap() {
 	}
 
-	public GameMap(String name, SaveType saveType, Material icon, UUID creator, Collection<UUID> contributors,
+	public GameMap(int id, String name, SaveType saveType, String iconName, UUID creator, Collection<UUID> contributors,
 			GameMapState state, Collection<CustomLocation> spawns, boolean isTeams) {
+		this.id = id;
 		this.name = name;
 		this.saveType = saveType;
-		this.icon = icon;
+		this.iconName = iconName;
 		this.creator = creator;
 		this.contributors = contributors;
 		this.state = state;
 		this.spawns = spawns;
 		this.isTeams = isTeams;
+	}
+
+	public GameMap(String name, SaveType saveType, String iconName, UUID creator, Collection<UUID> contributors,
+			GameMapState state, Collection<CustomLocation> spawns, boolean isTeams) {
+		this.name = name;
+		this.saveType = saveType;
+		this.iconName = iconName;
+		this.creator = creator;
+		this.contributors = contributors;
+		this.state = state;
+		this.spawns = spawns;
+		this.isTeams = isTeams;
+	}
+
+	@Override
+	public final int getID() {
+		return id;
+	}
+
+	public final void setID(int id) {
+		this.id = id;
 	}
 
 	@Override
@@ -61,12 +85,12 @@ public class GameMap implements GameMapData {
 	}
 
 	@Override
-	public final Material getIcon() {
-		return icon;
+	public final String getIconName() {
+		return iconName;
 	}
 
-	public final void setIcon(@Nonnull Material icon) {
-		this.icon = icon;
+	public final void setIconName(@Nonnull String iconName) {
+		this.iconName = iconName;
 	}
 
 	public final Material getDefaultIcon() {
@@ -81,6 +105,16 @@ public class GameMap implements GameMapData {
 	public final void setCreator(UUID creator) {
 		this.creator = creator;
 	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isCreator(@Nonnull UUID uuid) {
+		return this.getCreator().equals(uuid);
+	}
 
 	@Override
 	public final Collection<UUID> getContributors() {
@@ -92,7 +126,17 @@ public class GameMap implements GameMapData {
 	}
 
 	public final boolean hasContributors() {
-		return !this.getContributors().isEmpty();
+		return this.getContributors() == null || this.getContributors().isEmpty() ? false : true;
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isContributor(@Nonnull UUID uuid) {
+		return !this.hasContributors() ? false : this.getContributors().contains(uuid);
 	}
 
 	@Override
@@ -102,6 +146,16 @@ public class GameMap implements GameMapData {
 
 	public final void setState(GameMapState state) {
 		this.state = state;
+	}
+	
+	/**
+	 * 
+	 * @param state
+	 * @return
+	 * @since 1.0.3
+	 */
+	public final boolean isState(@Nonnull GameMapState state) {
+		return this.state == state;
 	}
 
 	@Override
@@ -114,7 +168,7 @@ public class GameMap implements GameMapData {
 	}
 
 	public final boolean hasSpawns() {
-		return !this.getSpawns().isEmpty();
+		return this.getSpawns() == null || this.getSpawns().isEmpty() ? false : true;
 	}
 
 	@Override
@@ -128,6 +182,18 @@ public class GameMap implements GameMapData {
 
 	public final boolean updateToDatabase() {
 		return false;
+	}
+
+	@Override
+	/**
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String toString() {
+		return "GameMap[id=" + id + ",name=" + name + ",saveType={" + saveType.toString() + "},icon=" + iconName
+				+ ",creator=" + creator.toString() + ",contributors={"
+				+ (!hasContributors() ? "null" : contributors.toString()) + "},state=" + state.toString() + ",spawns={"
+				+ (!hasSpawns() ? "null" : spawns.toString()) + "},teams=" + isTeams + "]";
 	}
 
 }

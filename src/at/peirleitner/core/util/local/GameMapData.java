@@ -3,8 +3,7 @@ package at.peirleitner.core.util.local;
 import java.util.Collection;
 import java.util.UUID;
 
-import org.bukkit.Material;
-
+import at.peirleitner.core.util.CustomLocation;
 import at.peirleitner.core.util.database.SaveType;
 
 /**
@@ -15,6 +14,14 @@ import at.peirleitner.core.util.database.SaveType;
  *
  */
 public interface GameMapData {
+
+	/**
+	 * 
+	 * @return Unique ID of this Map
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public int getID();
 
 	/**
 	 * 
@@ -35,10 +42,10 @@ public interface GameMapData {
 	/**
 	 * 
 	 * @return Icon for {@link GUI}s
-	 * @since 1.0.0
+	 * @since 1.0.3
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	public Material getIcon();
+	public String getIconName();
 
 	/**
 	 * 

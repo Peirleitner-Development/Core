@@ -82,6 +82,9 @@ public class SettingsManager {
 		map.put(path + "chat.chat-format", "{player}&8: {message}");
 		map.put(path + "saveType", "-1");
 		map.put(path + "use-tab-header", "true");
+		
+		// v1.0.3
+		map.put(path + "cache-game-maps", "false");
 
 		return map;
 	}

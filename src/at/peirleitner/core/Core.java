@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
@@ -30,6 +31,7 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.SaveType.WorldType;
 import at.peirleitner.core.util.local.Rank;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
@@ -64,6 +66,7 @@ public final class Core {
 	// System
 	private UserSystem userSystem;
 	private StatSystem statSystem;
+	private GameMapSystem gameMapSystem;
 
 	/**
 	 * Create a new Instance
@@ -105,6 +108,7 @@ public final class Core {
 		// System
 		this.userSystem = new UserSystem();
 		this.statSystem = new StatSystem();
+		this.gameMapSystem = new GameMapSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -314,8 +318,11 @@ public final class Core {
 
 		final Collection<String> statements = new ArrayList<>();
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "("
-				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, "
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "PRIMARY KEY (id));");
+				+ "id INT AUTO_INCREMENT NOT NULL, " 
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', " 
+				+ "PRIMARY KEY (id));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
 				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
 				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
@@ -327,12 +334,17 @@ public final class Core {
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" + "name VARCHAR(50) NOT NULL, "
-				+ "saveType INT NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "creator CHAR(36) NOT NULL, " + "contributors VARCHAR(500), "
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" 
+				+ "id INT AUTO_INCREMENT NOT NULL, "
+				+ "name VARCHAR(50) NOT NULL, "
+				+ "saveType INT NOT NULL, " 
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "creator CHAR(36) NOT NULL, " 
+				+ "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
-				+ "spawns MEDIUMTEXT NOT NULL, " + "teams BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY(name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
+				+ "spawns MEDIUMTEXT, " 
+				+ "teams BOOLEAN NOT NULL DEFAULT '0', "
+				+ "PRIMARY KEY(id, name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
 				+ "(id));");
 
 		try {
@@ -365,19 +377,20 @@ public final class Core {
 		}
 
 		Collection<SaveType> defaultSaveTypes = new ArrayList<>(4);
-		defaultSaveTypes.add(new SaveType(0, "SkyBlock", "GRASS_BLOCK"));
-		defaultSaveTypes.add(new SaveType(0, "CityBuild", "IRON_PICKAXE"));
-		defaultSaveTypes.add(new SaveType(0, "KnockOut", "STICK"));
-		defaultSaveTypes.add(new SaveType(0, "BedWars", "RED_BED"));
+		defaultSaveTypes.add(new SaveType(0, "SkyBlock", "GRASS_BLOCK", WorldType.VOID));
+		defaultSaveTypes.add(new SaveType(0, "CityBuild", "IRON_PICKAXE", WorldType.NORMAL));
+		defaultSaveTypes.add(new SaveType(0, "KnockOut", "STICK", WorldType.VOID));
+		defaultSaveTypes.add(new SaveType(0, "BedWars", "RED_BED", WorldType.VOID));
 
 		for (SaveType st : defaultSaveTypes) {
 
 			try {
 
 				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
-						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon) VALUES (?, ?);");
+						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon, worldType) VALUES (?, ?, ?);");
 				stmt.setString(1, st.getName());
 				stmt.setString(2, st.getIconName());
+				stmt.setString(3, st.getWorldType().toString());
 
 				stmt.execute();
 				this.log(this.getClass(), LogType.INFO,
@@ -408,12 +421,12 @@ public final class Core {
 				int id = rs.getInt(1);
 				String name = rs.getString(2);
 				String iconName = rs.getString(3);
+				WorldType worldType = WorldType.valueOf(rs.getString(4));
 
-				SaveType st = new SaveType(id, name, iconName);
+				SaveType st = new SaveType(id, name, iconName, worldType);
 				this.saveTypes.add(st);
 
-				this.log(this.getClass(), LogType.DEBUG, "Loaded SaveType '" + st.getIconName() + "' with name '"
-						+ st.getName() + "' and icon '" + st.getIconName() + "'.");
+				this.log(this.getClass(), LogType.DEBUG, "Loaded SaveType '" + st.toString() + "'.");
 
 			}
 
@@ -572,6 +585,16 @@ public final class Core {
 	 */
 	public final StatSystem getStatSystem() {
 		return this.statSystem;
+	}
+	
+	/**
+	 * 
+	 * @return GameMap System
+	 * @since 1.0.3
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final GameMapSystem getGameMapSystem() {
+		return this.gameMapSystem;
 	}
 
 }

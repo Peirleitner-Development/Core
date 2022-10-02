@@ -1,7 +1,4 @@
-package at.peirleitner.core.util.local;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+package at.peirleitner.core.util;
 
 public class CustomLocation {
 
@@ -44,14 +41,10 @@ public class CustomLocation {
 	public final float getPitch() {
 		return pitch;
 	}
-	
+
 	@Override
 	public String toString() {
 		return worldName + ";" + x + ";" + y + ";" + z + ";" + yaw + ";" + pitch;
-	}
-	
-	public final Location getLocation() {
-		return new Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch);
 	}
 
 }
