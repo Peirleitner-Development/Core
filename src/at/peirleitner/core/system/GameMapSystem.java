@@ -472,8 +472,8 @@ public class GameMapSystem {
 
 	public final boolean setSpawns(@Nonnull GameMap map, @Nonnull Collection<CustomLocation> spawns) {
 
-		if (map.hasSpawns() && map.getSpawns() == spawns)
-			return false;
+//		if (map.hasSpawns() && map.getSpawns() == spawns)
+//			return false;
 
 		try {
 
@@ -488,7 +488,7 @@ public class GameMapSystem {
 				map.setSpawns(spawns);
 			}
 
-			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Spawns of Map '" + map.getID() + ".");
+			Core.getInstance().log(this.getClass(), LogType.DEBUG, "Updated Spawns of Map '" + map.getID() + "'.");
 			return true;
 
 		} catch (SQLException e) {
