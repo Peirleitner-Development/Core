@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.CustomLocation;
@@ -470,7 +471,7 @@ public class GameMapSystem {
 
 	}
 
-	public final boolean setSpawns(@Nonnull GameMap map, @Nonnull Collection<CustomLocation> spawns) {
+	public final boolean setSpawns(@Nonnull GameMap map, @Nullable Collection<CustomLocation> spawns) {
 
 //		if (map.hasSpawns() && map.getSpawns() == spawns)
 //			return false;
@@ -479,7 +480,7 @@ public class GameMapSystem {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
 					.prepareStatement("UPDATE " + this.table + " SET spawns = ? WHERE id = ?");
-			stmt.setString(1, GlobalUtils.getCustomLocationStringFromList(spawns));
+			stmt.setString(1, spawns == null ? null : GlobalUtils.getCustomLocationStringFromList(spawns));
 			stmt.setInt(2, map.getID());
 
 			stmt.executeUpdate();
