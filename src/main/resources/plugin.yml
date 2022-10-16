@@ -14,3 +14,6 @@ commands:
     usage: </command>
     description: Language Management
     aliases: [lang, sprache]
+  motd:
+    usage: </command>
+    description: MOTD Management

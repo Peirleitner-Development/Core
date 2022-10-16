@@ -1,7 +1,9 @@
 package at.peirleitner.core.util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -98,6 +100,21 @@ public class GlobalUtils {
 		}
 		
 		return locs;
+	}
+	
+	/**
+	 * 
+	 * @param timestamp - TimeStamp to convert into a String
+	 * @return Formated TimeStamp
+	 * @since 1.0.4
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote dd.MM.YYYY HH:mm:ss
+	 */
+	public static String getFormatedDate(@Nonnull long timestamp) {
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
+		return sdf.format(new Date(timestamp));
+		
 	}
 
 }

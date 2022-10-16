@@ -85,6 +85,9 @@ public class SettingsManager {
 		
 		// v1.0.3
 		map.put(path + "cache-game-maps", "false");
+		
+		// v1.0.4
+		map.put(path + "cache-motd", "true");
 
 		return map;
 	}
