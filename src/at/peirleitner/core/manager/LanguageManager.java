@@ -10,11 +10,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,9 +32,11 @@ import net.md_5.bungee.api.ChatColor;
  * Manager for message handling.<br>
  * Messages registered via {@link #registerNewMessage(String, String)} will be
  * placed in the default language file {@link #getFile(Language)} with the
- * default language being {@link #getDefaultLanguage()}.<br><br>
+ * default language being {@link #getDefaultLanguage()}.<br>
+ * <br>
  * 
- * Drastic changes have been made in v1.0.5, not all methods may be available before that.
+ * Drastic changes have been made in v1.0.5, not all methods may be available
+ * before that.
  * 
  * @since 1.0.0
  * @author Markus Peirleitner (Rengobli)
@@ -113,7 +112,7 @@ public class LanguageManager {
 
 			// Loop through files for that language
 			for (File f : this.getFiles(language)) {
-				
+
 				Properties p = new Properties();
 				String pluginName = f.getName().split(".properties")[0];
 
@@ -125,9 +124,8 @@ public class LanguageManager {
 
 						String key = entry.getKey().toString();
 						String value = entry.getValue().toString();
-						
-						LanguageMessage message = new LanguageMessage(pluginName, language, key,
-								value);
+
+						LanguageMessage message = new LanguageMessage(pluginName, language, key, value);
 						this.getMessages().add(message);
 
 //						Core.getInstance().log(this.getClass(), LogType.DEBUG, "Cached message " + message.toString());
@@ -350,13 +348,13 @@ public class LanguageManager {
 
 		Properties p = this.getProperties(pluginName, this.getDefaultLanguage());
 		p.setProperty(key, value);
-		
+
 		// Cache message if not registered
-		if(this.getLanguageMessage(pluginName, getDefaultLanguage(), key, null) == null) {
+		if (this.getLanguageMessage(pluginName, getDefaultLanguage(), key, null) == null) {
 			LanguageMessage message = new LanguageMessage(pluginName, getDefaultLanguage(), key, value);
 			this.getMessages().add(message);
 		}
-		
+
 		return this.save(pluginName, p);
 	}
 
@@ -410,18 +408,18 @@ public class LanguageManager {
 		LanguageMessage message = this.getLanguageMessage(pluginName, language, key, replacements);
 
 		// Attempt to load from default file if not existing in here
-		if(message == null) {
-			
+		if (message == null) {
+
 			Properties p = this.getProperties(pluginName, this.getDefaultLanguage());
 			String m = p.getProperty(key);
-			
-			if(m != null) {
+
+			if (m != null) {
 				message = new LanguageMessage(pluginName, this.getDefaultLanguage(), key, m);
 				this.getMessages().add(message);
 			}
-			
+
 		}
-		
+
 		// Message does not exist at all
 		if (message == null) {
 			return this.getMessageNotFoundString(pluginName, key);
