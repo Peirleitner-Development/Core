@@ -13,6 +13,7 @@ import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
+import at.peirleitner.core.listener.local.LeavesDecayListener;
 import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
@@ -59,6 +60,7 @@ public class SpigotMain extends JavaPlugin {
 		new PlayerCommandPreProcessListener();
 		new AsyncPlayerChatListener();
 		new ServerListPingListener();
+		new LeavesDecayListener();
 		
 		// Run
 		this.startTabHeaderRunnable();

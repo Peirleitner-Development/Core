@@ -20,6 +20,10 @@ public class ServerListPingListener implements Listener {
 	@EventHandler
 	public void onServerListPing(ServerListPingEvent e) {
 		
+		if(Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "manager.settings.disable-motd-server-list-ping")) {
+			return;
+		}
+		
 		MOTD motd = Core.getInstance().getMotdSystem().getMOTD();
 		
 		if(motd == null) {

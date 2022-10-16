@@ -73,6 +73,7 @@ public class SettingsManager {
 		final HashMap<String, String> map = new HashMap<>();
 		final String path = "manager.settings.";
 
+		// v1.0.0
 		map.put(path + "is-network", "false");
 		map.put(path + "default-language", Language.ENGLISH.toString());
 		map.put(path + "log-with-simple-class-names", "true");
@@ -88,6 +89,10 @@ public class SettingsManager {
 		
 		// v1.0.4
 		map.put(path + "cache-motd", "true");
+		
+		// v1.0.5
+		map.put(path + "disable-motd-server-list-ping", "false");
+		map.put(path + "disable-leaves-decay", "false");
 
 		return map;
 	}
