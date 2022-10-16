@@ -15,7 +15,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import at.peirleitner.core.Core;
-import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.User;
 
 public class LocalScoreboard {
@@ -174,7 +173,7 @@ public class LocalScoreboard {
 		int i = 0;
 
 		for (Rank r : ranks) {
-			
+
 			if (r == rank) {
 				return i;
 			}

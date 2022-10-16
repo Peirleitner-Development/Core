@@ -129,6 +129,8 @@ public class SpigotMain extends JavaPlugin {
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
+		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.disallow", "&cOperators are not allowed to join this server.");
+		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.remove-status", "&7Your operator status has automatically been removed for security reasons.");
 		
 	}
 	

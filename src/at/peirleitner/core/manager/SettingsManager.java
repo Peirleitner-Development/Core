@@ -29,6 +29,7 @@ public class SettingsManager {
 	public SettingsManager() {
 		this.createSettingsDirectory();
 		this.createProperties(Core.getInstance().getPluginName());
+		this.setDefaultValues(Core.getInstance().getPluginName());
 	}
 
 	private final File getSettingsDirectory() {
@@ -83,16 +84,17 @@ public class SettingsManager {
 		map.put(path + "chat.chat-format", "{player}&8: {message}");
 		map.put(path + "saveType", "-1");
 		map.put(path + "use-tab-header", "true");
-		
+
 		// v1.0.3
 		map.put(path + "cache-game-maps", "false");
-		
+
 		// v1.0.4
 		map.put(path + "cache-motd", "true");
-		
+
 		// v1.0.5
 		map.put(path + "disable-motd-server-list-ping", "false");
 		map.put(path + "disable-leaves-decay", "false");
+		map.put(path + "operator-join-action", "ALLOW");
 
 		return map;
 	}
@@ -102,7 +104,8 @@ public class SettingsManager {
 	}
 
 	public final boolean isChatFormatEnabled() {
-		return Boolean.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.use-core-chat-format"));
+		return Boolean.valueOf(
+				this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.use-core-chat-format"));
 	}
 
 	public final String getChatFormat() {
@@ -110,7 +113,8 @@ public class SettingsManager {
 	}
 
 	public final SaveType getSaveType() {
-		return Core.getInstance().getSaveTypeByID(Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.saveType")));
+		return Core.getInstance().getSaveTypeByID(
+				Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.saveType")));
 	}
 
 	public final boolean isUseTabHeader() {
@@ -119,29 +123,12 @@ public class SettingsManager {
 
 	private final void setDefaultValues(@Nonnull String pluginName) {
 
-		if (this.getFile(pluginName) == null || !this.getFile(pluginName).exists()) {
-			Core.getInstance().log(this.getClass(), LogType.DEBUG,
-					"Did not attempt to set default values because settings file does not exist.");
-			return;
-		}
-
 		// Only set default values for the Core Instance
 		if (!pluginName.equals(Core.getInstance().getPluginName()))
 			return;
-
-		Properties p = this.getProperties(pluginName);
-
 		for (Map.Entry<String, String> entry : this.getDefaultValues().entrySet()) {
-
-			if (this.getProperties(pluginName).get(entry.getKey()) == null) {
-				p.setProperty(entry.getKey(), entry.getValue());
-				Core.getInstance().log(this.getClass(), LogType.DEBUG,
-						"Settings: Added default key '" + entry.getKey() + "' with value '" + entry.getValue() + "'.");
-			}
-
+			this.registerSetting(pluginName, entry.getKey(), entry.getValue());
 		}
-
-		this.save(pluginName, p);
 
 	}
 
@@ -166,7 +153,7 @@ public class SettingsManager {
 	}
 
 	private final Properties getProperties(@Nonnull String pluginName) {
-		
+
 		Properties p = new Properties();
 		try {
 			p.load(new FileInputStream(this.getFile(pluginName)));
@@ -182,10 +169,12 @@ public class SettingsManager {
 	}
 
 	/**
-	 * Register a new setting. This will only use {@link #setSetting(String, String, String)} if the setting doesn't exist.
+	 * Register a new setting. This will only use
+	 * {@link #setSetting(String, String, String)} if the setting doesn't exist.
+	 * 
 	 * @param pluginName - Name of the Plugin
-	 * @param key - Unique key
-	 * @param value - Value
+	 * @param key        - Unique key
+	 * @param value      - Value
 	 * @return If the setting has been registered
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
@@ -193,7 +182,7 @@ public class SettingsManager {
 	public final boolean registerSetting(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
 		return this.getSetting(pluginName, key) == null ? this.setSetting(pluginName, key, value) : false;
 	}
-	
+
 	public final boolean setSetting(@Nonnull String pluginName, @Nonnull String key, @Nonnull String value) {
 		Properties p = this.getProperties(pluginName);
 		p.setProperty(key, value);

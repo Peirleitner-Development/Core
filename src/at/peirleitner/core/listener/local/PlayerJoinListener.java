@@ -8,6 +8,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.local.OperatorJoinAction;
 import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -59,6 +60,33 @@ public class PlayerJoinListener implements Listener {
 			Core.getInstance().log(this.getClass(), LogType.WARNING,
 					"Could not get User Object for UUID '" + p.getUniqueId().toString() + "': Connection disallowed.");
 			return;
+		}
+		
+		// Operator check, v1.0.5
+		if(p.isOp()) {
+			
+			try {
+				
+				OperatorJoinAction action = OperatorJoinAction.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "manager.settings.operator-join-action"));
+				
+				switch(action) {
+				case ALLOW:
+					break;
+				case DISALLOW:
+					p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), "listener.player-join.operator-join-action.disallow", null));
+					break;
+				case REMOVE_STATUS:
+					p.setOp(false);
+					user.sendMessage(Core.getInstance().getPluginName(), "listener.player-join.operator-join-action.remove-status", null, true);
+					break;
+				default:
+					p.kickPlayer(ChatColor.RED + "No OP-Join action could be selected, disallowing for security reasons.");
+				}
+				
+			}catch(NullPointerException | IllegalArgumentException ex) {
+				Core.getInstance().log(this.getClass(), LogType.CRITICAL, "Could not check for OperatorJoinAction - Player " + p.getName() + " is an Operator!");
+			}
+			
 		}
 
 		if (!Core.getInstance().isNetwork()) {
