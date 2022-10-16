@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
+import at.peirleitner.core.util.user.LanguageMessage;
 import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -41,18 +44,25 @@ public class LanguageManager {
 		return "&cCould not get message key '&e" + key + "&c' for plugin '&e" + pluginName
 				+ "&c', please contact the administrator.";
 	}
-	
+
 	/**
-	 * Hosting that powers this server. Message can be replaced inside the language file.
+	 * Hosting that powers this server. Message can be replaced inside the language
+	 * file.
+	 * 
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	private final String POWERED_BY_NAME = "Nayola.net";
+	private Collection<LanguageMessage> messages;
 
 	public LanguageManager() {
 
 		// Create default data
 		this.createDirectory();
+		this.messages = new ArrayList<>();
+
+		// Load Messages
+		this.loadMessages();
 
 	}
 
@@ -76,15 +86,105 @@ public class LanguageManager {
 			this.getMainDirectory().mkdir();
 		}
 
-		// Loop through languages
+	}
+
+	/**
+	 * Load messages into cache
+	 * 
+	 * @return If all messages have been loaded
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	private final boolean loadMessages() {
+
+		// Loop through available languages
 		for (Language language : Language.values()) {
 
-			if (!this.getDirectory(language).exists()) {
-				this.getDirectory(language).mkdir();
+			File directory = this.getDirectory(language);
+
+			if (!directory.exists()) {
+				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Not loading mesages for language '" + language.toString() + "' because the message folder could not be found.");
+				continue;
+			}
+
+			// Loop through files for that language
+			for (File f : this.getFiles(language)) {
+
+				Properties p = new Properties();
+				String pluginName = f.getName().split(".properties")[0];
+
+				try {
+
+					p.load(new FileInputStream(f));
+
+					for (Map.Entry<Object, Object> entry : p.entrySet()) {
+
+						LanguageMessage message = new LanguageMessage(pluginName, language, entry.getKey().toString(),
+								entry.getValue().toString());
+						this.getMessages().add(message);
+
+//						Core.getInstance().log(this.getClass(), LogType.DEBUG, "Cached message " + message.toString());
+
+					}
+
+				} catch (FileNotFoundException e) {
+					Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not load messages for language "
+							+ language.toString() + " because the file does not exist. Error: " + e.getMessage());
+					return false;
+				} catch (IOException e) {
+					Core.getInstance().log(this.getClass(), LogType.WARNING,
+							"Could not get Properties file for language '" + language.toString() + "':"
+									+ e.getMessage());
+					return false;
+				}
+
 			}
 
 		}
 
+		Collection<String> plugins = new ArrayList<>();
+		Collection<Language> languages = new ArrayList<>(Language.values().length);
+		int messages = 0;
+
+		for (LanguageMessage lm : this.getMessages()) {
+
+			if (!plugins.contains(lm.getPluginName())) {
+				plugins.add(lm.getPluginName());
+			}
+			
+			if(!languages.contains(lm.getLanguage())) {
+				languages.add(lm.getLanguage());
+			}
+
+			messages++;
+
+		}
+
+		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + messages + " Messages for " + plugins.size()
+				+ " different Plugins on " + languages.size() + "/" + Language.values().length + " different languages.");
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param language - Language
+	 * @return All message files for the specified language
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	private final File[] getFiles(@Nonnull Language language) {
+		File f = new File(this.getMainDirectory() + "/" + language);
+		return f.listFiles();
+	}
+
+	/**
+	 * @return All messages that have been loaded into the cache by
+	 *         {@link #loadMessages()}
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final Collection<LanguageMessage> getMessages() {
+		return this.messages;
 	}
 
 	private final File getFile(@Nonnull String pluginName, @Nonnull Language language) {
@@ -96,12 +196,12 @@ public class LanguageManager {
 		try {
 			p.load(new FileInputStream(this.getFile(pluginName, language)));
 		} catch (FileNotFoundException e) {
-			
-			if(language != this.getDefaultLanguage()) {
+
+			if (language != this.getDefaultLanguage()) {
 //				Core.getInstance().log(this.getClass(), LogType.DEBUG, "Plugin '" + pluginName + "' does not offer a translation for the language '" + language.toString() + "'.");
 				return this.getProperties(pluginName, this.getDefaultLanguage());
 			}
-			
+
 			this.createProperties(pluginName);
 			return this.getProperties(pluginName, language);
 		} catch (IOException e) {
@@ -154,10 +254,10 @@ public class LanguageManager {
 		map.put("main.cant-target-yourself", "&cYou can't target yourself for this action.");
 		map.put("tab.header", "&8&m---------------------------------------\n" + "&9{0}\n\n"
 				+ "&7Global Players online&8: &f{1}&7/&f{2}\n" + "&7Currently connected to&8: &f{3}\n");
-		map.put("tab.footer", "\n" + "&7Server Help&8: &f/help\n" + "&7Online-Store&8: &f/store\n"
-				+ "&7Request Support&8: &f/support\n\n"
-				+ "&7Powered by &9" + this.POWERED_BY_NAME
-				+ "\n&8&m---------------------------------------");
+		map.put("tab.footer",
+				"\n" + "&7Server Help&8: &f/help\n" + "&7Online-Store&8: &f/store\n"
+						+ "&7Request Support&8: &f/support\n\n" + "&7Powered by &9" + this.POWERED_BY_NAME
+						+ "\n&8&m---------------------------------------");
 
 		return map;
 	}
@@ -249,9 +349,10 @@ public class LanguageManager {
 			@Nonnull String key) {
 		return this.getProperties(pluginName, language).getProperty(key) == null ? false : true;
 	}
-	
+
 	public final String getMessage(@Nonnull PredefinedMessage predefinedMessage) {
-		return this.getMessage(Core.getInstance().getPluginName(), this.getDefaultLanguage(), predefinedMessage.getPath(), null);
+		return this.getMessage(Core.getInstance().getPluginName(), this.getDefaultLanguage(),
+				predefinedMessage.getPath(), null);
 	}
 
 	public final String getMessage(@Nonnull String pluginName, @Nonnull Language language, @Nonnull String key,
@@ -271,6 +372,7 @@ public class LanguageManager {
 		// Load default messages if the plugin is the core itself
 		if (message == null) {
 
+			// Set default values
 			if (pluginName.equals(Core.getInstance().getPluginName())) {
 				this.setDefaultValues(pluginName);
 				message = this.getProperties(pluginName, language).getProperty(key);
@@ -293,57 +395,61 @@ public class LanguageManager {
 
 		return ChatColor.translateAlternateColorCodes('&', message);
 	}
-	
-	public final void broadcastMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
-		
-		if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
-			
-			for(org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
-				
+
+	public final void broadcastMessage(@Nonnull String pluginName, @Nonnull String key,
+			@Nullable List<String> replacements, @Nonnull boolean prefix) {
+
+		if (Core.getInstance().getRunMode() == RunMode.LOCAL) {
+
+			for (org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+
 				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
 				user.sendMessage(pluginName, key, replacements, prefix);
-				
+
 			}
-			
+
 		} else {
-			//TODO: Network-Mode
+			// TODO: Network-Mode
 		}
-		
+
 	}
-	
-	public final void sendMessage(@Nonnull org.bukkit.command.CommandSender cs, @Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
-		
-		if(cs instanceof org.bukkit.entity.Player) {
-			
+
+	public final void sendMessage(@Nonnull org.bukkit.command.CommandSender cs, @Nonnull String pluginName,
+			@Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
+
+		if (cs instanceof org.bukkit.entity.Player) {
+
 			org.bukkit.entity.Player p = (org.bukkit.entity.Player) cs;
 			User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
 			user.sendMessage(pluginName, key, replacements, prefix);
 			return;
-			
+
 		}
-		
+
 		String message = this.getMessage(pluginName, getDefaultLanguage(), key, replacements);
 		cs.sendMessage((prefix ? getPrefix(pluginName, getDefaultLanguage()) : "") + message);
-		
+
 	}
-	
-	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements, @Nonnull boolean prefix) {
-		
-		if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
-			
-			for(org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
-				
-				if(!all.hasPermission(CorePermission.NOTIFY_STAFF.getPermission())) continue;
-				
+
+	public final void notifyStaff(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
+			@Nonnull boolean prefix) {
+
+		if (Core.getInstance().getRunMode() == RunMode.LOCAL) {
+
+			for (org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+
+				if (!all.hasPermission(CorePermission.NOTIFY_STAFF.getPermission()))
+					continue;
+
 				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
 				user.sendMessage(pluginName, key, replacements, prefix);
-				
+
 			}
-			
+
 		} else {
-			//TODO: Network-Mode
+			// TODO: Network-Mode
 		}
-		
+
 	}
 
 }
