@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.GameMapSystem;
+import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
@@ -58,6 +59,7 @@ public final class Core {
 	private final String table_stats = "stats";
 	private final String table_shop = "shop";
 	private final String table_maps = "maps";
+	private final String table_motd = "motd";
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -67,6 +69,7 @@ public final class Core {
 	private UserSystem userSystem;
 	private StatSystem statSystem;
 	private GameMapSystem gameMapSystem;
+	private MotdSystem motdSystem;
 
 	/**
 	 * Create a new Instance
@@ -109,6 +112,7 @@ public final class Core {
 		this.userSystem = new UserSystem();
 		this.statSystem = new StatSystem();
 		this.gameMapSystem = new GameMapSystem();
+		this.motdSystem = new MotdSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -208,6 +212,16 @@ public final class Core {
 	 */
 	public final String getTableMaps() {
 		return this.getTablePrefix() + table_maps;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_motd}
+	 * @since 1.0.4
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableMotd() {
+		return this.getTablePrefix() + table_motd;
 	}
 
 	public final File getDataFolder() {
@@ -317,12 +331,11 @@ public final class Core {
 		final String prefix = this.getMySQL().getTablePrefix();
 
 		final Collection<String> statements = new ArrayList<>();
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "("
-				+ "id INT AUTO_INCREMENT NOT NULL, " 
-				+ "name VARCHAR(50) NOT NULL, "
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', " 
-				+ "PRIMARY KEY (id));");
+		statements.add(
+				"CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "(" + "id INT AUTO_INCREMENT NOT NULL, "
+						+ "name VARCHAR(50) NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+						+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', "
+						+ "PRIMARY KEY (id));");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
 				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
 				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
@@ -334,18 +347,19 @@ public final class Core {
 				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
 				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
 				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " (" 
-				+ "id INT AUTO_INCREMENT NOT NULL, "
-				+ "name VARCHAR(50) NOT NULL, "
-				+ "saveType INT NOT NULL, " 
-				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "creator CHAR(36) NOT NULL, " 
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " ("
+				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, " + "saveType INT NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "creator CHAR(36) NOT NULL, "
 				+ "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
-				+ "spawns MEDIUMTEXT, " 
-				+ "teams BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY(id, name, saveType), " + "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType
-				+ "(id));");
+				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY(id, name, saveType), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_motd + " ("
+				+ "line1 VARCHAR(250) NOT NULL, "
+				+ "line2 VARCHAR(250) NOT NULL, "
+				+ "staff CHAR(36), "
+				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'"
+				+ ");");
 
 		try {
 
@@ -386,8 +400,9 @@ public final class Core {
 
 			try {
 
-				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
-						+ this.getMySQL().getTablePrefix() + this.table_saveType + " (name, icon, worldType) VALUES (?, ?, ?);");
+				PreparedStatement stmt = this.getMySQL().getConnection()
+						.prepareStatement("INSERT INTO " + this.getMySQL().getTablePrefix() + this.table_saveType
+								+ " (name, icon, worldType) VALUES (?, ?, ?);");
 				stmt.setString(1, st.getName());
 				stmt.setString(2, st.getIconName());
 				stmt.setString(3, st.getWorldType().toString());
@@ -586,7 +601,7 @@ public final class Core {
 	public final StatSystem getStatSystem() {
 		return this.statSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return GameMap System
@@ -595,6 +610,16 @@ public final class Core {
 	 */
 	public final GameMapSystem getGameMapSystem() {
 		return this.gameMapSystem;
+	}
+	
+	/**
+	 * 
+	 * @return MotdSystem
+	 * @since 1.0.4
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final MotdSystem getMotdSystem() {
+		return this.motdSystem;
 	}
 
 }

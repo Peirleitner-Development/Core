@@ -9,3 +9,4 @@ blocked phrases
 anti advertising
 GameMap -> SaveType change to ID only
 automated daily restarts
+Add table for records that will periodically be checked by all servers to display data (to share ban messages on all servers for example)
