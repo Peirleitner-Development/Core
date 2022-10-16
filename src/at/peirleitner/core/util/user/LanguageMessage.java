@@ -1,5 +1,9 @@
 package at.peirleitner.core.util.user;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 /**
  * Message that can be send towards a {@link User}
  * 
@@ -34,6 +38,26 @@ public class LanguageMessage {
 
 	public final String getValue() {
 		return value;
+	}
+	
+	public final String getMessage(@Nullable List<String> replacements) {
+		
+		String message = this.getValue();
+		
+		if(replacements != null && !replacements.isEmpty()) {
+			
+			int i = 0;
+			
+			for(String r : replacements) {
+				
+				message = message.replace("{" + i + "}", r);
+				i++;
+				
+			}
+			
+		}
+		
+		return message;
 	}
 	
 	@Override
