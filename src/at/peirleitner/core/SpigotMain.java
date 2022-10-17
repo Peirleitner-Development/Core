@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandLanguage;
+import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -52,6 +53,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandLanguage();
 		new CommandCore();
 		new CommandMotd();
+		new CommandMaintenance();
 
 		// Listener
 		new PlayerJoinListener();
@@ -98,6 +100,15 @@ public class SpigotMain extends JavaPlugin {
 				+ "&7[&9+&7] &9{1}\n"
 				+ "&7[&9+&7] &9{2}");
 		
+		// Other
+		languageManager.registerNewMessage(pluginName, "maintenance.kick", "&f&l{0}\n"
+				+ "&c&lSERVER MAINTENANCE\n\n"
+				+ "&7Maintenance mode has been enabled.\n"
+				+ "&7Please visit our website for further details about this incident.\n\n"
+				+ "&7Web&8: &e{1}");
+		languageManager.registerNewMessage(pluginName, "maintenance.broadcast.on", "&9{0} &7enabled maintenance mode");
+		languageManager.registerNewMessage(pluginName, "maintenance.broadcast.off", "&9{0} &7disabled maintenance mode");
+		
 		// GUI
 		languageManager.registerNewMessage(pluginName, "gui.gui-builder.item.current-page", "&7Current Page&7: &9{0}&7/&9{1}");
 		languageManager.registerNewMessage(pluginName, "gui.gui-builder.item.next-page", "&7Next Page");
@@ -127,10 +138,28 @@ public class SpigotMain extends JavaPlugin {
 				+ "{1}");
 		languageManager.registerNewMessage(pluginName, "command.motd.set.error.sql", "&cCould not update MOTD, please see console for details.");
 		
+		languageManager.registerNewMessage(pluginName, "command.maintenance.syntax", "&7Syntax&8: &9/maintenance <list/add/remove/on/off/toggle> [Player]");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.list.success.empty", "&7No players are currently placed on the maintenance list.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.list.success.listing-in-chat", "&7The following players are on the maintenance list&8:");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.on.success", "&7Maintenance mode has been enabled.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.on.error", "&cMaintenance mode could not be enabled, see console for details.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.off.success", "&7Maintenance mode has been disabled.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.off.error", "&cMaintenance mode could not be disabled, see console for details.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.whitelist.error.player-not-registered", "&cThe player &e{0} &cis not registered.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.add.success", "&7Successfully added &9{0} &7to the maintenance list.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.add.error", "&cCould not add &e{0} &cto the maintenance list, see console for more details.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.remove.success", "&7Successfully removed &9{0} &7from the maintenance list.");
+		languageManager.registerNewMessage(pluginName, "command.maintenance.remove.error", "&cCould not remove &e{0} &cfrom the maintenance list, see console for more details.");
+		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.disallow", "&cOperators are not allowed to join this server.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.remove-status", "&7Your operator status has automatically been removed for security reasons.");
+		languageManager.registerNewMessage(pluginName, "listener.async-player-pre-login.maintenance", "&f&l{0}\n"
+				+ "&c&lSERVER MAINTENANCE\n\n"
+				+ "&7Only staff members are currently allowed to join the server.\n"
+				+ "&7Please visit our website for further details about this incident.\n\n"
+				+ "&7Web&8: &e{1}");
 		
 	}
 	

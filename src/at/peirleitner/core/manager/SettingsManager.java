@@ -5,15 +5,21 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.PredefinedDatabaseSetting;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
@@ -95,12 +101,23 @@ public class SettingsManager {
 		map.put(path + "disable-motd-server-list-ping", "false");
 		map.put(path + "disable-leaves-decay", "false");
 		map.put(path + "operator-join-action", "ALLOW");
+		map.put(path + "server-website", "www.example.com");
 
 		return map;
 	}
 
 	public final String getServerName() {
 		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_NAME.getPath());
+	}
+	
+	/**
+	 * 
+	 * @return Website
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getServerWebsite() {
+		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_WEBSITE.getPath());
 	}
 
 	public final boolean isChatFormatEnabled() {
@@ -201,6 +218,95 @@ public class SettingsManager {
 		Properties p = this.getProperties(pluginName);
 		p.remove(key);
 		return this.save(pluginName, p);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @since 1.0.5
+	 */
+	public final boolean setDefaultDatabaseSettings() {
+		
+		if(Core.getInstance().getMySQL() == null || !Core.getInstance().getMySQL().isConnected()) {
+			Core.getInstance().log(getClass(), LogType.DEBUG, "Did not attempt to load default database settings because mysql connection has not been established.");
+			return false;
+		}
+		
+		try {
+			
+			for(PredefinedDatabaseSetting pds : PredefinedDatabaseSetting.values()) {
+				
+				PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT IGNORE INTO " + Core.getInstance().getTableSettings() + " (setting, value, staff, changed) VALUES (?, ?, ?, ?);");
+				stmt.setString(1, pds.name().toString().toLowerCase());
+				stmt.setString(2, pds.getDefaultValue());
+				stmt.setString(3, null);
+				stmt.setLong(4, System.currentTimeMillis());
+				
+				stmt.executeUpdate();
+				
+			}
+			
+			return true;
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not set default database settings/SQL: " + e.getMessage());
+			return false;
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @since 1.0.5
+	 */
+	public final boolean setDatabaseSetting(@Nonnull String key, @Nonnull String value, @Nullable UUID staff) {
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + Core.getInstance().getTableSettings() + " SET value = ?, staff = ?, changed = ? WHERE key = ?");
+			stmt.setString(1, value);
+			stmt.setString(2, staff == null ? null : staff.toString());
+			stmt.setLong(3, System.currentTimeMillis());
+			stmt.setString(4, key);
+			
+			stmt.executeUpdate();
+			return true;
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(this.getClass(), LogType.ERROR, "Could not set database setting '" + key + "'/SQL: " + e.getMessage());
+			return false;
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 * @since 1.0.5
+	 */
+	public final String getDatabaseSetting(@Nonnull String key) {
+		
+		//TODO: Return as 'DatabaseSetting' object
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT value FROM " + Core.getInstance().getTableSettings() + " WHERE key = ?");
+			ResultSet rs = stmt.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getString(1);
+			} else {
+				// No result
+				return null;
+			}
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not get Database Setting '" + key + "/SQL:" + e.getMessage());
+			return null;
+		}
+		
 	}
 
 }

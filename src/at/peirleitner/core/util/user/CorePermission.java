@@ -2,9 +2,10 @@ package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.command.local.CommandMaintenance;
+
 public enum CorePermission {
 
-	MAIN_LOGIN_BYPASS_MAINTENANCE("core.login.bypass.maintenance"),
 	COMMAND_CORE_ADMIN("core.command.core.admin"),
 	COMMAND_LANGUAGE("core.command.language"),
 	
@@ -14,6 +15,21 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_MOTD("core.command.motd"),
+	
+	/**
+	 * Access to the {@link CommandMaintenance} command
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+ 	 */
+	COMMAND_MAINTENANCE("core.command.maintenance"),
+	
+	/**
+	 * Bypass active maintenance mode
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	BYPASS_MAINTENANCE("core.bypass.maintenance"),
+	
 	NOTIFY_STAFF("Core.notify")
 	;
 	

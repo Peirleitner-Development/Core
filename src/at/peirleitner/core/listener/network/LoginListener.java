@@ -66,7 +66,7 @@ public class LoginListener implements Listener {
 
 			ProxiedPlayer pp = ProxyServer.getInstance().getPlayer(uuid);
 
-			if (!pp.hasPermission(CorePermission.MAIN_LOGIN_BYPASS_MAINTENANCE.getPermission())) {
+			if (!pp.hasPermission(CorePermission.BYPASS_MAINTENANCE.getPermission())) {
 				e.setCancelled(true);
 				e.setCancelReason(new TextComponent("Network Maintenance")); // TODO: Replace message
 				Core.getInstance().log(this.getClass(), LogType.DEBUG,
@@ -75,7 +75,7 @@ public class LoginListener implements Listener {
 				Core.getInstance().log(this.getClass(), LogType.DEBUG,
 						"Allowed Login for User '" + user.getUUID().toString()
 								+ "' whilst maintenance is active due to permission node '"
-								+ CorePermission.MAIN_LOGIN_BYPASS_MAINTENANCE.getPermission() + "'.");
+								+ CorePermission.BYPASS_MAINTENANCE.getPermission() + "'.");
 			}
 
 			return;

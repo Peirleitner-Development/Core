@@ -9,7 +9,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.local.OperatorJoinAction;
-import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
 
@@ -32,23 +31,6 @@ public class PlayerJoinListener implements Listener {
 			// Create Player Object if none exists
 			Core.getInstance().getUserSystem().register(p.getUniqueId(), p.getName());
 
-			// Check for network maintenance
-			if (this.isMaintenance()) {
-
-				if (!p.hasPermission(CorePermission.MAIN_LOGIN_BYPASS_MAINTENANCE.getPermission())) {
-					p.kickPlayer("Network Maintenance"); // TODO: Replace message
-					Core.getInstance().log(this.getClass(), LogType.DEBUG,
-							"Disallowed Login for User '" + p.getUniqueId().toString() + "': Maintenance active.");
-				} else {
-					Core.getInstance().log(this.getClass(), LogType.DEBUG,
-							"Allowed Login for User '" + p.getUniqueId().toString()
-									+ "' whilst maintenance is active due to permission node '"
-									+ CorePermission.MAIN_LOGIN_BYPASS_MAINTENANCE.getPermission() + "'.");
-				}
-
-				return;
-			}
-
 		}
 
 		// Define User
@@ -61,32 +43,37 @@ public class PlayerJoinListener implements Listener {
 					"Could not get User Object for UUID '" + p.getUniqueId().toString() + "': Connection disallowed.");
 			return;
 		}
-		
+
 		// Operator check, v1.0.5
-		if(p.isOp()) {
-			
+		if (p.isOp()) {
+
 			try {
-				
-				OperatorJoinAction action = OperatorJoinAction.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "manager.settings.operator-join-action"));
-				
-				switch(action) {
+
+				OperatorJoinAction action = OperatorJoinAction.valueOf(Core.getInstance().getSettingsManager()
+						.getSetting(Core.getInstance().getPluginName(), "manager.settings.operator-join-action"));
+
+				switch (action) {
 				case ALLOW:
 					break;
 				case DISALLOW:
-					p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), "listener.player-join.operator-join-action.disallow", null));
+					p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(),
+							user.getLanguage(), "listener.player-join.operator-join-action.disallow", null));
 					break;
 				case REMOVE_STATUS:
 					p.setOp(false);
-					user.sendMessage(Core.getInstance().getPluginName(), "listener.player-join.operator-join-action.remove-status", null, true);
+					user.sendMessage(Core.getInstance().getPluginName(),
+							"listener.player-join.operator-join-action.remove-status", null, true);
 					break;
 				default:
-					p.kickPlayer(ChatColor.RED + "No OP-Join action could be selected, disallowing for security reasons.");
+					p.kickPlayer(
+							ChatColor.RED + "No OP-Join action could be selected, disallowing for security reasons.");
 				}
-				
-			}catch(NullPointerException | IllegalArgumentException ex) {
-				Core.getInstance().log(this.getClass(), LogType.CRITICAL, "Could not check for OperatorJoinAction - Player " + p.getName() + " is an Operator!");
+
+			} catch (NullPointerException | IllegalArgumentException ex) {
+				Core.getInstance().log(this.getClass(), LogType.CRITICAL,
+						"Could not check for OperatorJoinAction - Player " + p.getName() + " is an Operator!");
 			}
-			
+
 		}
 
 		if (!Core.getInstance().isNetwork()) {
@@ -105,7 +92,8 @@ public class PlayerJoinListener implements Listener {
 	}
 
 	private final boolean isMaintenance() {
-		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "manager.settings.maintenance"));
+		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(),
+				"manager.settings.maintenance"));
 	}
 
 }
