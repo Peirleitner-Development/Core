@@ -93,7 +93,7 @@ public class CommandMaintenance implements CommandExecutor {
 
 			} else if (args[0].equalsIgnoreCase("off")) {
 
-				boolean updated = this.getMaintenanceSystem().setMaintenance(true);
+				boolean updated = this.getMaintenanceSystem().setMaintenance(false);
 
 				Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
 						"command.maintenance.off." + (updated ? "success" : "error"), null, true);
@@ -176,7 +176,7 @@ public class CommandMaintenance implements CommandExecutor {
 
 			} else if (args[0].equalsIgnoreCase("remove")) {
 
-				boolean updated = this.getMaintenanceSystem().addToWhitelist(user.getUUID());
+				boolean updated = this.getMaintenanceSystem().removeFromWhitelist(user.getUUID());
 				Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
 						"command.maintenance.remove." + (updated ? "success" : "error"),
 						Arrays.asList(user.getDisplayName()), true);

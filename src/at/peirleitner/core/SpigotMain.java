@@ -160,6 +160,8 @@ public class SpigotMain extends JavaPlugin {
 				+ "&7Only staff members are currently allowed to join the server.\n"
 				+ "&7Please visit our website for further details about this incident.\n\n"
 				+ "&7Web&8: &e{1}");
+		languageManager.registerNewMessage(pluginName, "listener.server-list-ping.maintenance", "&e{0} &7[&d{1}&7]\n"
+				+ "&8> &cServer Maintenance &7| &e{2}");
 		
 	}
 	

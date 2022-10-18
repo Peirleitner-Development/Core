@@ -66,9 +66,8 @@ public class MaintenanceSystem {
 	 * @see CorePermission#BYPASS_MAINTENANCE
 	 */
 	public final boolean isMaintenance() {
-		return Core.getInstance().getSettingsManager() == null ? true
-				: Boolean.valueOf(
-						Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), ""));
+		return Boolean.valueOf(
+						Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(), "manager.settings.maintenance"));
 	}
 
 	public final boolean toggleMaintenance() {
@@ -145,7 +144,7 @@ public class MaintenanceSystem {
 		if (this.isListedInDatabase(uuid)) {
 			Core.getInstance().log(getClass(), LogType.DEBUG,
 					"Did not add '" + uuid.toString() + "' to whitelist: Already listed.");
-			return true;
+			return false;
 		}
 
 		try {
@@ -173,7 +172,7 @@ public class MaintenanceSystem {
 		if (!this.isListedInDatabase(uuid)) {
 			Core.getInstance().log(getClass(), LogType.DEBUG,
 					"Did not remove '" + uuid.toString() + "' to whitelist: Not listed.");
-			return true;
+			return false;
 		}
 
 		try {

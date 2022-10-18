@@ -91,9 +91,4 @@ public class PlayerJoinListener implements Listener {
 
 	}
 
-	private final boolean isMaintenance() {
-		return Boolean.valueOf(Core.getInstance().getSettingsManager().getSetting(Core.getInstance().getPluginName(),
-				"manager.settings.maintenance"));
-	}
-
 }
