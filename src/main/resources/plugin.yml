@@ -17,3 +17,7 @@ commands:
   motd:
     usage: </command>
     description: MOTD Management
+  maintenance:
+    usage: </command>
+    description: Maintenance Management
+    aliases: [wartung, wartungen]

@@ -1,7 +1,10 @@
 package at.peirleitner.core.util.local;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -109,9 +112,9 @@ public class LocalScoreboard {
 
 		Scoreboard s = this.getPlayerScoreboard(p);
 		for (Rank rank : Core.getInstance().getRanks()) {
-			Team t = s.getTeam("" + rank.getPriority());
+			Team t = s.getTeam("" + this.getTeamID(rank));
 			if (t == null) {
-				t = s.registerNewTeam("" + rank.getPriority());
+				t = s.registerNewTeam("" + this.getTeamID(rank));
 //				Bukkit.getConsoleSender().sendMessage("Registered team §a" + rank.getRightOrdinal() + " for rank " + rank.getName());
 			}
 
@@ -137,11 +140,9 @@ public class LocalScoreboard {
 //			o.getScore(all.getName()).setScore(user.getLevel()); // TODO: Update to real level
 
 			Rank rank = user.getRank();
-			
-			Team t = getPlayerScoreboard(p).getTeam("" + rank.getPriority());
-			t.addEntry(all.getName());
 
-			
+			Team t = getPlayerScoreboard(p).getTeam("" + this.getTeamID(rank));
+			t.addEntry(all.getName());
 
 			// Set the tab prefix here
 			all.setPlayerListName((!rank.isDefault()
@@ -163,6 +164,26 @@ public class LocalScoreboard {
 //		t.addEntry(p.getName());
 
 		p.setScoreboard(s);
+	}
+
+	private int getTeamID(@Nonnull Rank rank) {
+
+		List<Rank> ranks = Core.getInstance().getInRightOrder();
+
+		int i = 0;
+
+		for (Rank r : ranks) {
+
+			if (r == rank) {
+				return i;
+			}
+
+			i++;
+
+		}
+
+		return -1;
+
 	}
 
 }

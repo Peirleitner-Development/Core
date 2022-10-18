@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.GameMapSystem;
+import at.peirleitner.core.system.MaintenanceSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
@@ -60,6 +61,8 @@ public final class Core {
 	private final String table_shop = "shop";
 	private final String table_maps = "maps";
 	private final String table_motd = "motd";
+	private final String table_settings = "settings";
+	private final String table_maintenance = "maintenance";
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -70,6 +73,7 @@ public final class Core {
 	private StatSystem statSystem;
 	private GameMapSystem gameMapSystem;
 	private MotdSystem motdSystem;
+	private MaintenanceSystem maintenanceSystem;
 
 	/**
 	 * Create a new Instance
@@ -107,12 +111,14 @@ public final class Core {
 
 		this.createTables();
 		this.loadSaveTypes();
+//		this.settingsManager.setDefaultDatabaseSettings();
 
 		// System
 		this.userSystem = new UserSystem();
 		this.statSystem = new StatSystem();
 		this.gameMapSystem = new GameMapSystem();
 		this.motdSystem = new MotdSystem();
+		this.maintenanceSystem = new MaintenanceSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -222,6 +228,26 @@ public final class Core {
 	 */
 	public final String getTableMotd() {
 		return this.getTablePrefix() + table_motd;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_settings}
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableSettings() {
+		return this.getTablePrefix() + table_settings;
+	}
+
+	/**
+	 * 
+	 * @return {@link #table_maintenance}
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getTableMaintenance() {
+		return this.getTablePrefix() + table_maintenance;
 	}
 
 	public final File getDataFolder() {
@@ -354,12 +380,14 @@ public final class Core {
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
 				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY(id, name, saveType), "
 				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_motd + " ("
-				+ "line1 VARCHAR(250) NOT NULL, "
-				+ "line2 VARCHAR(250) NOT NULL, "
-				+ "staff CHAR(36), "
-				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'"
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_motd + " (" + "line1 VARCHAR(250) NOT NULL, "
+				+ "line2 VARCHAR(250) NOT NULL, " + "staff CHAR(36), " + "changed BIGINT(255) NOT NULL DEFAULT '-1'"
 				+ ");");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_settings + " ("
+				+ "setting VARCHAR(100) PRIMARY KEY NOT NULL, " + "value VARCHAR(100) NOT NULL, " + "staff CHAR(36), "
+				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maintenance + " ("
+				+ "uuid CHAR(36) PRIMARY KEY NOT NULL" + ");");
 
 		try {
 
@@ -513,6 +541,8 @@ public final class Core {
 				: BungeeMain.getInstance().getDescription().getName();
 	}
 
+	// | Settings | \\
+
 	/**
 	 * 
 	 * @return If the admins of this server are performing on a network/proxy.<br>
@@ -611,7 +641,7 @@ public final class Core {
 	public final GameMapSystem getGameMapSystem() {
 		return this.gameMapSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return MotdSystem
@@ -620,6 +650,16 @@ public final class Core {
 	 */
 	public final MotdSystem getMotdSystem() {
 		return this.motdSystem;
+	}
+	
+	/**
+	 * 
+	 * @return MaintenanceSystem
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final MaintenanceSystem getMaintenanceSystem() {
+		return this.maintenanceSystem;
 	}
 
 }

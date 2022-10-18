@@ -1,7 +1,9 @@
 package at.peirleitner.core.listener.local;
 
+import java.util.Arrays;
 import java.util.UUID;
 
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
@@ -10,7 +12,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.User;
-import net.md_5.bungee.event.EventHandler;
 
 public class AsyncPlayerPreLoginListener implements Listener {
 
@@ -21,12 +22,37 @@ public class AsyncPlayerPreLoginListener implements Listener {
 	@EventHandler
 	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
 
+		Core.getInstance().log(getClass(), LogType.DEBUG, "Network-Mode: " + Core.getInstance().isNetwork()
+				+ " | RunMode: " + Core.getInstance().getRunMode().toString());
+
 		// Tasks will only be performed if network-mode is disabled
 		if (Core.getInstance().isNetwork())
 			return;
 
 		UUID uuid = e.getUniqueId();
 		User user = Core.getInstance().getUserSystem().getUser(uuid);
+
+		Core.getInstance().log(getClass(), LogType.DEBUG,
+				"Maintenance: " + Core.getInstance().getMaintenanceSystem().isMaintenance());
+		Core.getInstance().log(getClass(), LogType.DEBUG,
+				"Whitelisted: " + Core.getInstance().getMaintenanceSystem().isWhitelisted(uuid));
+
+		// Maintenance
+		if (Core.getInstance().getMaintenanceSystem().isMaintenance()
+				&& !Core.getInstance().getMaintenanceSystem().isWhitelisted(uuid)) {
+			e.setLoginResult(Result.KICK_OTHER);
+
+			String message = Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(),
+					user == null ? Core.getInstance().getDefaultLanguage() : user.getLanguage(),
+					"listener.async-player-pre-login.maintenance",
+					Arrays.asList(Core.getInstance().getSettingsManager().getServerName(),
+							Core.getInstance().getSettingsManager().getServerWebsite()));
+
+			e.setKickMessage(message);
+			Core.getInstance().log(this.getClass(), LogType.DEBUG,
+					"Disallowed connection for UUID '" + uuid.toString() + "': Not whitelisted on maintenance list.");
+			return;
+		}
 
 		// Don't check for disabled accounts if the account doesn't even exist.
 		if (user == null) {

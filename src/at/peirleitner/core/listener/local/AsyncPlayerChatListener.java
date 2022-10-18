@@ -30,11 +30,13 @@ public class AsyncPlayerChatListener implements Listener {
 		if (Core.getInstance().getSettingsManager().isChatFormatEnabled()) {
 
 			Rank rank = user.getRank();
+			String message = e.getMessage();
+			message = message.replace("%", "%%");
 
 			e.setFormat(
 					ChatColor.translateAlternateColorCodes('&', Core.getInstance().getSettingsManager().getChatFormat())
 							.replace("{player}", rank.getChatColor() + p.getDisplayName())
-							.replace("{message}", rank.getRankType().getTextColor() + e.getMessage()));
+							.replace("{message}", rank.getRankType().getTextColor() + message));
 		}
 	}
 

@@ -13,6 +13,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.CustomLocation;
 
 public class LocalUtils {
@@ -75,6 +76,21 @@ public class LocalUtils {
 		} catch (ClassNotFoundException e) {
 			throw new IOException("Unable to decode class type.", e);
 		}
+	}
+	
+	/**
+	 * 
+	 * @return Server Version formated by 1.MAJOR.MINOR
+	 * @since 1.0.5
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static String getServerVersion() {
+		
+		String version = SpigotMain.getInstance().getServer().getBukkitVersion();
+		String v = version.split("-")[0];
+		
+		return v;
+		
 	}
 
 }
