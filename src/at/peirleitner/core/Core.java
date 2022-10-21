@@ -24,12 +24,14 @@ import com.google.gson.GsonBuilder;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.GameMapSystem;
+import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
@@ -55,14 +57,14 @@ public final class Core {
 	private final Collection<Rank> ranks;
 	private File ranksFile;
 
-	private final String table_saveType = "saveType";
-	private final String table_users = "users";
-	private final String table_stats = "stats";
-	private final String table_shop = "shop";
-	private final String table_maps = "maps";
-	private final String table_motd = "motd";
-	private final String table_settings = "settings";
-	private final String table_maintenance = "maintenance";
+	private final String table_saveType = TableType.SAVE_TYPE.getTableName(true);
+	private final String table_users = TableType.USERS.getTableName(true);
+	private final String table_stats = TableType.STATS.getTableName(true);
+	private final String table_shop = TableType.SHOP.getTableName(true);
+	private final String table_maps = TableType.MAPS.getTableName(true);
+	private final String table_motd = TableType.MOTD.getTableName(true);
+	private final String table_settings = TableType.SETTINGS.getTableName(true);
+	private final String table_maintenance = TableType.MAINTENANCE.getTableName(true);
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -74,6 +76,7 @@ public final class Core {
 	private GameMapSystem gameMapSystem;
 	private MotdSystem motdSystem;
 	private MaintenanceSystem maintenanceSystem;
+	private LicenseSystem licenseSystem;
 
 	/**
 	 * Create a new Instance
@@ -119,6 +122,7 @@ public final class Core {
 		this.gameMapSystem = new GameMapSystem();
 		this.motdSystem = new MotdSystem();
 		this.maintenanceSystem = new MaintenanceSystem();
+		this.licenseSystem = new LicenseSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -166,86 +170,101 @@ public final class Core {
 		return this.mysql;
 	}
 
-	private final String getTablePrefix() {
+	/**
+	 * 
+	 * @return Table prefix
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote Before v1.0.6 this method has been <code>private</code>.
+	 */
+	public final String getTablePrefix() {
 		return this.getMySQL().isConnected() ? this.getMySQL().getTablePrefix() : "NOT_CONNECTED_";
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_saveType}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSaveType() {
 		return this.getTablePrefix() + table_saveType;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_users}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableUsers() {
 		return this.getTablePrefix() + table_users;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_stats}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableStats() {
 		return this.getTablePrefix() + table_stats;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_shop}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableShop() {
 		return this.getTablePrefix() + table_shop;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_maps}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaps() {
 		return this.getTablePrefix() + table_maps;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_motd}
 	 * @since 1.0.4
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMotd() {
 		return this.getTablePrefix() + table_motd;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_settings}
 	 * @since 1.0.5
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSettings() {
 		return this.getTablePrefix() + table_settings;
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_maintenance}
 	 * @since 1.0.5
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaintenance() {
 		return this.getTablePrefix() + table_maintenance;
 	}
@@ -388,6 +407,22 @@ public final class Core {
 				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maintenance + " ("
 				+ "uuid CHAR(36) PRIMARY KEY NOT NULL" + ");");
+		statements.add("CREATE TABLE IF NOT EXISTS " + TableType.LICENSES_MASTER.getTableName(true) + " ("
+				+ "id INT AUTO_INCREMENT NOT NULL, "
+				+ "saveType INT NOT NULL, "
+				+ "name VARCHAR(100) NOT NULL, "
+				+ "created BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "expire BIGINT(255) NOT NULL DFAULT '-1', "
+				+ "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "PRIMARY KEY (id, saveType, name), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
+		statements.add("CREATE TABLE IF NOT EXISTS " + TableType.LICENSES_USER.getTableName(true) + " ("
+				+ "uuid CHAR(36) NOT NULL, "
+				+ "license INT NOT NULL, "
+				+ "issued BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "PRIMARY KEY (uuid, license), "
+				+ "FOREIGN KEY (license) REFERENCES " + TableType.LICENSES_MASTER.getTableName(true) + "(id));");
 
 		try {
 
@@ -651,7 +686,7 @@ public final class Core {
 	public final MotdSystem getMotdSystem() {
 		return this.motdSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return MaintenanceSystem
@@ -660,6 +695,16 @@ public final class Core {
 	 */
 	public final MaintenanceSystem getMaintenanceSystem() {
 		return this.maintenanceSystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link LicenseSystem}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final LicenseSystem getLicenseSystem() {
+		return this.licenseSystem;
 	}
 
 }

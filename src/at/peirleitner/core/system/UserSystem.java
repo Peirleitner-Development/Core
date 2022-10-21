@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.User;
 
@@ -23,7 +24,7 @@ import at.peirleitner.core.util.user.User;
  */
 public final class UserSystem {
 
-	private final String table = Core.getInstance().getTableUsers();
+	private final String table = TableType.USERS.getTableName(true);
 	private Collection<User> cachedUsers;
 
 	public UserSystem() {

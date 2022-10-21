@@ -9,11 +9,12 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.SaveType;
 
 public class StatSystem {
 
-	private final String table = Core.getInstance().getTableStats();
+	private final String table = TableType.STATS.getTableName(true);
 	private final SaveType saveType = Core.getInstance().getSettingsManager().getSaveType();
 
 	/**
