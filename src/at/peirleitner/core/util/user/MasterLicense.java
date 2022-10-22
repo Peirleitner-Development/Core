@@ -1,5 +1,7 @@
 package at.peirleitner.core.util.user;
 
+import javax.annotation.Nonnull;
+
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.SaveType;
@@ -19,7 +21,7 @@ public final class MasterLicense {
 	private final int saveTypeID;
 	private final String name;
 	private final long created;
-	private final long expire;
+	private long expire;
 	private final String iconName;
 
 	public MasterLicense(int id, int saveTypeID, String name, long created, long expire, String iconName) {
@@ -83,14 +85,18 @@ public final class MasterLicense {
 		return expire;
 	}
 	
+	public final void setExpire(@Nonnull long expire) {
+		this.expire = expire;
+	}
+
 	public final boolean isPermanent() {
 		return this.getExpire() == -1;
 	}
-	
+
 	public final boolean isExpired() {
-		return !this.isPermanent() && System.currentTimeMillis() >= this.getExpire();
+		return this.isPermanent() ? false : System.currentTimeMillis() >= this.getExpire() ? true : false;
 	}
-	
+
 	public final boolean isValid() {
 		return !this.isExpired();
 	}
@@ -103,6 +109,13 @@ public final class MasterLicense {
 	 */
 	public final String getIconName() {
 		return iconName;
+	}
+
+	@Override
+	public String toString() {
+		return "MasterLicense[id=" + this.getID() + ", saveType=" + this.getSaveTypeID() + ", name=" + this.getName()
+				+ ",created=" + this.getCreated() + ",expire=" + this.getExpire() + ",iconName=" + this.getIconName()
+				+ "]";
 	}
 
 }

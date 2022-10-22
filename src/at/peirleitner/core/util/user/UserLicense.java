@@ -2,6 +2,8 @@ package at.peirleitner.core.util.user;
 
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 import at.peirleitner.core.Core;
 
 /**
@@ -13,9 +15,9 @@ import at.peirleitner.core.Core;
  */
 public class UserLicense {
 
-	private UUID owner;
-	private int licenseID;
-	private long issued;
+	private final UUID owner;
+	private final int licenseID;
+	private final long issued;
 	private long expire;
 
 	public UserLicense(UUID owner, int licenseID, long issued, long expire) {
@@ -50,17 +52,27 @@ public class UserLicense {
 	public final long getExpire() {
 		return expire;
 	}
+	
+	public final void setExpire(@Nonnull long expire) {
+		this.expire = expire;
+	}
 
 	public final boolean isPermanent() {
 		return this.getExpire() == -1;
 	}
 
 	public final boolean isExpired() {
-		return !this.isPermanent() && System.currentTimeMillis() >= this.getExpire();
+		return this.isPermanent() ? false : System.currentTimeMillis() >= this.getExpire() ? true : false;
 	}
 
 	public final boolean isValid() {
-		return !this.isExpired();
+		return this.isExpired() || !this.getMasterLicense().isValid() ? false : true;
+	}
+
+	@Override
+	public String toString() {
+		return "UserLicense[uuid=" + this.getOwner().toString() + ",license=" + this.getLicenseID() + ",issued="
+				+ this.getIssued() + ",expire=" + this.getExpire() + "]";
 	}
 
 }

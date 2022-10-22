@@ -2,6 +2,7 @@ package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
 
 public enum CorePermission {
@@ -22,6 +23,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
  	 */
 	COMMAND_MAINTENANCE("core.command.maintenance"),
+	
+	/**
+	 * Access to the License Management via {@link CommandLicense} command
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_LICENSE_ADMIN("core.command.license.admin"),
 	
 	/**
 	 * Bypass active maintenance mode

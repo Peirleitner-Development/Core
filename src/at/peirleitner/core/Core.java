@@ -57,15 +57,6 @@ public final class Core {
 	private final Collection<Rank> ranks;
 	private File ranksFile;
 
-	private final String table_saveType = TableType.SAVE_TYPE.getTableName(true);
-	private final String table_users = TableType.USERS.getTableName(true);
-	private final String table_stats = TableType.STATS.getTableName(true);
-	private final String table_shop = TableType.SHOP.getTableName(true);
-	private final String table_maps = TableType.MAPS.getTableName(true);
-	private final String table_motd = TableType.MOTD.getTableName(true);
-	private final String table_settings = TableType.SETTINGS.getTableName(true);
-	private final String table_maintenance = TableType.MAINTENANCE.getTableName(true);
-
 	// Manager
 	private SettingsManager settingsManager;
 	private LanguageManager languageManager;
@@ -171,17 +162,6 @@ public final class Core {
 	}
 
 	/**
-	 * 
-	 * @return Table prefix
-	 * @since 1.0.6
-	 * @author Markus Peirleitner (Rengobli)
-	 * @apiNote Before v1.0.6 this method has been <code>private</code>.
-	 */
-	public final String getTablePrefix() {
-		return this.getMySQL().isConnected() ? this.getMySQL().getTablePrefix() : "NOT_CONNECTED_";
-	}
-
-	/**
 	 * @deprecated See {@link TableType}
 	 * @return {@link #table_saveType}
 	 * @since 1.0.2
@@ -189,7 +169,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSaveType() {
-		return this.getTablePrefix() + table_saveType;
+		return TableType.SAVE_TYPE.getTableName(true);
 	}
 
 	/**
@@ -200,7 +180,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableUsers() {
-		return this.getTablePrefix() + table_users;
+		return TableType.USERS.getTableName(true);
 	}
 
 	/**
@@ -211,7 +191,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableStats() {
-		return this.getTablePrefix() + table_stats;
+		return TableType.STATS.getTableName(true);
 	}
 
 	/**
@@ -222,7 +202,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableShop() {
-		return this.getTablePrefix() + table_shop;
+		return TableType.SHOP.getTableName(true);
 	}
 
 	/**
@@ -233,7 +213,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaps() {
-		return this.getTablePrefix() + table_maps;
+		return TableType.MAPS.getTableName(true);
 	}
 
 	/**
@@ -244,7 +224,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMotd() {
-		return this.getTablePrefix() + table_motd;
+		return TableType.MOTD.getTableName(true);
 	}
 
 	/**
@@ -255,7 +235,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSettings() {
-		return this.getTablePrefix() + table_settings;
+		return TableType.SETTINGS.getTableName(true);
 	}
 
 	/**
@@ -266,7 +246,7 @@ public final class Core {
 	 */
 	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaintenance() {
-		return this.getTablePrefix() + table_maintenance;
+		return TableType.MAINTENANCE.getTableName(true);
 	}
 
 	public final File getDataFolder() {
@@ -307,8 +287,8 @@ public final class Core {
 				bw.close();
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Core.getInstance().log(getClass(), LogType.CRITICAL, "Could not create default ranks file: " + e.getMessage());
+				return;
 			}
 		}
 
@@ -324,8 +304,8 @@ public final class Core {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Core.getInstance().log(getClass(), LogType.CRITICAL, "Could not load ranks from file: " + e.getMessage());
+			return;
 		}
 
 		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
@@ -376,53 +356,59 @@ public final class Core {
 		final String prefix = this.getMySQL().getTablePrefix();
 
 		final Collection<String> statements = new ArrayList<>();
-		statements.add(
-				"CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "(" + "id INT AUTO_INCREMENT NOT NULL, "
-						+ "name VARCHAR(50) NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-						+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', "
-						+ "PRIMARY KEY (id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
-				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
-				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
-				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', " + "enabled BOOLEAN NOT NULL DEFAULT '1', "
-				+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getDefaultLanguage().toString() + "', "
-				+ "immune BOOLEAN NOT NULL DEFAULT '0', " + "freepass BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY (uuid));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " (" + "uuid CHAR(36) NOT NULL, "
-				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
-				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
-				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " ("
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.SAVE_TYPE.getTableName(false) + "("
+				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', "
+				+ "PRIMARY KEY (id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.USERS.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "lastKnownName CHAR(16) NOT NULL, "
+				+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', " + "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "enabled BOOLEAN NOT NULL DEFAULT '1', " + "language VARCHAR(50) NOT NULL DEFAULT '"
+				+ this.getDefaultLanguage().toString() + "', " + "immune BOOLEAN NOT NULL DEFAULT '0', "
+				+ "freepass BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY (uuid));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix +  TableType.STATS.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, "
+				+ "amount INT NOT NULL DEFAULT '-1', " + "PRIMARY KEY (uuid, saveType, statistic), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MAPS.getTableName(false) + " ("
 				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, " + "saveType INT NOT NULL, "
 				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "creator CHAR(36) NOT NULL, "
 				+ "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
 				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY(id, name, saveType), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_motd + " (" + "line1 VARCHAR(250) NOT NULL, "
-				+ "line2 VARCHAR(250) NOT NULL, " + "staff CHAR(36), " + "changed BIGINT(255) NOT NULL DEFAULT '-1'"
-				+ ");");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_settings + " ("
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MOTD.getTableName(false) + " ("
+				+ "line1 VARCHAR(250) NOT NULL, " + "line2 VARCHAR(250) NOT NULL, " + "staff CHAR(36), "
+				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.SETTINGS.getTableName(false) + " ("
 				+ "setting VARCHAR(100) PRIMARY KEY NOT NULL, " + "value VARCHAR(100) NOT NULL, " + "staff CHAR(36), "
 				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maintenance + " ("
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MAINTENANCE.getTableName(false) + " ("
 				+ "uuid CHAR(36) PRIMARY KEY NOT NULL" + ");");
-		statements.add("CREATE TABLE IF NOT EXISTS " + TableType.LICENSES_MASTER.getTableName(true) + " ("
-				+ "id INT AUTO_INCREMENT NOT NULL, "
-				+ "saveType INT NOT NULL, "
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_MASTER.getTableName(false) + " ("
+				+ "id INT AUTO_INCREMENT NOT NULL, " 
+				+ "saveType INT NOT NULL, " 
 				+ "name VARCHAR(100) NOT NULL, "
 				+ "created BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-				+ "expire BIGINT(255) NOT NULL DFAULT '-1', "
+				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', " 
 				+ "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "PRIMARY KEY (id, saveType, name), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + TableType.LICENSES_USER.getTableName(true) + " ("
-				+ "uuid CHAR(36) NOT NULL, "
-				+ "license INT NOT NULL, "
-				+ "issued BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', "
-				+ "PRIMARY KEY (uuid, license), "
-				+ "FOREIGN KEY (license) REFERENCES " + TableType.LICENSES_MASTER.getTableName(true) + "(id));");
+				+ "PRIMARY KEY (id, saveType, name), " 
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_USER.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "license INT NOT NULL, " + "issued BIGINT(255) NOT NULL DEFAULT '"
+				+ System.currentTimeMillis() + "', " + "expire BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "PRIMARY KEY (uuid, license), " + "FOREIGN KEY (license) REFERENCES "
+				+ prefix + TableType.LICENSES_MASTER.getTableName(false) + "(id));");
 
 		try {
 
@@ -463,9 +449,8 @@ public final class Core {
 
 			try {
 
-				PreparedStatement stmt = this.getMySQL().getConnection()
-						.prepareStatement("INSERT INTO " + this.getMySQL().getTablePrefix() + this.table_saveType
-								+ " (name, icon, worldType) VALUES (?, ?, ?);");
+				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
+						+ TableType.SAVE_TYPE.getTableName(true) + " (name, icon, worldType) VALUES (?, ?, ?);");
 				stmt.setString(1, st.getName());
 				stmt.setString(2, st.getIconName());
 				stmt.setString(3, st.getWorldType().toString());
@@ -491,7 +476,7 @@ public final class Core {
 		try {
 
 			PreparedStatement stmt = this.getMySQL().getConnection()
-					.prepareStatement("SELECT * FROM " + this.getMySQL().getTablePrefix() + this.table_saveType);
+					.prepareStatement("SELECT * FROM " + TableType.SAVE_TYPE.getTableName(true));
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
@@ -696,7 +681,7 @@ public final class Core {
 	public final MaintenanceSystem getMaintenanceSystem() {
 		return this.maintenanceSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return {@link LicenseSystem}

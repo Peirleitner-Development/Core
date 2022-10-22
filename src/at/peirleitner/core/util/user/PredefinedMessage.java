@@ -21,7 +21,14 @@ public enum PredefinedMessage {
 	TAB_FOOTER("tab.footer"),
 	WORLD_DOES_NOT_EXIST("main.world-does-not-exist"),
 	TARGET_PLAYER_NOT_FOUND("main.target-player-not-found"),
-	CANT_TARGET_YOURSELF("main.cant-target-yourself")
+	CANT_TARGET_YOURSELF("main.cant-target-yourself"),
+	
+	/**
+	 * No Core-Account ({@link User})
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	NOT_REGISTERED("main.player-not-registered")
 	;
 	
 	private final String path;

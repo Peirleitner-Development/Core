@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.PredefinedDatabaseSetting;
+import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
@@ -102,6 +103,9 @@ public class SettingsManager {
 		map.put(path + "disable-leaves-decay", "false");
 		map.put(path + "operator-join-action", "ALLOW");
 		map.put(path + "server-website", "www.example.com");
+		
+		// v1.0.6
+		map.put(path + "chat.enable-mention-pings", "true");
 
 		return map;
 	}
@@ -236,7 +240,7 @@ public class SettingsManager {
 			
 			for(PredefinedDatabaseSetting pds : PredefinedDatabaseSetting.values()) {
 				
-				PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT IGNORE INTO " + Core.getInstance().getTableSettings() + " (setting, value, staff, changed) VALUES (?, ?, ?, ?);");
+				PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT IGNORE INTO " + TableType.SETTINGS.getTableName(true) + " (setting, value, staff, changed) VALUES (?, ?, ?, ?);");
 				stmt.setString(1, pds.name().toString().toLowerCase());
 				stmt.setString(2, pds.getDefaultValue());
 				stmt.setString(3, null);
@@ -264,7 +268,7 @@ public class SettingsManager {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + Core.getInstance().getTableSettings() + " SET value = ?, staff = ?, changed = ? WHERE key = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + TableType.SETTINGS.getTableName(true) + " SET value = ?, staff = ?, changed = ? WHERE key = ?");
 			stmt.setString(1, value);
 			stmt.setString(2, staff == null ? null : staff.toString());
 			stmt.setLong(3, System.currentTimeMillis());
@@ -292,7 +296,7 @@ public class SettingsManager {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT value FROM " + Core.getInstance().getTableSettings() + " WHERE key = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT value FROM " + TableType.SETTINGS.getTableName(true) + " WHERE key = ?");
 			ResultSet rs = stmt.executeQuery();
 			
 			if(rs.next()) {

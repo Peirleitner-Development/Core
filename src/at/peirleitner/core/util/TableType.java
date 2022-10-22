@@ -120,7 +120,18 @@ public enum TableType {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public final String getTableName(@Nonnull boolean prefix) {
-		return (prefix ? Core.getInstance().getTablePrefix() : "") + this.tableName;
+		return (prefix ? this.getTablePrefix() : "") + this.tableName;
+	}
+	
+	/**
+	 * 
+	 * @return Table prefix
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote Before v1.0.6 this method has been <code>private</code>.
+	 */
+	public final String getTablePrefix() {
+		return Core.getInstance().getMySQL().isConnected() ? Core.getInstance().getMySQL().getTablePrefix() : "NOT_CONNECTED_";
 	}
 
 }

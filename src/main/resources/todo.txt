@@ -11,4 +11,6 @@ GameMap -> SaveType change to ID only
 automated daily restarts
 Add table for records that will periodically be checked by all servers to display data (to share ban messages on all servers for example)
 only join the server if added to server list (force-add-to-server-list)
-chat mentions
+votes
+PredefinedMessage#IDcanOnlyBeInteger
+player preferences/settings (save with SaveType)

@@ -21,3 +21,7 @@ commands:
     usage: </command>
     description: Maintenance Management
     aliases: [wartung, wartungen]
+  license:
+    usage: </command>
+    description: License Management
+    aliases: [licenses, lizenz, lizenzen]
