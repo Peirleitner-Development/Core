@@ -28,7 +28,22 @@ public enum PredefinedMessage {
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	NOT_REGISTERED("main.player-not-registered")
+	NOT_REGISTERED("main.player-not-registered"),
+	
+	/**
+	 * Could not get ID (Integer) from parsed String
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	INVALID_ID("main.invalid-id"),
+	
+	/**
+	 * Could not get SaveType
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	INVALID_SAVETYPE("main.invalid-saveType"),
+	
 	;
 	
 	private final String path;

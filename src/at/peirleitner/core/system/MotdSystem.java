@@ -14,7 +14,7 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.MOTD;
-import at.peirleitner.core.util.TableType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.CorePermission;
 
 /**

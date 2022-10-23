@@ -25,3 +25,11 @@ commands:
     usage: </command>
     description: License Management
     aliases: [licenses, lizenz, lizenzen]
+  money:
+    usage: </command>
+    description: Display Economy of the current SaveType
+    aliases: [balance]
+  economy:
+    usage: </command>
+    description: Economy Management
+    aliases: [eco]

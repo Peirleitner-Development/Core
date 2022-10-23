@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.LogType;
-import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
 
 public class StatSystem {
 

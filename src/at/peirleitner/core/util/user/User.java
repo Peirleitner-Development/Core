@@ -226,5 +226,25 @@ public final class User {
 	public final boolean hasActiveLicense(@Nonnull int id) {
 		return Core.getInstance().getLicenseSystem().hasActiveLicense(this.getUUID(), Core.getInstance().getLicenseSystem().getMasterLicense(id));
 	}
+	
+	@Deprecated
+	public final boolean isNicked() {
+		return false;
+	}
+	
+	@Deprecated
+	public final String getNickName() {
+		return null;
+	}
+	
+	@Deprecated
+	public final boolean nick() {
+		return false;
+	}
+	
+	@Deprecated
+	public final boolean unNick() {
+		return false;
+	}
 
 }

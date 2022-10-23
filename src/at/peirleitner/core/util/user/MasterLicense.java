@@ -3,8 +3,8 @@ package at.peirleitner.core.util.user;
 import javax.annotation.Nonnull;
 
 import at.peirleitner.core.system.LicenseSystem;
-import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.local.GUI;
 
 /**

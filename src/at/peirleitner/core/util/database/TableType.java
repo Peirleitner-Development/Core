@@ -1,14 +1,14 @@
-package at.peirleitner.core.util;
+package at.peirleitner.core.util.database;
 
 import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
-import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.local.GameMap;
 import at.peirleitner.core.util.user.User;
 
@@ -105,7 +105,14 @@ public enum TableType {
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	LICENSES_USER("licenses_user");
+	LICENSES_USER("licenses_user"),
+	
+	/**
+	 * Table name for {@link EconomySystem}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	ECONOMY("economy");
 
 	private final String tableName;
 

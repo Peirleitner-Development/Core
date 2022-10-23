@@ -2,6 +2,7 @@ package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
 
@@ -30,6 +31,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_LICENSE_ADMIN("core.command.license.admin"),
+	
+	/**
+	 * Access to the Economy Management via {@link CommandEconomy}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_ECONOMY("core.command.economy"),
 	
 	/**
 	 * Bypass active maintenance mode

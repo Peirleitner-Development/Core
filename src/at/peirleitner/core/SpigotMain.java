@@ -9,9 +9,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.command.local.CommandCore;
+import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -56,6 +58,8 @@ public class SpigotMain extends JavaPlugin {
 		new CommandMotd();
 		new CommandMaintenance();
 		new CommandLicense();
+		new CommandMoney();
+		new CommandEconomy();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -189,6 +193,27 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.license.revert.success.sender", "&7Successfully reverted the license &9{1} &7of User &9{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.license.revert.success.target", "&7Your &9{0} &7license has been reverted by &9{1}&7.");
 		languageManager.registerNewMessage(pluginName, "command.license.revert.error.sql", "&cCould not revert license &e{1} &cfor player &e{0}&c, see console for details.");
+		
+		languageManager.registerNewMessage(pluginName, "command.money.own-balance", "&7Your Balance&8: &9{0}{1}");
+		
+		languageManager.registerNewMessage(pluginName, "command.economy.syntax", "&7Syntax&8: &9/economy\n"
+				+ "  &9get <Player> [SaveType] &f- &7Get Economy\n"
+				+ "  &9add <Player> <SaveType> <Amount> &f- &7Add Economy\n"
+				+ "  &9remove <Player> <SaveType> <Amount> &f- &7Remove Economy\n"
+				+ "  &9set <Player> <SaveType> <Amount> &f- &7Set Economy");
+		languageManager.registerNewMessage(pluginName, "command.economy.main.error.invalid-id-or-amount", "&cInvalid ID (&e{0}&c) or Amount (&e{1}&c).");
+		languageManager.registerNewMessage(pluginName, "command.economy.get.list.no-economy", "&7The User &9{0} &7does not have any economy balance at all.");
+		languageManager.registerNewMessage(pluginName, "command.economy.get.list.pre-text", "&7The User &9{0} &7does have the following balance accounts&8:");
+		languageManager.registerNewMessage(pluginName, "command.economy.get.list-economy", "&7The User &9{0} &7has a balance of &9{1}{2} &7on the SaveType &9{3}&7.");
+		languageManager.registerNewMessage(pluginName, "command.economy.add.success.sender", "&7Successfully added &9{1}{2} &7to &9{0} &7on SaveType &9{3}&7.");
+		languageManager.registerNewMessage(pluginName, "command.economy.add.success.target", "&a+&7{0}{1}");
+		languageManager.registerNewMessage(pluginName, "command.economy.add.error.sql", "&cCould not add Economy for User &e{0}&c, see console for details.");
+		languageManager.registerNewMessage(pluginName, "command.economy.remove.success.sender", "&7Successfully removed &9{1}{2} &7from &9{0} &7on SaveType &9{3}&7.");
+		languageManager.registerNewMessage(pluginName, "command.economy.remove.success.target", "&c-&7{0}{1}");
+		languageManager.registerNewMessage(pluginName, "command.economy.remove.error.sql", "&cCould not remove Economy for User &e{0}&c, see console for details.");
+		languageManager.registerNewMessage(pluginName, "command.economy.set.success.sender", "&7Successfully set the Economy of &9{0} &7on SaveType &9{3} &7to &9{1}{2}&7.");
+		languageManager.registerNewMessage(pluginName, "command.economy.set.success.target", "&e=&7{0}{1}");
+		languageManager.registerNewMessage(pluginName, "command.economy.set.error.sql", "&cCould not set Economy for User &e{0}&c, see console for details.");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");

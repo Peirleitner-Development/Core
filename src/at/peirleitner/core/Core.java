@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
@@ -31,14 +32,15 @@ import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
-import at.peirleitner.core.util.TableType;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.database.SaveType.WorldType;
 import at.peirleitner.core.util.local.Rank;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
+import at.peirleitner.core.util.user.LanguagePhrase;
 import at.peirleitner.core.util.user.User;
 
 /**
@@ -68,6 +70,7 @@ public final class Core {
 	private MotdSystem motdSystem;
 	private MaintenanceSystem maintenanceSystem;
 	private LicenseSystem licenseSystem;
+	private EconomySystem economySystem;
 
 	/**
 	 * Create a new Instance
@@ -114,6 +117,7 @@ public final class Core {
 		this.motdSystem = new MotdSystem();
 		this.maintenanceSystem = new MaintenanceSystem();
 		this.licenseSystem = new LicenseSystem();
+		this.economySystem = new EconomySystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -619,9 +623,18 @@ public final class Core {
 		return this.languageManager;
 	}
 
-	@Deprecated
+	/**
+	 * Register default messages for both {@link RunMode}s
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	private final void registerMessages() {
 
+		// All
+		for(LanguagePhrase phrase : LanguagePhrase.values()) {
+			this.getLanguageManager().registerNewMessage(this.getPluginName(), "phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
+		}
+		
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
@@ -690,6 +703,16 @@ public final class Core {
 	 */
 	public final LicenseSystem getLicenseSystem() {
 		return this.licenseSystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link EconomySystem}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final EconomySystem getEconomySystem() {
+		return this.economySystem;
 	}
 
 }
