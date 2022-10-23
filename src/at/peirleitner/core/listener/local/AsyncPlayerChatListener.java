@@ -34,11 +34,6 @@ public class AsyncPlayerChatListener implements Listener {
 			Rank rank = user.getRank();
 			String message = e.getMessage();
 			message = message.replace("%", "%%");
-
-			e.setFormat(
-					ChatColor.translateAlternateColorCodes('&', Core.getInstance().getSettingsManager().getChatFormat())
-							.replace("{player}", rank.getChatColor() + p.getDisplayName())
-							.replace("{message}", rank.getRankType().getTextColor() + message));
 			
 			// Chat Mention
 			if(this.isChatMentionPingEnabled()) {
@@ -46,15 +41,22 @@ public class AsyncPlayerChatListener implements Listener {
 				for(Player all : Bukkit.getOnlinePlayers()) {
 					
 					if(e.getMessage().contains(all.getName())) {
-						String s = e.getMessage();
-						s = s.replace(all.getName(), ChatColor.DARK_AQUA + "@" + all.getName() + rank.getRankType().getTextColor());
-						e.setMessage(s);
-						all.playSound(all.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1.0F, 1.0F);
+						message = message.replace(all.getName(), (ChatColor.DARK_AQUA + "@" + all.getName()) + rank.getRankType().getTextColor());
+						
+						if(all == p) {
+							all.playSound(all.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 1.0F);
+						}
+						
 					}
 					
 				}
 				
 			}
+			
+			e.setFormat(
+					ChatColor.translateAlternateColorCodes('&', Core.getInstance().getSettingsManager().getChatFormat())
+							.replace("{player}", rank.getChatColor() + p.getDisplayName())
+							.replace("{message}", rank.getRankType().getTextColor() + message));
 			
 		}
 	}
