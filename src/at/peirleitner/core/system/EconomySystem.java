@@ -40,14 +40,20 @@ public class EconomySystem implements CoreSystem {
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-					"SELECT balance FROM " + this.getTableType().getTableName(true) + " WHERE uuid = ?");
+					"SELECT balance FROM " + this.getTableType().getTableName(true) + " WHERE uuid = ? AND saveType = ?");
+			stmt.setString(1, uuid.toString());
+			stmt.setInt(2, saveType.getID());
+			
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
-				return rs.getBigDecimal(1).doubleValue();
+				
+				BigDecimal bd = rs.getBigDecimal(1);
+				return bd.doubleValue();
+				
 			} else {
 				// No Economy
-				return 0;
+				return 0.0;
 			}
 
 		} catch (SQLException e) {
@@ -92,9 +98,21 @@ public class EconomySystem implements CoreSystem {
 					+ "' on SaveType '" + saveType.getID() + "': Current Economy is negative.");
 			return false;
 		}
+		
+		if(amount < 0.1 || amount >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not add Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': Amount (" + amount + ") is negative.");
+			return false;
+		}
 
 		double newEconomy = new BigDecimal(current).add(new BigDecimal(amount)).doubleValue();
 
+		if(newEconomy >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not add Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': New Economy (" + newEconomy + ") would be negative (too big).");
+			return false;
+		}
+		
 		try {
 
 			PreparedStatement stmt = null;
@@ -133,8 +151,20 @@ public class EconomySystem implements CoreSystem {
 					+ "' on SaveType '" + saveType.getID() + "': Current Economy is negative.");
 			return false;
 		}
+		
+		if(amount < 0.1 || amount >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not remove Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': Amount (" + amount + ") is negative.");
+			return false;
+		}
 
 		double newEconomy = new BigDecimal(current).subtract(new BigDecimal(amount)).doubleValue();
+		
+		if(newEconomy <= 0.0 || newEconomy >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not remove Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': New Economy (" + newEconomy + ") would be negative.");
+			return false;
+		}
 
 		try {
 
@@ -174,8 +204,20 @@ public class EconomySystem implements CoreSystem {
 					+ "' on SaveType '" + saveType.getID() + "': Current Economy is negative.");
 			return false;
 		}
+		
+		if(amount < 0.1 || amount >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not set Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': Amount (" + amount + ") is negative.");
+			return false;
+		}
 
 		double newEconomy = new BigDecimal(amount).doubleValue();
+		
+		if(amount <= 0.0 || amount >= Double.MAX_VALUE) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not set Economy for User '" + uuid.toString()
+			+ "' on SaveType '" + saveType.getID() + "': New Economy (" + newEconomy + ") would be negative.");
+			return false;
+		}
 
 		try {
 

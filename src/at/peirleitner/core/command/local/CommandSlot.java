@@ -49,6 +49,12 @@ public class CommandSlot implements CommandExecutor {
 			try {
 
 				int slots = Integer.valueOf(args[0]);
+				
+				if(slots < 1 || slots >= Integer.MAX_VALUE) {
+					Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
+							"command.slot.set.error.negative", Arrays.asList(args[0]), true);
+					return true;
+				}
 
 				if (Core.getInstance().getSettingsManager().setSlots(slots)) {
 

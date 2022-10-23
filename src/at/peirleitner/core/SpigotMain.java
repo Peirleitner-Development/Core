@@ -15,6 +15,7 @@ import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
+import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
 import at.peirleitner.core.listener.local.LeavesDecayListener;
@@ -60,6 +61,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandLicense();
 		new CommandMoney();
 		new CommandEconomy();
+		new CommandSlot();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -216,6 +218,7 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.economy.set.error.sql", "&cCould not set Economy for User &e{0}&c, see console for details.");
 		
 		languageManager.registerNewMessage(pluginName, "command.slot.display", "&7This sever's slots are currently set to &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.slot.set.error.negative", "&7Server Slots can't be negative.");
 		languageManager.registerNewMessage(pluginName, "command.slot.set.success", "&7Successfully set this server's slots to &9{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.slot.set.notify", "&7[&9+&7] &9{0} &7set this server's slots to &9{1}&7.");
 		languageManager.registerNewMessage(pluginName, "command.slot.set.error.invalid-amount", "&cThe provided amount of slots (&e{0}&c) is invalid.");
