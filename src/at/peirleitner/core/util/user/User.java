@@ -1,5 +1,6 @@
 package at.peirleitner.core.util.user;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import javax.annotation.Nullable;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.util.RunMode;
+import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.local.Rank;
 import net.md_5.bungee.api.ChatColor;
 
@@ -154,20 +156,22 @@ public final class User {
 
 			net.md_5.bungee.api.connection.ProxiedPlayer pp = net.md_5.bungee.api.ProxyServer.getInstance()
 					.getPlayer(this.getUUID());
-			
-			//TODO: Add message to cache, up to a maximum and display it on joining
-			if(pp == null) return;
-			
+
+			// TODO: Add message to cache, up to a maximum and display it on joining
+			if (pp == null)
+				return;
+
 			pp.sendMessage(
 					new net.md_5.bungee.api.chat.TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
 
 		} else {
 
 			org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
-			
-			//TODO: Add message to cache, up to a maximum and display it on joining
-			if(p == null) return;
-			
+
+			// TODO: Add message to cache, up to a maximum and display it on joining
+			if (p == null)
+				return;
+
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 
 		}
@@ -176,7 +180,8 @@ public final class User {
 
 	/**
 	 * 
-	 * @return If this User should be treated as immune against restrictions (for example bans)
+	 * @return If this User should be treated as immune against restrictions (for
+	 *         example bans)
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
@@ -186,7 +191,8 @@ public final class User {
 
 	/**
 	 * 
-	 * @return If this User should be treated with a freepass (for example should always have all Kits available)
+	 * @return If this User should be treated with a freepass (for example should
+	 *         always have all Kits available)
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
@@ -197,8 +203,9 @@ public final class User {
 	public final Rank getRank() {
 
 		org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
-		
-		if(p == null) return Core.getInstance().getDefaultRank();
+
+		if (p == null)
+			return Core.getInstance().getDefaultRank();
 
 		for (Rank rank : Core.getInstance().getInRightOrder()) {
 
@@ -214,34 +221,105 @@ public final class User {
 	public final String getDisplayName() {
 		return this.getRank().getChatColor() + this.getLastKnownName();
 	}
-	
+
 	/**
 	 * 
 	 * @param id - ID of the {@link MasterLicense}
-	 * @return If this User has an active {@link UserLicense} for the specified {@link MasterLicense}
+	 * @return If this User has an active {@link UserLicense} for the specified
+	 *         {@link MasterLicense}
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see LicenseSystem#hasActiveLicense(UUID, MasterLicense)
 	 */
 	public final boolean hasActiveLicense(@Nonnull int id) {
-		return Core.getInstance().getLicenseSystem().hasActiveLicense(this.getUUID(), Core.getInstance().getLicenseSystem().getMasterLicense(id));
+		return Core.getInstance().getLicenseSystem().hasActiveLicense(this.getUUID(),
+				Core.getInstance().getLicenseSystem().getMasterLicense(id));
+	}
+
+	/**
+	 * 
+	 * @param saveType
+	 * @return Current Economy for the given {@link SaveType}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final double getEconomy(@Nonnull SaveType saveType) {
+		return Core.getInstance().getEconomySystem().getEconomy(this.getUUID(), saveType);
+	}
+
+	/**
+	 * 
+	 * @return All Economy balance for this {@link User}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final HashMap<SaveType, Double> getEconomy() {
+		return Core.getInstance().getEconomySystem().getEconomy(this.getUUID());
+	}
+
+	/**
+	 * 
+	 * @param saveType - SaveType
+	 * @param amount - Amount
+	 * @return If the Economy has been added successfully
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean addEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
+		return Core.getInstance().getEconomySystem().addEconomy(this.getUUID(), saveType, amount);
+	}
+
+	/**
+	 * 
+	 * @param saveType - SaveType
+	 * @param amount - Amount
+	 * @return If the Economy has been removed successfully
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean removeEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
+		return Core.getInstance().getEconomySystem().removeEconomy(this.getUUID(), saveType, amount);
+	}
+
+	/**
+	 * 
+	 * @param saveType - SaveType
+	 * @param amount - Amount
+	 * @return If the Economy has been set successfully
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean setEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
+		return Core.getInstance().getEconomySystem().setEconomy(this.getUUID(), saveType, amount);
 	}
 	
+	/**
+	 * 
+	 * @param saveType - SaveType
+	 * @param amount - Amount
+	 * @return If this {@link User} has at least as much money as provided in the arguments
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean hasEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
+		return this.getEconomy(saveType) >= amount;
+	}
+
 	@Deprecated
 	public final boolean isNicked() {
 		return false;
 	}
-	
+
 	@Deprecated
 	public final String getNickName() {
 		return null;
 	}
-	
+
 	@Deprecated
 	public final boolean nick() {
 		return false;
 	}
-	
+
 	@Deprecated
 	public final boolean unNick() {
 		return false;
