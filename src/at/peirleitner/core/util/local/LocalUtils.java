@@ -96,7 +96,7 @@ public class LocalUtils {
 
 	}
 
-	public boolean isInventoryFull(org.bukkit.entity.Player p) {
+	public static boolean isInventoryFull(org.bukkit.entity.Player p) {
 
 		boolean invFull = true;
 		for (org.bukkit.inventory.ItemStack is : p.getInventory().getContents()) {
@@ -115,7 +115,7 @@ public class LocalUtils {
 	 * https://www.spigotmc.org/threads/remove-a-specific-amount-of-items-from-a
 	 * -chest.388457/
 	 */
-	public void removeItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int toRemove) {
+	public static void removeItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int toRemove) {
 		for (int i = 0; i < inventory.getSize(); i++) {
 			org.bukkit.inventory.ItemStack loopItem = inventory.getItem(i);
 			if (loopItem == null || !new org.bukkit.inventory.ItemStack(type).isSimilar(loopItem)) {
@@ -133,7 +133,7 @@ public class LocalUtils {
 		}
 	}
 
-	public void removeItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int toRemove) {
+	public static void removeItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int toRemove) {
 		for (int i = 0; i < inventory.getSize(); i++) {
 			org.bukkit.inventory.ItemStack loopItem = inventory.getItem(i);
 			if (loopItem == null || !item.isSimilar(loopItem)) {
@@ -151,7 +151,7 @@ public class LocalUtils {
 		}
 	}
 
-	public boolean hasItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int amount) {
+	public static boolean hasItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int amount) {
 
 		int has = 0;
 
@@ -173,7 +173,7 @@ public class LocalUtils {
 		return false;
 	}
 
-	public boolean hasItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int amount) {
+	public static boolean hasItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int amount) {
 
 		int has = 0;
 
@@ -202,7 +202,7 @@ public class LocalUtils {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	public Material getIcon(EntityType entityType) {
+	public static Material getIcon(EntityType entityType) {
 
 		// | Monster | \\
 		// Overworld
