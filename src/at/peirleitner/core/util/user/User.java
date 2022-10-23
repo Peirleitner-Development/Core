@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.local.Rank;
 import net.md_5.bungee.api.ChatColor;
@@ -212,6 +213,18 @@ public final class User {
 
 	public final String getDisplayName() {
 		return this.getRank().getChatColor() + this.getLastKnownName();
+	}
+	
+	/**
+	 * 
+	 * @param id - ID of the {@link MasterLicense}
+	 * @return If this User has an active {@link UserLicense} for the specified {@link MasterLicense}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see LicenseSystem#hasActiveLicense(UUID, MasterLicense)
+	 */
+	public final boolean hasActiveLicense(@Nonnull int id) {
+		return Core.getInstance().getLicenseSystem().hasActiveLicense(this.getUUID(), Core.getInstance().getLicenseSystem().getMasterLicense(id));
 	}
 
 }
