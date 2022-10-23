@@ -1,5 +1,8 @@
 package at.peirleitner.core.listener.local;
 
+import java.util.Arrays;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,6 +12,7 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.local.OperatorJoinAction;
+import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
 
@@ -74,6 +78,19 @@ public class PlayerJoinListener implements Listener {
 						"Could not check for OperatorJoinAction - Player " + p.getName() + " is an Operator!");
 			}
 
+		}
+		
+		// Full Server Join, v1.0.6
+		if(Bukkit.getOnlinePlayers().size() >= Core.getInstance().getSettingsManager().getSlots()) {
+			
+			if(!p.hasPermission(CorePermission.BYPASS_FULL_SERVER_JOIN.getPermission())) {
+				p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), "listener.player-join.server-full-not-bypassing", Arrays.asList(
+						Core.getInstance().getSettingsManager().getServerName(),
+						Core.getInstance().getSettingsManager().getServerStore()
+						)));
+				return;
+			}
+			
 		}
 
 		if (!Core.getInstance().isNetwork()) {

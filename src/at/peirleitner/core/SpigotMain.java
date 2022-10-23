@@ -215,10 +215,20 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.economy.set.success.target", "&e=&7{0}{1}");
 		languageManager.registerNewMessage(pluginName, "command.economy.set.error.sql", "&cCould not set Economy for User &e{0}&c, see console for details.");
 		
+		languageManager.registerNewMessage(pluginName, "command.slot.display", "&7This sever's slots are currently set to &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.slot.set.success", "&7Successfully set this server's slots to &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.slot.set.notify", "&7[&9+&7] &9{0} &7set this server's slots to &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.slot.set.error.invalid-amount", "&cThe provided amount of slots (&e{0}&c) is invalid.");
+		languageManager.registerNewMessage(pluginName, "command.slot.set.error.could-not-update-settings", "&cCould not update slots to settings manager, see console for details.");
+		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.disallow", "&cOperators are not allowed to join this server.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.remove-status", "&7Your operator status has automatically been removed for security reasons.");
+		languageManager.registerNewMessage(pluginName, "listener.player-join.server-full-not-bypassing", "&f&l{0}\n"
+				+ "&c&lSERVER FULL\n\n"
+				+ "&7You need an active Premium Membership to join the full server.\n\n"
+				+ "&7Store&8: &e{1}");
 		languageManager.registerNewMessage(pluginName, "listener.async-player-pre-login.maintenance", "&f&l{0}\n"
 				+ "&c&lSERVER MAINTENANCE\n\n"
 				+ "&7Only staff members are currently allowed to join the server.\n"

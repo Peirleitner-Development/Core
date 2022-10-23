@@ -33,3 +33,7 @@ commands:
     usage: </command>
     description: Economy Management
     aliases: [eco]
+  slot:
+    usage: </command>
+    description: Slots Management
+    aliases: [slots]

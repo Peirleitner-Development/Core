@@ -5,6 +5,8 @@ import javax.annotation.Nonnull;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.manager.SettingsManager;
 
 public enum CorePermission {
 
@@ -40,11 +42,25 @@ public enum CorePermission {
 	COMMAND_ECONOMY("core.command.economy"),
 	
 	/**
-	 * Bypass active maintenance mode
-	 * @since 1.0.5
+	 * Display current Slots on {@link CommandSlot}
+	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	BYPASS_MAINTENANCE("core.bypass.maintenance"),
+	COMMAND_SLOT_DISPLAY("core.command.slot.display"),
+	
+	/**
+	 * Set new Slots with {@link CommandSlot}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_SLOT_CHANGE("core.command.slot.change"),
+	
+	/**
+	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is full
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	BYPASS_FULL_SERVER_JOIN("Core.bypass.fullServerJoin"),
 	
 	NOTIFY_STAFF("Core.notify")
 	;

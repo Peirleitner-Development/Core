@@ -18,10 +18,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.PredefinedDatabaseSetting;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
+import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 
@@ -106,8 +108,34 @@ public class SettingsManager {
 		
 		// v1.0.6
 		map.put(path + "chat.enable-mention-pings", "true");
+		map.put(path + "slots", "50");
+		map.put(path + "server-store", "store.example.com");
 
 		return map;
+	}
+	
+	/**
+	 * 
+	 * @return Maximum slots of the server
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see CommandSlot
+	 * @see CorePermission#BYPASS_FULL_SERVER_JOIN
+	 */
+	public final int getSlots() {
+		return Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.slots"));
+	}
+	
+	/**
+	 * 
+	 * @param amount - New Slots
+	 * @return If the setting has been changed successfully
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see #setSetting(String, String, String)
+	 */
+	public final boolean setSlots(@Nonnull int amount) {
+		return this.setSetting(Core.getInstance().getPluginName(), "manager.settings.slots", "" + amount);
 	}
 
 	public final String getServerName() {
@@ -122,6 +150,16 @@ public class SettingsManager {
 	 */
 	public final String getServerWebsite() {
 		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_WEBSITE.getPath());
+	}
+	
+	/**
+	 * 
+	 * @return Website of the Store
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getServerStore() {
+		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_STORE.getPath());
 	}
 
 	public final boolean isChatFormatEnabled() {

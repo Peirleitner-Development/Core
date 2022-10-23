@@ -44,6 +44,13 @@ public enum PredefinedMessage {
 	 */
 	INVALID_SAVETYPE("main.invalid-saveType"),
 	
+	/**
+	 * Website of the server store
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	SERVER_STORE("manager.settings.server-store")
+	
 	;
 	
 	private final String path;

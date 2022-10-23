@@ -96,6 +96,10 @@ public class LocalUtils {
 
 	}
 
+	/**
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public static boolean isInventoryFull(org.bukkit.entity.Player p) {
 
 		boolean invFull = true;
@@ -110,10 +114,9 @@ public class LocalUtils {
 
 	}
 
-	/*
-	 * Source:
-	 * https://www.spigotmc.org/threads/remove-a-specific-amount-of-items-from-a
-	 * -chest.388457/
+	/**
+	 * @since 1.0.6
+	 * @author https://www.spigotmc.org/threads/remove-a-specific-amount-of-items-from-a-chest.388457/
 	 */
 	public static void removeItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int toRemove) {
 		for (int i = 0; i < inventory.getSize(); i++) {
@@ -133,6 +136,10 @@ public class LocalUtils {
 		}
 	}
 
+	/**
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public static void removeItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int toRemove) {
 		for (int i = 0; i < inventory.getSize(); i++) {
 			org.bukkit.inventory.ItemStack loopItem = inventory.getItem(i);
@@ -151,6 +158,10 @@ public class LocalUtils {
 		}
 	}
 
+	/**
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public static boolean hasItem(org.bukkit.inventory.Inventory inventory, org.bukkit.Material type, int amount) {
 
 		int has = 0;
@@ -173,6 +184,10 @@ public class LocalUtils {
 		return false;
 	}
 
+	/**
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public static boolean hasItem(org.bukkit.inventory.Inventory inventory, ItemStack item, int amount) {
 
 		int has = 0;
@@ -199,7 +214,7 @@ public class LocalUtils {
 	 * 
 	 * @param entityType
 	 * @return Material to represent the EntityType or Barrier if none can be found
-	 * @since 1.0.0
+	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static Material getIcon(EntityType entityType) {

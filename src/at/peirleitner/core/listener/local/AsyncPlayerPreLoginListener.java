@@ -63,6 +63,14 @@ public class AsyncPlayerPreLoginListener implements Listener {
 			return;
 
 		}
+		
+		// Allow full server login due to own check with SettingsManager#getSlots() as of v1.0.6
+		if(e.getLoginResult() == Result.KICK_FULL) {
+			e.allow();
+		}
+		
+		// Allow
+		e.allow();
 
 	}
 
