@@ -272,7 +272,7 @@ public class EconomySystem implements CoreSystem {
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
 					.prepareStatement("CREATE TABLE IF NOT EXISTS " + Core.getInstance().getMySQL().getTablePrefix()
 							+ this.getTableType().getTableName(false) + " (" + "uuid CHAR (36) NOT NULL, "
-							+ "saveType INT NOT NULL, " + "balance NUMERIC NOT NULL, "
+							+ "saveType INT NOT NULL, " + "balance DECIMAL(20,5) NOT NULL, "
 							+ "PRIMARY KEY (uuid, saveType), " + "FOREIGN KEY (saveType) REFERENCES "
 							+ Core.getInstance().getMySQL().getTablePrefix() + TableType.SAVE_TYPE.getTableName(false)
 							+ "(id));");
