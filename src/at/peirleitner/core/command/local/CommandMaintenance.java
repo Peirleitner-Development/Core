@@ -67,7 +67,7 @@ public class CommandMaintenance implements CommandExecutor {
 
 					for (Player all : Bukkit.getOnlinePlayers()) {
 
-						if (!all.hasPermission(CorePermission.BYPASS_MAINTENANCE.getPermission())) {
+						if (this.getMaintenanceSystem().isWhitelisted(all.getUniqueId())) {
 
 							User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
 							all.kickPlayer(Core.getInstance().getLanguageManager().getMessage(
@@ -117,7 +117,7 @@ public class CommandMaintenance implements CommandExecutor {
 						// Kick all players that are not bypassing maintenance mode
 						for (Player all : Bukkit.getOnlinePlayers()) {
 
-							if (!all.hasPermission(CorePermission.BYPASS_MAINTENANCE.getPermission())) {
+							if (this.getMaintenanceSystem().isWhitelisted(all.getUniqueId())) {
 
 								User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
 								all.kickPlayer(Core.getInstance().getLanguageManager().getMessage(

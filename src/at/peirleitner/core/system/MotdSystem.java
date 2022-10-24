@@ -14,6 +14,7 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.MOTD;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.CorePermission;
 
 /**
@@ -29,7 +30,7 @@ import at.peirleitner.core.util.user.CorePermission;
 public class MotdSystem {
 
 	private MOTD cachedMotd;
-	private final String table = Core.getInstance().getTableMotd();
+	private final String table = TableType.MOTD.getTableName(true);
 
 	public MotdSystem() {
 

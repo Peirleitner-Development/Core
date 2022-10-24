@@ -23,7 +23,9 @@ import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
+import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
@@ -33,10 +35,12 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.database.SaveType.WorldType;
 import at.peirleitner.core.util.local.Rank;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
+import at.peirleitner.core.util.user.LanguagePhrase;
 import at.peirleitner.core.util.user.User;
 
 /**
@@ -55,15 +59,6 @@ public final class Core {
 	private final Collection<Rank> ranks;
 	private File ranksFile;
 
-	private final String table_saveType = "saveType";
-	private final String table_users = "users";
-	private final String table_stats = "stats";
-	private final String table_shop = "shop";
-	private final String table_maps = "maps";
-	private final String table_motd = "motd";
-	private final String table_settings = "settings";
-	private final String table_maintenance = "maintenance";
-
 	// Manager
 	private SettingsManager settingsManager;
 	private LanguageManager languageManager;
@@ -74,6 +69,8 @@ public final class Core {
 	private GameMapSystem gameMapSystem;
 	private MotdSystem motdSystem;
 	private MaintenanceSystem maintenanceSystem;
+	private LicenseSystem licenseSystem;
+	private EconomySystem economySystem;
 
 	/**
 	 * Create a new Instance
@@ -119,6 +116,8 @@ public final class Core {
 		this.gameMapSystem = new GameMapSystem();
 		this.motdSystem = new MotdSystem();
 		this.maintenanceSystem = new MaintenanceSystem();
+		this.licenseSystem = new LicenseSystem();
+		this.economySystem = new EconomySystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -166,88 +165,92 @@ public final class Core {
 		return this.mysql;
 	}
 
-	private final String getTablePrefix() {
-		return this.getMySQL().isConnected() ? this.getMySQL().getTablePrefix() : "NOT_CONNECTED_";
-	}
-
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_saveType}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSaveType() {
-		return this.getTablePrefix() + table_saveType;
+		return TableType.SAVE_TYPE.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_users}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableUsers() {
-		return this.getTablePrefix() + table_users;
+		return TableType.USERS.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_stats}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableStats() {
-		return this.getTablePrefix() + table_stats;
+		return TableType.STATS.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_shop}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableShop() {
-		return this.getTablePrefix() + table_shop;
+		return TableType.SHOP.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_maps}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaps() {
-		return this.getTablePrefix() + table_maps;
+		return TableType.MAPS.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_motd}
 	 * @since 1.0.4
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMotd() {
-		return this.getTablePrefix() + table_motd;
+		return TableType.MOTD.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_settings}
 	 * @since 1.0.5
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableSettings() {
-		return this.getTablePrefix() + table_settings;
+		return TableType.SETTINGS.getTableName(true);
 	}
 
 	/**
-	 * 
+	 * @deprecated See {@link TableType}
 	 * @return {@link #table_maintenance}
 	 * @since 1.0.5
 	 * @author Markus Peirleitner (Rengobli)
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.6")
 	public final String getTableMaintenance() {
-		return this.getTablePrefix() + table_maintenance;
+		return TableType.MAINTENANCE.getTableName(true);
 	}
 
 	public final File getDataFolder() {
@@ -288,8 +291,8 @@ public final class Core {
 				bw.close();
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Core.getInstance().log(getClass(), LogType.CRITICAL, "Could not create default ranks file: " + e.getMessage());
+				return;
 			}
 		}
 
@@ -305,8 +308,8 @@ public final class Core {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Core.getInstance().log(getClass(), LogType.CRITICAL, "Could not load ranks from file: " + e.getMessage());
+			return;
 		}
 
 		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
@@ -357,37 +360,59 @@ public final class Core {
 		final String prefix = this.getMySQL().getTablePrefix();
 
 		final Collection<String> statements = new ArrayList<>();
-		statements.add(
-				"CREATE TABLE IF NOT EXISTS " + prefix + this.table_saveType + "(" + "id INT AUTO_INCREMENT NOT NULL, "
-						+ "name VARCHAR(50) NOT NULL, " + "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-						+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', "
-						+ "PRIMARY KEY (id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_users + " (" + "uuid CHAR(36) NOT NULL, "
-				+ "lastKnownName CHAR(16) NOT NULL, " + "registered BIGINT(255) NOT NULL DEFAULT '"
-				+ System.currentTimeMillis() + "', " + "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', "
-				+ "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', " + "enabled BOOLEAN NOT NULL DEFAULT '1', "
-				+ "language VARCHAR(50) NOT NULL DEFAULT '" + this.getDefaultLanguage().toString() + "', "
-				+ "immune BOOLEAN NOT NULL DEFAULT '0', " + "freepass BOOLEAN NOT NULL DEFAULT '0', "
-				+ "PRIMARY KEY (uuid));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_stats + " (" + "uuid CHAR(36) NOT NULL, "
-				+ "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, " + "amount INT NOT NULL DEFAULT '-1', "
-				+ "PRIMARY KEY (uuid, saveType, statistic), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
-				+ this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maps + " ("
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.SAVE_TYPE.getTableName(false) + "("
+				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, "
+				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "worldType ENUM('NORMAL', 'FLAT', 'NETHER', 'END', 'VOID') NOT NULL DEFAULT 'VOID', "
+				+ "PRIMARY KEY (id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.USERS.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "lastKnownName CHAR(16) NOT NULL, "
+				+ "registered BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "lastLogin BIGINT(255) NOT NULL DEFAULT '-1', " + "lastLogout BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "enabled BOOLEAN NOT NULL DEFAULT '1', " + "language VARCHAR(50) NOT NULL DEFAULT '"
+				+ this.getDefaultLanguage().toString() + "', " + "immune BOOLEAN NOT NULL DEFAULT '0', "
+				+ "freepass BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY (uuid));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix +  TableType.STATS.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, "
+				+ "amount INT NOT NULL DEFAULT '-1', " + "PRIMARY KEY (uuid, saveType, statistic), "
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MAPS.getTableName(false) + " ("
 				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, " + "saveType INT NOT NULL, "
 				+ "icon VARCHAR(100) NOT NULL DEFAULT 'PAPER', " + "creator CHAR(36) NOT NULL, "
 				+ "contributors VARCHAR(500), "
 				+ "state ENUM('AWAITING_APPROVAL', 'APPROVED', 'DONE', 'FINISHED', 'DELETED', 'DAMAGED') NOT NULL DEFAULT 'AWAITING_APPROVAL', "
 				+ "spawns MEDIUMTEXT, " + "teams BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY(id, name, saveType), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + this.table_saveType + "(id));");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_motd + " (" + "line1 VARCHAR(250) NOT NULL, "
-				+ "line2 VARCHAR(250) NOT NULL, " + "staff CHAR(36), " + "changed BIGINT(255) NOT NULL DEFAULT '-1'"
-				+ ");");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_settings + " ("
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MOTD.getTableName(false) + " ("
+				+ "line1 VARCHAR(250) NOT NULL, " + "line2 VARCHAR(250) NOT NULL, " + "staff CHAR(36), "
+				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.SETTINGS.getTableName(false) + " ("
 				+ "setting VARCHAR(100) PRIMARY KEY NOT NULL, " + "value VARCHAR(100) NOT NULL, " + "staff CHAR(36), "
 				+ "changed BIGINT(255) NOT NULL DEFAULT '-1'" + ");");
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + this.table_maintenance + " ("
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MAINTENANCE.getTableName(false) + " ("
 				+ "uuid CHAR(36) PRIMARY KEY NOT NULL" + ");");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_MASTER.getTableName(false) + " ("
+				+ "id INT AUTO_INCREMENT NOT NULL, " 
+				+ "saveType INT NOT NULL, " 
+				+ "name VARCHAR(100) NOT NULL, "
+				+ "created BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
+				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', " 
+				+ "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "PRIMARY KEY (id, saveType, name), " 
+				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_USER.getTableName(false) + " ("
+				+ "uuid CHAR(36) NOT NULL, " + "license INT NOT NULL, " + "issued BIGINT(255) NOT NULL DEFAULT '"
+				+ System.currentTimeMillis() + "', " + "expire BIGINT(255) NOT NULL DEFAULT '-1', "
+				+ "PRIMARY KEY (uuid, license), " + "FOREIGN KEY (license) REFERENCES "
+				+ prefix + TableType.LICENSES_MASTER.getTableName(false) + "(id));");
 
 		try {
 
@@ -428,9 +453,8 @@ public final class Core {
 
 			try {
 
-				PreparedStatement stmt = this.getMySQL().getConnection()
-						.prepareStatement("INSERT INTO " + this.getMySQL().getTablePrefix() + this.table_saveType
-								+ " (name, icon, worldType) VALUES (?, ?, ?);");
+				PreparedStatement stmt = this.getMySQL().getConnection().prepareStatement("INSERT INTO "
+						+ TableType.SAVE_TYPE.getTableName(true) + " (name, icon, worldType) VALUES (?, ?, ?);");
 				stmt.setString(1, st.getName());
 				stmt.setString(2, st.getIconName());
 				stmt.setString(3, st.getWorldType().toString());
@@ -456,7 +480,7 @@ public final class Core {
 		try {
 
 			PreparedStatement stmt = this.getMySQL().getConnection()
-					.prepareStatement("SELECT * FROM " + this.getMySQL().getTablePrefix() + this.table_saveType);
+					.prepareStatement("SELECT * FROM " + TableType.SAVE_TYPE.getTableName(true));
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
@@ -599,9 +623,18 @@ public final class Core {
 		return this.languageManager;
 	}
 
-	@Deprecated
+	/**
+	 * Register default messages for both {@link RunMode}s
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	private final void registerMessages() {
 
+		// All
+		for(LanguagePhrase phrase : LanguagePhrase.values()) {
+			this.getLanguageManager().registerNewMessage(this.getPluginName(), "phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
+		}
+		
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
@@ -651,7 +684,7 @@ public final class Core {
 	public final MotdSystem getMotdSystem() {
 		return this.motdSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return MaintenanceSystem
@@ -660,6 +693,26 @@ public final class Core {
 	 */
 	public final MaintenanceSystem getMaintenanceSystem() {
 		return this.maintenanceSystem;
+	}
+
+	/**
+	 * 
+	 * @return {@link LicenseSystem}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final LicenseSystem getLicenseSystem() {
+		return this.licenseSystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link EconomySystem}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final EconomySystem getEconomySystem() {
+		return this.economySystem;
 	}
 
 }

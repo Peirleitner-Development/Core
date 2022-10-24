@@ -15,6 +15,7 @@ import at.peirleitner.core.util.CustomLocation;
 import at.peirleitner.core.util.GlobalUtils;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.local.GameMap;
 import at.peirleitner.core.util.local.GameMapState;
 import at.peirleitner.core.util.user.User;
@@ -29,7 +30,7 @@ import net.md_5.bungee.api.ChatColor;
  */
 public class GameMapSystem {
 
-	private final String table = Core.getInstance().getTableMaps();
+	private final String table = TableType.MAPS.getTableName(true);
 	private Collection<GameMap> cachedMaps;
 
 	public GameMapSystem() {

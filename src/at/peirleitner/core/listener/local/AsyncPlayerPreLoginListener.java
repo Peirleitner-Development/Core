@@ -22,20 +22,12 @@ public class AsyncPlayerPreLoginListener implements Listener {
 	@EventHandler
 	public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent e) {
 
-		Core.getInstance().log(getClass(), LogType.DEBUG, "Network-Mode: " + Core.getInstance().isNetwork()
-				+ " | RunMode: " + Core.getInstance().getRunMode().toString());
-
 		// Tasks will only be performed if network-mode is disabled
 		if (Core.getInstance().isNetwork())
 			return;
 
 		UUID uuid = e.getUniqueId();
 		User user = Core.getInstance().getUserSystem().getUser(uuid);
-
-		Core.getInstance().log(getClass(), LogType.DEBUG,
-				"Maintenance: " + Core.getInstance().getMaintenanceSystem().isMaintenance());
-		Core.getInstance().log(getClass(), LogType.DEBUG,
-				"Whitelisted: " + Core.getInstance().getMaintenanceSystem().isWhitelisted(uuid));
 
 		// Maintenance
 		if (Core.getInstance().getMaintenanceSystem().isMaintenance()
@@ -71,6 +63,14 @@ public class AsyncPlayerPreLoginListener implements Listener {
 			return;
 
 		}
+		
+		// Allow full server login due to own check with SettingsManager#getSlots() as of v1.0.6
+		if(e.getLoginResult() == Result.KICK_FULL) {
+			e.allow();
+		}
+		
+		// Allow
+		e.allow();
 
 	}
 

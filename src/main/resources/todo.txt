@@ -11,4 +11,8 @@ GameMap -> SaveType change to ID only
 automated daily restarts
 Add table for records that will periodically be checked by all servers to display data (to share ban messages on all servers for example)
 only join the server if added to server list (force-add-to-server-list)
-chat mentions
+votes
+player preferences/settings (save with SaveType)
+add economy transaction history (EconomyTransaction.java: sender, target, timestamp, amount, saveType)
+add taxes table (saveType, balance) - Used if for example players should pay 10% tax on /pay or sth.
+Add cooldown on /pay

@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.util.LogType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.CorePermission;
 
 /**
@@ -25,7 +26,7 @@ import at.peirleitner.core.util.user.CorePermission;
 public class MaintenanceSystem {
 
 	private final String key = "manager.settings.maintenance";
-	private final String table = Core.getInstance().getTableMaintenance();
+	private final String table = TableType.MAINTENANCE.getTableName(true);
 	private Collection<UUID> whitelist;
 
 	public MaintenanceSystem() {

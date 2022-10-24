@@ -21,3 +21,22 @@ commands:
     usage: </command>
     description: Maintenance Management
     aliases: [wartung, wartungen]
+  license:
+    usage: </command>
+    description: License Management
+    aliases: [licenses, lizenz, lizenzen]
+  money:
+    usage: </command>
+    description: Display Economy of the current SaveType
+    aliases: [balance]
+  economy:
+    usage: </command>
+    description: Economy Management
+    aliases: [eco]
+  slot:
+    usage: </command>
+    description: Slots Management
+    aliases: [slots]
+  pay:
+    usage: </command>
+    description: Send money to another player

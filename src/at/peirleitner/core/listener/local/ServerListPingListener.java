@@ -28,6 +28,8 @@ public class ServerListPingListener implements Listener {
 			return;
 		}
 		
+		e.setMaxPlayers(Core.getInstance().getSettingsManager().getSlots());
+		
 		if(Core.getInstance().getRunMode() == RunMode.LOCAL && Core.getInstance().getMaintenanceSystem().isMaintenance()) {
 			e.setMotd(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), Core.getInstance().getDefaultLanguage(), "listener.server-list-ping.maintenance", Arrays.asList(
 					Core.getInstance().getSettingsManager().getServerName(),

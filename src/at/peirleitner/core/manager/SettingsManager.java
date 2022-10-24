@@ -18,9 +18,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.PredefinedDatabaseSetting;
 import at.peirleitner.core.util.database.SaveType;
+import at.peirleitner.core.util.database.TableType;
+import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 
@@ -102,8 +105,38 @@ public class SettingsManager {
 		map.put(path + "disable-leaves-decay", "false");
 		map.put(path + "operator-join-action", "ALLOW");
 		map.put(path + "server-website", "www.example.com");
+		
+		// v1.0.6
+		map.put(path + "chat.enable-mention-pings", "true");
+		map.put(path + "slots", "50");
+		map.put(path + "server-store", "store.example.com");
+		map.put(path + "allow-money-sending-between-players", "false");
 
 		return map;
+	}
+	
+	/**
+	 * 
+	 * @return Maximum slots of the server
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see CommandSlot
+	 * @see CorePermission#BYPASS_FULL_SERVER_JOIN
+	 */
+	public final int getSlots() {
+		return Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.slots"));
+	}
+	
+	/**
+	 * 
+	 * @param amount - New Slots
+	 * @return If the setting has been changed successfully
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see #setSetting(String, String, String)
+	 */
+	public final boolean setSlots(@Nonnull int amount) {
+		return this.setSetting(Core.getInstance().getPluginName(), "manager.settings.slots", "" + amount);
 	}
 
 	public final String getServerName() {
@@ -119,6 +152,16 @@ public class SettingsManager {
 	public final String getServerWebsite() {
 		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_WEBSITE.getPath());
 	}
+	
+	/**
+	 * 
+	 * @return Website of the Store
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getServerStore() {
+		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_STORE.getPath());
+	}
 
 	public final boolean isChatFormatEnabled() {
 		return Boolean.valueOf(
@@ -129,6 +172,12 @@ public class SettingsManager {
 		return this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.chat-format");
 	}
 
+	/**
+	 * 
+	 * @return Current {@link SaveType} that the {@link Core} instance is listening on.
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public final SaveType getSaveType() {
 		return Core.getInstance().getSaveTypeByID(
 				Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.saveType")));
@@ -236,7 +285,7 @@ public class SettingsManager {
 			
 			for(PredefinedDatabaseSetting pds : PredefinedDatabaseSetting.values()) {
 				
-				PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT IGNORE INTO " + Core.getInstance().getTableSettings() + " (setting, value, staff, changed) VALUES (?, ?, ?, ?);");
+				PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT IGNORE INTO " + TableType.SETTINGS.getTableName(true) + " (setting, value, staff, changed) VALUES (?, ?, ?, ?);");
 				stmt.setString(1, pds.name().toString().toLowerCase());
 				stmt.setString(2, pds.getDefaultValue());
 				stmt.setString(3, null);
@@ -264,7 +313,7 @@ public class SettingsManager {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + Core.getInstance().getTableSettings() + " SET value = ?, staff = ?, changed = ? WHERE key = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + TableType.SETTINGS.getTableName(true) + " SET value = ?, staff = ?, changed = ? WHERE key = ?");
 			stmt.setString(1, value);
 			stmt.setString(2, staff == null ? null : staff.toString());
 			stmt.setLong(3, System.currentTimeMillis());
@@ -292,7 +341,7 @@ public class SettingsManager {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT value FROM " + Core.getInstance().getTableSettings() + " WHERE key = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT value FROM " + TableType.SETTINGS.getTableName(true) + " WHERE key = ?");
 			ResultSet rs = stmt.executeQuery();
 			
 			if(rs.next()) {
