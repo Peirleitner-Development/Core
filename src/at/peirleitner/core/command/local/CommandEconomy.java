@@ -135,8 +135,6 @@ public class CommandEconomy implements CommandExecutor {
 							"command.economy.add.success.sender", Arrays.asList(targetUser.getDisplayName(),
 									"" + amount, "" + this.getEconomySystem().getChar(), saveType.getName()),
 							true);
-					targetUser.sendMessage(Core.getInstance().getPluginName(), "command.economy.add.success.target",
-							Arrays.asList("" + amount, "" + this.getEconomySystem().getChar()), true);
 					return true;
 				} else {
 					Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
@@ -154,8 +152,6 @@ public class CommandEconomy implements CommandExecutor {
 									"command.economy.remove.success.sender", Arrays.asList(targetUser.getDisplayName(),
 											"" + amount, "" + this.getEconomySystem().getChar(), saveType.getName()),
 									true);
-					targetUser.sendMessage(Core.getInstance().getPluginName(), "command.economy.remove.success.target",
-							Arrays.asList("" + amount, "" + this.getEconomySystem().getChar()), true);
 					return true;
 				} else {
 					Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
@@ -172,8 +168,6 @@ public class CommandEconomy implements CommandExecutor {
 							"command.economy.set.success.sender", Arrays.asList(targetUser.getDisplayName(),
 									"" + amount, "" + this.getEconomySystem().getChar(), saveType.getName()),
 							true);
-					targetUser.sendMessage(Core.getInstance().getPluginName(), "command.economy.set.success.target",
-							Arrays.asList("" + amount, "" + this.getEconomySystem().getChar()), true);
 					return true;
 				} else {
 					Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
