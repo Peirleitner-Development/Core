@@ -14,3 +14,5 @@ only join the server if added to server list (force-add-to-server-list)
 votes
 PredefinedMessage#IDcanOnlyBeInteger
 player preferences/settings (save with SaveType)
+add economy transaction history (EconomyTransaction.java: sender, target, timestamp, amount, saveType)
+add taxes table (saveType, balance) - Used if for example players should pay 10% tax on /pay or sth.

@@ -37,3 +37,6 @@ commands:
     usage: </command>
     description: Slots Management
     aliases: [slots]
+  pay:
+    usage: </command>
+    description: Send money to another player

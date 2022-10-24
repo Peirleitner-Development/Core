@@ -110,6 +110,7 @@ public class SettingsManager {
 		map.put(path + "chat.enable-mention-pings", "true");
 		map.put(path + "slots", "50");
 		map.put(path + "server-store", "store.example.com");
+		map.put(path + "allow-money-sending-between-players", "false");
 
 		return map;
 	}
@@ -171,6 +172,12 @@ public class SettingsManager {
 		return this.getSetting(Core.getInstance().getPluginName(), "manager.settings.chat.chat-format");
 	}
 
+	/**
+	 * 
+	 * @return Current {@link SaveType} that the {@link Core} instance is listening on.
+	 * @since 1.0.0
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public final SaveType getSaveType() {
 		return Core.getInstance().getSaveTypeByID(
 				Integer.valueOf(this.getSetting(Core.getInstance().getPluginName(), "manager.settings.saveType")));

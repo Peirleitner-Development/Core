@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.manager.SettingsManager;
 
@@ -54,6 +55,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_SLOT_CHANGE("core.command.slot.change"),
+	
+	/**
+	 * Send money to other players using {@link CommandPay}
+	 * @since 1.0.6
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_PAY("core.command.pay"),
 	
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is full

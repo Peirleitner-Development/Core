@@ -15,6 +15,7 @@ import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
+import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -62,6 +63,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandMoney();
 		new CommandEconomy();
 		new CommandSlot();
+		new CommandPay();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -224,6 +226,19 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.slot.set.error.invalid-amount", "&cThe provided amount of slots (&e{0}&c) is invalid.");
 		languageManager.registerNewMessage(pluginName, "command.slot.set.error.could-not-update-settings", "&cCould not update slots to settings manager, see console for details.");
 		
+		languageManager.registerNewMessage(pluginName, "command.pay.syntax", "&7Syntax&8: &9/pay <Player> <Amount>");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.permanently-disabled", "&7Money transfer isn't available on this server.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.temporarily-disabled", "&7Money transfer has temporarily been disabled.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.negative-input", "&cYou can't send negative amounts of balance (Input: &e{0}&c).");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.too-many-digits", "&cYour entered amount of digits (&e{0}&c, numbers before the comma) is greater than the maximum allowed amount of &e{1}&c.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.too-many-commas", "&cYour entered amount of digits (&e{0}&c, numbers after the comma) is greater than the maximum allowed amount of &e{1}&c.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.invalid-amount", "&cThe amount of money to send entered (&e{0}&c) is invalid. Please enter a valid number.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.invalid-balance", "&cYou don't provide the specified amount of balance (&e{0} < {1}&c).");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.event-cancelled", "&cYour transaction has been cancelled by the server.");
+		languageManager.registerNewMessage(pluginName, "command.pay.success.sender", "&7Successfully sent &9{1}{2} &7towards &9{0}&7. The transaction has been completed without any errors.");
+		languageManager.registerNewMessage(pluginName, "command.pay.success.target", "&7You received &9{1}{2} &7from &9{0}&7. The transaction has been completed without any errors.");
+		languageManager.registerNewMessage(pluginName, "command.pay.error.transaction-could-not-be-completed", "&cYour transaction could not be completed. Please contact the staff - This incident has been logged.");
+		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.disallow", "&cOperators are not allowed to join this server.");
@@ -275,7 +290,7 @@ public class SpigotMain extends JavaPlugin {
 		return Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), PredefinedMessage.TAB_HEADER.getPath(), Arrays.asList(
 				Core.getInstance().getSettingsManager().getServerName(),
 				"" + Bukkit.getOnlinePlayers().size(),
-				"" + Bukkit.getMaxPlayers(),
+				"" + Core.getInstance().getSettingsManager().getSlots(),
 				Bukkit.getServer().getName()
 				));
 	}

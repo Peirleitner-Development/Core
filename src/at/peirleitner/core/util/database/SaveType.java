@@ -2,6 +2,18 @@ package at.peirleitner.core.util.database;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.util.user.User;
+
+/**
+ * A SaveType is used to separate data inside the database to avoid
+ * overrides.<br>
+ * Example: The {@link User} may have A$ on SaveType 1, as well as B$ on
+ * SaveType 2 - On both SaveTypes the same Database/Table is used.
+ * 
+ * @since 1.0.0
+ * @author Markus Peirleitner (Rengobli)
+ *
+ */
 public class SaveType {
 
 	private final int id;
@@ -36,7 +48,7 @@ public class SaveType {
 	public final String toString() {
 		return "SaveType[id=" + id + ",name=" + name + ",iconName=" + iconName + ",worldType=" + worldType + "]";
 	}
-	
+
 	/**
 	 * @since 1.0.3
 	 * @author Markus Peirleitner (Rengobli)
@@ -44,5 +56,5 @@ public class SaveType {
 	public enum WorldType {
 		NORMAL, FLAT, NETHER, END, VOID;
 	}
-	
+
 }
