@@ -111,6 +111,9 @@ public class SettingsManager {
 		map.put(path + "slots", "50");
 		map.put(path + "server-store", "store.example.com");
 		map.put(path + "allow-money-sending-between-players", "false");
+		
+		// v1.0.7
+		map.put(path + "server-name-properties", "Example");
 
 		return map;
 	}
@@ -161,6 +164,16 @@ public class SettingsManager {
 	 */
 	public final String getServerStore() {
 		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_STORE.getPath());
+	}
+	
+	/**
+	 * @return Server Name as of Server#getName() of previous spigot/paper versions
+	 * @since 1.0.7
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote Used in the Tab-Header of the SpigotMain
+	 */
+	public final String getServerNameProperties() {
+		return this.getSetting(Core.getInstance().getPluginName(), PredefinedMessage.SERVER_NAME_PROPERTIES.getPath());
 	}
 
 	public final boolean isChatFormatEnabled() {
