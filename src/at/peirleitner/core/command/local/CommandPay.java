@@ -148,21 +148,16 @@ public class CommandPay implements CommandExecutor {
 
 			if (success1 && success2) {
 
-				user.sendMessage(Core.getInstance().getPluginName(), "command.economy.remove.success.target",
-						Arrays.asList("" + amount.doubleValue(), "" + Core.getInstance().getEconomySystem().getChar()),
-						success2);
 				user.sendMessage(Core.getInstance().getPluginName(), "command.pay.success.sender",
 						Arrays.asList(targetUser.getDisplayName(), "" + amount.doubleValue(),
 								"" + Core.getInstance().getEconomySystem().getChar()),
 						true);
 
-				targetUser.sendMessage(Core.getInstance().getPluginName(), "command.economy.add.success.target",
-						Arrays.asList("" + amount.doubleValue(), "" + Core.getInstance().getEconomySystem().getChar()),
-						success2);
 				targetUser.sendMessage(Core.getInstance().getPluginName(), "command.pay.success.target",
 						Arrays.asList(user.getDisplayName(), "" + amount.doubleValue(),
 								"" + Core.getInstance().getEconomySystem().getChar()),
 						true);
+				
 				return true;
 			} else {
 //				this.disallowPayments = true;

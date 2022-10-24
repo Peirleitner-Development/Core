@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -171,6 +172,10 @@ public class EconomySystem implements CoreSystem {
 
 			Core.getInstance().log(getClass(), LogType.DEBUG, "Added '" + amount + "' Economy on SaveType '"
 					+ saveType.getID() + "' to User '" + uuid.toString() + "'. New Value: '" + newEconomy + "'.");
+			
+			Core.getInstance().getUserSystem().getUser(uuid).sendMessage(Core.getInstance().getPluginName(), "command.economy.add.success.target",
+					Arrays.asList("" + amount, "" + this.getChar()),
+					true);
 			return true;
 
 		} catch (SQLException e) {
@@ -228,6 +233,10 @@ public class EconomySystem implements CoreSystem {
 
 			Core.getInstance().log(getClass(), LogType.DEBUG, "Removed '" + amount + "' Economy on SaveType '"
 					+ saveType.getID() + "' for User '" + uuid.toString() + "'. New Value: '" + newEconomy + "'.");
+			
+			Core.getInstance().getUserSystem().getUser(uuid).sendMessage(Core.getInstance().getPluginName(), "command.economy.remove.success.target",
+					Arrays.asList("" + amount, "" + this.getChar()),
+					true);
 			return true;
 
 		} catch (SQLException e) {
@@ -285,6 +294,10 @@ public class EconomySystem implements CoreSystem {
 
 			Core.getInstance().log(getClass(), LogType.DEBUG, "The Economy of User '" + uuid.toString()
 					+ "' on SaveType '" + saveType.getID() + "' has been set to '" + amount + "'.");
+			
+			Core.getInstance().getUserSystem().getUser(uuid).sendMessage(Core.getInstance().getPluginName(), "command.economy.set.success.target",
+					Arrays.asList("" + amount, "" + this.getChar()),
+					true);
 			return true;
 
 		} catch (SQLException e) {
