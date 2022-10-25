@@ -1,7 +1,8 @@
-package at.peirleitner.core.util.local;
+package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.util.local.RankType;
 import net.md_5.bungee.api.ChatColor;
 
 /**

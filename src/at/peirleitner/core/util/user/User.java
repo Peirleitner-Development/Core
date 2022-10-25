@@ -11,7 +11,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.SaveType;
-import at.peirleitner.core.util.local.Rank;
 import net.md_5.bungee.api.ChatColor;
 
 /**
