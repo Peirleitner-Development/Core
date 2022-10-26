@@ -56,12 +56,13 @@ public class UserMessageSendEvent extends Event implements Cancellable {
 	 * @since 1.0.7
 	 * @author Markus Peirleitner (Rengobli)
 	 * @see #hasReplacements()
-	 * @apiNote This will always return something, even if {@link #replacements} returns <code>null</code>.
+	 * @apiNote This will always return something, even if {@link #replacements}
+	 *          returns <code>null</code>.
 	 */
 	public final List<String> getReplacements() {
 		return this.hasReplacements() ? this.replacements : new ArrayList<>();
 	}
-	
+
 	public final boolean hasReplacements() {
 		return this.replacements == null ? false : true;
 	}
@@ -111,6 +112,13 @@ public class UserMessageSendEvent extends Event implements Cancellable {
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
+	}
+
+	@Override
+	public String toString() {
+		return "UserMessageSendEvent[user=" + user.toString() + ",pluginName=" + pluginName + ",key=" + key
+				+ ",replacements=" + this.getReplacements().toString() + ",prefix=" + prefix + ",cancelled=" + cancelled
+				+ "]";
 	}
 
 }
