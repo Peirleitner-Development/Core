@@ -170,6 +170,13 @@ public final class User {
 			// TODO: Add message to cache, up to a maximum and display it on joining
 			if (p == null)
 				return;
+			
+			at.peirleitner.core.api.local.UserMessageSendEvent event = new at.peirleitner.core.api.local.UserMessageSendEvent(pluginName, key, replacements, prefix);
+			at.peirleitner.core.SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
+			
+			if(event.isCancelled()) {
+				return;
+			}
 
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 
