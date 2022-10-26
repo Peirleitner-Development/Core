@@ -11,7 +11,8 @@ import at.peirleitner.core.util.user.PredefinedMessage;
 
 /**
  * Triggered when gaining a {@link PredefinedMessage} using
- * {@link LanguageManager#getMessage(PredefinedMessage)}. You may manipulate the result using {@link #setMessage(String)}.
+ * {@link LanguageManager#getMessage(PredefinedMessage)}. You may manipulate the
+ * result using {@link #setMessage(String)}.
  * 
  * @since 1.0.7
  * @author Markus Peirleitner (Rengobli)
