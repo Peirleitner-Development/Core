@@ -11,7 +11,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.SaveType;
-import at.peirleitner.core.util.local.Rank;
 import net.md_5.bungee.api.ChatColor;
 
 /**
@@ -172,6 +171,14 @@ public final class User {
 			if (p == null)
 				return;
 
+			at.peirleitner.core.api.local.UserMessageSendEvent event = new at.peirleitner.core.api.local.UserMessageSendEvent(
+					this, pluginName, key, replacements, prefix);
+			at.peirleitner.core.SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
+
+			if (event.isCancelled()) {
+				return;
+			}
+
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 
 		}
@@ -260,7 +267,7 @@ public final class User {
 	/**
 	 * 
 	 * @param saveType - SaveType
-	 * @param amount - Amount
+	 * @param amount   - Amount
 	 * @return If the Economy has been added successfully
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
@@ -272,7 +279,7 @@ public final class User {
 	/**
 	 * 
 	 * @param saveType - SaveType
-	 * @param amount - Amount
+	 * @param amount   - Amount
 	 * @return If the Economy has been removed successfully
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
@@ -284,7 +291,7 @@ public final class User {
 	/**
 	 * 
 	 * @param saveType - SaveType
-	 * @param amount - Amount
+	 * @param amount   - Amount
 	 * @return If the Economy has been set successfully
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
@@ -292,12 +299,13 @@ public final class User {
 	public final boolean setEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
 		return Core.getInstance().getEconomySystem().setEconomy(this.getUUID(), saveType, amount);
 	}
-	
+
 	/**
 	 * 
 	 * @param saveType - SaveType
-	 * @param amount - Amount
-	 * @return If this {@link User} has at least as much money as provided in the arguments
+	 * @param amount   - Amount
+	 * @return If this {@link User} has at least as much money as provided in the
+	 *         arguments
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
@@ -323,6 +331,14 @@ public final class User {
 	@Deprecated
 	public final boolean unNick() {
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "User[uuid=" + this.getUUID().toString() + ",lastKnownName=" + this.getLastKnownName() + ",registered="
+				+ this.getRegistered() + ",lastLogin=" + this.getLastLogin() + ",lastLogout =" + this.getLastLogout()
+				+ ",enabled=" + this.isEnabled() + ",language=" + this.getLanguage().toString() + ",immune="
+				+ this.isImmune() + ",freepass=" + this.hasFreepass() + "]";
 	}
 
 }

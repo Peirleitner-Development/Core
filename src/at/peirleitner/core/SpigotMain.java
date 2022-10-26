@@ -291,7 +291,7 @@ public class SpigotMain extends JavaPlugin {
 				Core.getInstance().getSettingsManager().getServerName(),
 				"" + Bukkit.getOnlinePlayers().size(),
 				"" + Core.getInstance().getSettingsManager().getSlots(),
-				Bukkit.getServer().getName()
+				Core.getInstance().getSettingsManager().getServerNameProperties()
 				));
 	}
 	

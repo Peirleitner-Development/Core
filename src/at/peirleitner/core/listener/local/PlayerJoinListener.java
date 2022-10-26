@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
@@ -104,7 +105,14 @@ public class PlayerJoinListener implements Listener {
 
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
-		SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
+		
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
+			}
+		}.runTaskLater(SpigotMain.getInstance(), 20L);
 
 	}
 

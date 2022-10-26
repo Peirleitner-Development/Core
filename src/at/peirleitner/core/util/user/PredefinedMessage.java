@@ -49,7 +49,15 @@ public enum PredefinedMessage {
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	SERVER_STORE("manager.settings.server-store")
+	SERVER_STORE("manager.settings.server-store"),
+	
+	/**
+	 * Server Name as of Server#getName() of previous spigot/paper versions
+	 * @since 1.0.7
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote Used in the Tab-Header of the SpigotMain
+	 */
+	SERVER_NAME_PROPERTIES("manager.settings.server-name-properties"),
 	
 	;
 	

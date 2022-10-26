@@ -37,10 +37,10 @@ import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.database.SaveType.WorldType;
-import at.peirleitner.core.util.local.Rank;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.LanguagePhrase;
+import at.peirleitner.core.util.user.Rank;
 import at.peirleitner.core.util.user.User;
 
 /**

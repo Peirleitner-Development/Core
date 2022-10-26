@@ -15,6 +15,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.util.user.Rank;
 import at.peirleitner.core.util.user.User;
 
 public class LocalScoreboard {

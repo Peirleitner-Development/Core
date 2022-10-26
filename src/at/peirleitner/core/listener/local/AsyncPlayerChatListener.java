@@ -9,7 +9,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
-import at.peirleitner.core.util.local.Rank;
+import at.peirleitner.core.util.user.Rank;
 import at.peirleitner.core.util.user.User;
 import net.md_5.bungee.api.ChatColor;
 
