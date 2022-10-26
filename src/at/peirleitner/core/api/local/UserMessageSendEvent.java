@@ -23,18 +23,24 @@ import at.peirleitner.core.util.user.User;
 public class UserMessageSendEvent extends Event implements Cancellable {
 
 	private static final HandlerList HANDLERS = new HandlerList();
+	private final User user;
 	private final String pluginName;
 	private final String key;
 	private final List<String> replacements;
 	private final boolean prefix;
 	private boolean cancelled;
 
-	public UserMessageSendEvent(String pluginName, String key, List<String> replacements, boolean prefix) {
+	public UserMessageSendEvent(User user, String pluginName, String key, List<String> replacements, boolean prefix) {
+		this.user = user;
 		this.pluginName = pluginName;
 		this.key = key;
 		this.replacements = replacements;
 		this.prefix = prefix;
 		this.cancelled = false;
+	}
+
+	public final User getUser(	) {
+		return user;
 	}
 
 	public final String getPluginName() {

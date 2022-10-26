@@ -171,7 +171,7 @@ public final class User {
 			if (p == null)
 				return;
 			
-			at.peirleitner.core.api.local.UserMessageSendEvent event = new at.peirleitner.core.api.local.UserMessageSendEvent(pluginName, key, replacements, prefix);
+			at.peirleitner.core.api.local.UserMessageSendEvent event = new at.peirleitner.core.api.local.UserMessageSendEvent(this, pluginName, key, replacements, prefix);
 			at.peirleitner.core.SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
 			
 			if(event.isCancelled()) {
