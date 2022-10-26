@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 
 import at.peirleitner.core.BungeeMain;
 import at.peirleitner.core.Core;
-import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.user.CorePermission;
@@ -72,7 +71,7 @@ public class LanguageManager {
 
 	private final File getDataFolder() {
 		return Core.getInstance().getRunMode() == RunMode.NETWORK ? BungeeMain.getInstance().getDataFolder()
-				: SpigotMain.getInstance().getDataFolder();
+				: at.peirleitner.core.SpigotMain.getInstance().getDataFolder();
 	}
 
 	private final File getMainDirectory() {
@@ -367,8 +366,21 @@ public class LanguageManager {
 	}
 
 	public final String getMessage(@Nonnull PredefinedMessage predefinedMessage) {
-		return this.getMessage(Core.getInstance().getPluginName(), this.getDefaultLanguage(),
-				predefinedMessage.getPath(), null);
+		
+		if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
+			
+			at.peirleitner.core.api.local.UserMessageGetEvent event = new at.peirleitner.core.api.local.UserMessageGetEvent(predefinedMessage);
+			at.peirleitner.core.SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
+			
+			return event.getMessage();
+			
+		} else {
+			
+			return this.getMessage(Core.getInstance().getPluginName(), this.getDefaultLanguage(),
+					predefinedMessage.getPath(), null);
+			
+		}
+		
 	}
 
 	public final LanguageMessage getLanguageMessage(@Nonnull String pluginName, @Nonnull Language language,
