@@ -1,24 +1,23 @@
 package at.peirleitner.core.api.local;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
 
 /**
- * Triggered when a message is sent towards a {@link User} using the
- * {@link LanguageManager} while the {@link RunMode} is set to
- * {@link RunMode#LOCAL}.
+ * Triggered when a message is sent towards a {@link User} while the
+ * {@link RunMode} is set to {@link RunMode#LOCAL}.
  * 
  * @since 1.0.7
  * @author Markus Peirleitner (Rengobli)
- *
+ * @see User#sendMessage(String, String, List, boolean)
  */
 public class UserMessageSendEvent extends Event implements Cancellable {
 
@@ -39,7 +38,7 @@ public class UserMessageSendEvent extends Event implements Cancellable {
 		this.cancelled = false;
 	}
 
-	public final User getUser(	) {
+	public final User getUser() {
 		return user;
 	}
 
@@ -51,8 +50,20 @@ public class UserMessageSendEvent extends Event implements Cancellable {
 		return key;
 	}
 
+	/**
+	 * 
+	 * @return List of replacements
+	 * @since 1.0.7
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see #hasReplacements()
+	 * @apiNote This will always return something, even if {@link #replacements} returns <code>null</code>.
+	 */
 	public final List<String> getReplacements() {
-		return replacements;
+		return this.hasReplacements() ? this.replacements : new ArrayList<>();
+	}
+	
+	public final boolean hasReplacements() {
+		return this.replacements == null ? false : true;
 	}
 
 	public final boolean isPrefix() {
