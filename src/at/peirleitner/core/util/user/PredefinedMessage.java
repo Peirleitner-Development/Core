@@ -59,7 +59,12 @@ public enum PredefinedMessage {
 	 */
 	SERVER_NAME_PROPERTIES("manager.settings.server-name-properties"),
 	
-	;
+	/**
+	 * {@link User} does not have enough economy
+	 * @since 1.0.9
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	NOT_ENOUGH_ECONOMY("main.not-enough-economy");
 	
 	private final String path;
 
