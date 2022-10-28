@@ -21,27 +21,32 @@ public class LogMessageCreateListener implements Listener {
 	public LogMessageCreateListener() {
 		SpigotMain.getInstance().getServer().getPluginManager().registerEvents(this, SpigotMain.getInstance());
 	}
-	
+
 	@EventHandler
 	public void onLogMessageCreate(LogMessageCreateEvent e) {
-		
+
 		String pluginName = e.getPluginName();
 		Class<?> c = e.getRepresentedClass();
 		LogType logType = e.getLogType();
 		String message = e.getMessage();
-		
+
+		if (logType == LogType.DEBUG && !Core.getInstance().getSettingsManager()
+				.isSetting(Core.getInstance().getPluginName(), "manager.settings.send-debug-logs-in-chat")) {
+			return;
+		}
+
 		final String logMessage = "[" + pluginName + "/"
-				+ (c == null ? "?" : Core.getInstance().logWithSimpleClassNames() ? c.getSimpleName() : c.getName()) + "/"
-				+ logType.toString() + "] " + message;
-		
-		for(Player all : Bukkit.getOnlinePlayers()) {
-			
-			if(CommandLog.LOG_LIST.contains(all.getUniqueId())) {
+				+ (c == null ? "?" : Core.getInstance().logWithSimpleClassNames() ? c.getSimpleName() : c.getName())
+				+ "/" + logType.toString() + "] " + message;
+
+		for (Player all : Bukkit.getOnlinePlayers()) {
+
+			if (CommandLog.LOG_LIST.contains(all.getUniqueId())) {
 				all.sendMessage(Core.getInstance().getLanguageManager().getNotifyPrefix() + logMessage);
 			}
-			
+
 		}
-		
+
 	}
-	
+
 }
