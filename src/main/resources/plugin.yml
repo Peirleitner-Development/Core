@@ -40,3 +40,6 @@ commands:
   pay:
     usage: </command>
     description: Send money to another player
+  log:
+    usage: </command>
+    description: Toggle display of log messages 
