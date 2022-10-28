@@ -114,6 +114,10 @@ public class SettingsManager {
 		
 		// v1.0.7
 		map.put(path + "server-name-properties", "Example");
+		
+		// v1.0.8
+		map.put(path + "enable-log-on-join", "false");
+		map.put(path + "send-debug-logs-in-chat", "false");
 
 		return map;
 	}

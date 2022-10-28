@@ -273,6 +273,16 @@ public class LanguageManager {
 	public final String getPrefix(@Nonnull String pluginName, @Nonnull Language language) {
 		return this.getMessage(pluginName, language, PredefinedMessage.PREFIX.getPath(), null);
 	}
+	
+	/**
+	 * 
+	 * @return Prefix for system notifications
+	 * @since 1.0.8
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getNotifyPrefix() {
+		return ChatColor.GRAY + "[" + ChatColor.RED + "✦" + ChatColor.GRAY + "]" + ChatColor.RESET + " ";
+	}
 
 	/**
 	 * 

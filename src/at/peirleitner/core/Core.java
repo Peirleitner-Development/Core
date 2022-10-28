@@ -35,8 +35,8 @@ import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
 import at.peirleitner.core.util.database.MySQL;
 import at.peirleitner.core.util.database.SaveType;
-import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.database.SaveType.WorldType;
+import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.local.RankType;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.LanguagePhrase;
@@ -291,7 +291,8 @@ public final class Core {
 				bw.close();
 
 			} catch (IOException e) {
-				Core.getInstance().log(getClass(), LogType.CRITICAL, "Could not create default ranks file: " + e.getMessage());
+				Core.getInstance().log(getClass(), LogType.CRITICAL,
+						"Could not create default ranks file: " + e.getMessage());
 				return;
 			}
 		}
@@ -374,7 +375,7 @@ public final class Core {
 				+ this.getDefaultLanguage().toString() + "', " + "immune BOOLEAN NOT NULL DEFAULT '0', "
 				+ "freepass BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY (uuid));");
 
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix +  TableType.STATS.getTableName(false) + " ("
+		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.STATS.getTableName(false) + " ("
 				+ "uuid CHAR(36) NOT NULL, " + "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, "
 				+ "amount INT NOT NULL DEFAULT '-1', " + "PRIMARY KEY (uuid, saveType, statistic), "
 				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
@@ -399,20 +400,17 @@ public final class Core {
 				+ "uuid CHAR(36) PRIMARY KEY NOT NULL" + ");");
 
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_MASTER.getTableName(false) + " ("
-				+ "id INT AUTO_INCREMENT NOT NULL, " 
-				+ "saveType INT NOT NULL, " 
-				+ "name VARCHAR(100) NOT NULL, "
+				+ "id INT AUTO_INCREMENT NOT NULL, " + "saveType INT NOT NULL, " + "name VARCHAR(100) NOT NULL, "
 				+ "created BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', " 
-				+ "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
-				+ "PRIMARY KEY (id, saveType, name), " 
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
+				+ "expire BIGINT(255) NOT NULL DEFAULT '-1', " + "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+				+ "PRIMARY KEY (id, saveType, name), " + "FOREIGN KEY (saveType) REFERENCES " + prefix
+				+ TableType.SAVE_TYPE.getTableName(false) + "(id));");
 
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.LICENSES_USER.getTableName(false) + " ("
 				+ "uuid CHAR(36) NOT NULL, " + "license INT NOT NULL, " + "issued BIGINT(255) NOT NULL DEFAULT '"
 				+ System.currentTimeMillis() + "', " + "expire BIGINT(255) NOT NULL DEFAULT '-1', "
-				+ "PRIMARY KEY (uuid, license), " + "FOREIGN KEY (license) REFERENCES "
-				+ prefix + TableType.LICENSES_MASTER.getTableName(false) + "(id));");
+				+ "PRIMARY KEY (uuid, license), " + "FOREIGN KEY (license) REFERENCES " + prefix
+				+ TableType.LICENSES_MASTER.getTableName(false) + "(id));");
 
 		try {
 
@@ -535,6 +533,21 @@ public final class Core {
 
 		if (this.getRunMode() == RunMode.LOCAL) {
 			org.bukkit.Bukkit.getConsoleSender().sendMessage(level.getColor() + logMessage);
+
+			try {
+				
+				if(Class.forName("at.peirleitner.core.SpigotMain") != null) {
+					
+					at.peirleitner.core.api.local.LogMessageCreateEvent event = new at.peirleitner.core.api.local.LogMessageCreateEvent(
+							pluginName, c, level, message);
+					SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
+					
+				}
+				
+			} catch (ClassNotFoundException | IllegalStateException e) {
+				// Async Events will still print to console, even tho the User won't get a message
+			}
+
 		} else {
 			net.md_5.bungee.api.ProxyServer.getInstance().getConsole()
 					.sendMessage(new net.md_5.bungee.api.chat.TextComponent(level.getColor() + logMessage));
@@ -625,16 +638,18 @@ public final class Core {
 
 	/**
 	 * Register default messages for both {@link RunMode}s
+	 * 
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	private final void registerMessages() {
 
 		// All
-		for(LanguagePhrase phrase : LanguagePhrase.values()) {
-			this.getLanguageManager().registerNewMessage(this.getPluginName(), "phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
+		for (LanguagePhrase phrase : LanguagePhrase.values()) {
+			this.getLanguageManager().registerNewMessage(this.getPluginName(),
+					"phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
 		}
-		
+
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
@@ -704,7 +719,7 @@ public final class Core {
 	public final LicenseSystem getLicenseSystem() {
 		return this.licenseSystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return {@link EconomySystem}

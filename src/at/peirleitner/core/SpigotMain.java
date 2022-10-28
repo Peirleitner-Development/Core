@@ -12,6 +12,7 @@ import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandLicense;
+import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
@@ -20,6 +21,7 @@ import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
 import at.peirleitner.core.listener.local.LeavesDecayListener;
+import at.peirleitner.core.listener.local.LogMessageCreateListener;
 import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
@@ -64,6 +66,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandEconomy();
 		new CommandSlot();
 		new CommandPay();
+		new CommandLog();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -73,6 +76,7 @@ public class SpigotMain extends JavaPlugin {
 		new AsyncPlayerChatListener();
 		new ServerListPingListener();
 		new LeavesDecayListener();
+		new LogMessageCreateListener();
 		
 		// Run
 		this.startTabHeaderRunnable();
@@ -238,6 +242,9 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.pay.success.sender", "&7Successfully sent &9{1}{2} &7towards &9{0}&7. The transaction has been completed without any errors.");
 		languageManager.registerNewMessage(pluginName, "command.pay.success.target", "&7You received &9{1}{2} &7from &9{0}&7. The transaction has been completed without any errors.");
 		languageManager.registerNewMessage(pluginName, "command.pay.error.transaction-could-not-be-completed", "&cYour transaction could not be completed. Please contact the staff - This incident has been logged.");
+		
+		languageManager.registerNewMessage(pluginName, "command.log.success.on", "&7Log messages will now be displayed in the Chat.");
+		languageManager.registerNewMessage(pluginName, "command.log.success.off", "&7Log messages will no longer be displayed in the Chat.");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");

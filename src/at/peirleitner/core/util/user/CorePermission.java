@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
+import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
@@ -62,6 +63,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_PAY("core.command.pay"),
+	
+	/**
+	 * Toggle display of log messages using {@link CommandLog}
+	 * @since 1.0.8
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_LOG("core.command.log"),
 	
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is full

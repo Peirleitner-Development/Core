@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
+import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.local.OperatorJoinAction;
 import at.peirleitner.core.util.user.CorePermission;
@@ -80,18 +81,25 @@ public class PlayerJoinListener implements Listener {
 			}
 
 		}
-		
+
 		// Full Server Join, v1.0.6
-		if(Bukkit.getOnlinePlayers().size() >= Core.getInstance().getSettingsManager().getSlots()) {
-			
-			if(!p.hasPermission(CorePermission.BYPASS_FULL_SERVER_JOIN.getPermission())) {
-				p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(), user.getLanguage(), "listener.player-join.server-full-not-bypassing", Arrays.asList(
-						Core.getInstance().getSettingsManager().getServerName(),
-						Core.getInstance().getSettingsManager().getServerStore()
-						)));
+		if (Bukkit.getOnlinePlayers().size() >= Core.getInstance().getSettingsManager().getSlots()) {
+
+			if (!p.hasPermission(CorePermission.BYPASS_FULL_SERVER_JOIN.getPermission())) {
+				p.kickPlayer(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(),
+						user.getLanguage(), "listener.player-join.server-full-not-bypassing",
+						Arrays.asList(Core.getInstance().getSettingsManager().getServerName(),
+								Core.getInstance().getSettingsManager().getServerStore())));
 				return;
 			}
-			
+
+		}
+
+		// Log, v1.0.8
+		if (Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(),
+				"manager.settings.enable-log-on-join") && p.hasPermission(CorePermission.COMMAND_LOG.getPermission())
+				&& !CommandLog.LOG_LIST.contains(p.getUniqueId())) {
+			p.performCommand("log");
 		}
 
 		if (!Core.getInstance().isNetwork()) {
@@ -105,9 +113,9 @@ public class PlayerJoinListener implements Listener {
 
 		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Connection for User '" + user.getUUID().toString() + "' has been allowed.");
-		
+
 		new BukkitRunnable() {
-			
+
 			@Override
 			public void run() {
 				SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
