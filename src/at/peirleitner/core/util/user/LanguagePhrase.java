@@ -29,7 +29,7 @@ public enum LanguagePhrase {
 	ARMOR_CHESTPLATE("Chestplate"),
 	ARMOR_LEGGINGS("Leggings"),
 	ARMOR_BOOTS("Boots"),
-	ARMOS_SHIELD("Shield"),
+	ARMOR_SHIELD("Shield"),
 	TOOL_AXE("Axe"),
 	TOOL_SHOVEL("Shovel"),
 	TOOL_PICKAXE("Pickaxe"),
@@ -40,7 +40,7 @@ public enum LanguagePhrase {
 	TOOL_SHEAR("Shear"),
 	TOOL_FISHING_ROD("Fishing Rod"),
 	WEAPON_TRIDENT("Trident"),
-	TOOL_EYLTRA("Elytra")
+	TOOL_ELYTRA("Elytra")
 	;
 	
 	private final String defaultValue;
