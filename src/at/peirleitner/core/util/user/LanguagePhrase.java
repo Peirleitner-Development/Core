@@ -40,7 +40,8 @@ public enum LanguagePhrase {
 	TOOL_SHEAR("Shear"),
 	TOOL_FISHING_ROD("Fishing Rod"),
 	WEAPON_TRIDENT("Trident"),
-	TOOL_ELYTRA("Elytra")
+	TOOL_ELYTRA("Elytra"),
+	NONE("None")
 	;
 	
 	private final String defaultValue;
