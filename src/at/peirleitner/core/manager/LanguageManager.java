@@ -260,6 +260,7 @@ public class LanguageManager {
 		map.put("main.cant-target-yourself", "&cYou can't target yourself for this action.");
 		map.put("main.invalid-id", "&cPlease enter a valid id.");
 		map.put("main.invalid-saveType", "&cCould not get the specified SaveType.");
+		map.put("main.not-enough-economy", "&cYour Account does not provide the required amount of balance.");
 		map.put("tab.header", "&8&m---------------------------------------\n" + "&9{0}\n\n"
 				+ "&7Global Players online&8: &f{1}&7/&f{2}\n" + "&7Currently connected to&8: &f{3}\n");
 		map.put("tab.footer",
