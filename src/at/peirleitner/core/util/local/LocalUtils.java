@@ -2,22 +2,39 @@ package at.peirleitner.core.util.local;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.CustomLocation;
+import at.peirleitner.core.util.database.SaveType.WorldType;
+import at.peirleitner.core.util.user.User;
 
+/**
+ * Utils for local development
+ * 
+ * @since ?
+ * @author Markus Peirleitner (Rengobli)
+ *
+ */
 public class LocalUtils {
 
 	public static CustomLocation getCustomLocationByLocation(@Nonnull Location location) {
@@ -376,6 +393,251 @@ public class LocalUtils {
 		}
 
 		return Material.BARRIER;
+	}
+
+	/**
+	 * 
+	 * @param name - Name of the world
+	 * @return If a {@link World} with the given name exists in the WorldContainer
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static final boolean isWorld(@Nonnull String name) {
+
+		for (File f : Bukkit.getWorldContainer().listFiles()) {
+			if (f.getName().equalsIgnoreCase(name)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param user
+	 * @param name
+	 * @param worldType
+	 * @return If the world has been created
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static final boolean createWorld(@Nonnull User user, @Nonnull String name, @Nonnull WorldType worldType) {
+
+		if(isDefaultWorld(name)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.cant-manipulate-default-world", null, true);
+			return false;
+		}
+		
+		if (isWorld(name)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.already-exists-in-world-container", Arrays.asList(name), true);
+			return false;
+		}
+
+		World w = Bukkit.getWorld(name);
+
+		if (w != null) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.world-already-exists", Arrays.asList(w.getName()), true);
+			return false;
+		}
+
+		WorldCreator wc = new WorldCreator(name);
+
+		switch (worldType) {
+		case NORMAL:
+			wc.environment(Environment.NORMAL);
+			break;
+		case FLAT:
+			wc.type(org.bukkit.WorldType.FLAT);
+			break;
+		case NETHER:
+			wc.environment(Environment.NETHER);
+			break;
+		case END:
+			wc.environment(Environment.THE_END);
+			break;
+		case VOID:
+			wc.generator(new VoidChunkGenerator());
+			break;
+		default:
+			wc.type(org.bukkit.WorldType.NORMAL);
+			break;
+		}
+		
+		w = Bukkit.createWorld(wc);
+		
+		if(w == null) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.could-not-create", Arrays.asList(name), true);
+			return false;
+		}
+
+		if(worldType == WorldType.VOID) {
+			Location spawn = w.getSpawnLocation();
+			w.getBlockAt(spawn.getBlockX(), spawn.getBlockY() - 1, spawn.getBlockZ()).setType(Material.BEDROCK);
+		}
+		
+		user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.success", Arrays.asList(name, worldType.toString()), true);
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param worldName
+	 * @return If the world has been unloaded
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static boolean unloadWorld(@Nonnull String worldName) {
+		
+		if(isDefaultWorld(worldName)) {
+			return false;
+		}
+		
+		World w = Bukkit.getWorld(worldName);
+		
+		if(w == null) {
+			return false;
+		}
+		
+		for(Player all : w.getPlayers()) {
+			all.teleport(Bukkit.getWorld("world").getSpawnLocation());
+			Core.getInstance().getLanguageManager().sendMessage(all, Core.getInstance().getPluginName(), "command.world.unload.player-info", Arrays.asList(worldName), true);
+		}
+		
+		return Bukkit.unloadWorld(w, true);
+	}
+	
+	/**
+	 * 
+	 * @param worldName
+	 * @return If the world has been loaded
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static boolean loadWorld(@Nonnull String worldName) {
+		
+		if(!isWorld(worldName)) {
+			return false;
+		}
+		
+		World w = Bukkit.getWorld(worldName);
+		
+		if(w != null) {
+			// Already loaded
+			return true;
+		}
+		
+		Bukkit.createWorld(new WorldCreator(worldName));
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @return Default world names as specified by Microsoft
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static final String[] getDefaultWorldNames() {
+		
+		String[] names = new String[3];
+		names[0] = "world";
+		names[1] = "world_nether";
+		names[2] = "world_the_end";
+		
+		return names;
+	}
+	
+	/**
+	 * 
+	 * @param worldName
+	 * @return If the given world is inside {@link #getDefaultWorldNames()}
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static final boolean isDefaultWorld(@Nonnull String worldName) {
+		
+		for(String s : getDefaultWorldNames()) {
+			if(s.equalsIgnoreCase(worldName)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param worldName
+	 * @return If the world has been deleted
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static boolean deleteWorld(@Nonnull User user, @Nonnull String worldName) {
+		
+		if(isDefaultWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.cant-manipulate-default-world", null, true);
+			return false;
+		}
+		
+		if(!isWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container", Arrays.asList(worldName), true);
+			return false;
+		}
+		
+		World w = Bukkit.getWorld(worldName);
+		
+		if(w != null) {
+			if(!unloadWorld(worldName)) {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-unload-world", Arrays.asList(w.getName()), true);
+				return false;
+			}
+		}
+		
+		File f = new File(Bukkit.getWorldContainer() + "/" + worldName);
+		
+		try {
+			FileUtils.deleteDirectory(f);
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.success", Arrays.asList(worldName), true);
+			return true;
+		} catch (IOException e) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-delete-directory", Arrays.asList(worldName), true);
+			return false;
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param user
+	 * @param worldName
+	 * @return If the given {@link User} has been teleported inside the world
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static boolean teleportToWorld(@Nonnull User user, @Nonnull String worldName) {
+		
+		if(!isWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container", Arrays.asList(worldName), true);
+			return false;
+		}
+		
+		World w = Bukkit.getWorld(worldName);
+		
+		if(w == null) {
+			
+			if(!loadWorld(worldName)) {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.world.teleport.error.cant-load-world", Arrays.asList(worldName), true);
+				return false;
+			}
+			
+		}
+		
+		w = Bukkit.getWorld(worldName);
+		boolean success = Bukkit.getPlayer(user.getUUID()).teleport(w.getSpawnLocation());
+		
+		user.sendMessage(Core.getInstance().getPluginName(), "command.world.teleport." + (success ? "success" : "error.cant-teleport"), Arrays.asList(worldName), true);
+		return success;
 	}
 
 }

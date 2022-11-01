@@ -24,7 +24,27 @@ public enum LanguagePhrase {
 	DROP_CLICK("Drop-Click"),
 	PURCHASE("Purchased"),
 	EQUIP("Equip"),
-	UNQEUIP("Un-Equip");
+	UNQEUIP("Un-Equip"),
+	ARMOR_HELMET("Helmet"),
+	ARMOR_CHESTPLATE("Chestplate"),
+	ARMOR_LEGGINGS("Leggings"),
+	ARMOR_BOOTS("Boots"),
+	ARMOR_SHIELD("Shield"),
+	TOOL_AXE("Axe"),
+	TOOL_SHOVEL("Shovel"),
+	TOOL_PICKAXE("Pickaxe"),
+	TOOL_HOE("Hoe"),
+	WEAPON_SWORD("Sword"),
+	WEAPON_BOW("Bow"),
+	WEAPON_CROSSBOW("Crossbow"),
+	TOOL_SHEAR("Shear"),
+	TOOL_FISHING_ROD("Fishing Rod"),
+	WEAPON_TRIDENT("Trident"),
+	TOOL_ELYTRA("Elytra"),
+	NONE("None"),
+	LOADED("Loaded"),
+	NOT_LOADED("Not loaded")
+	;
 	
 	private final String defaultValue;
 	

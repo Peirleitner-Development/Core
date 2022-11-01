@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.CorePermission;
@@ -23,7 +24,7 @@ import at.peirleitner.core.util.user.CorePermission;
  * @author Markus Peirleitner (Rengobli)
  *
  */
-public class MaintenanceSystem {
+public class MaintenanceSystem implements CoreSystem {
 
 	private final String key = "manager.settings.maintenance";
 	private final String table = TableType.MAINTENANCE.getTableName(true);
@@ -195,6 +196,16 @@ public class MaintenanceSystem {
 			return false;
 		}
 
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	@Override
+	public TableType getTableType() {
+		return TableType.MAINTENANCE;
 	}
 
 }

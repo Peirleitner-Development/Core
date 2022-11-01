@@ -18,6 +18,7 @@ import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
 import at.peirleitner.core.listener.local.LeavesDecayListener;
@@ -67,6 +68,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandSlot();
 		new CommandPay();
 		new CommandLog();
+		new CommandWorld();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -245,6 +247,36 @@ public class SpigotMain extends JavaPlugin {
 		
 		languageManager.registerNewMessage(pluginName, "command.log.success.on", "&7Log messages will now be displayed in the Chat.");
 		languageManager.registerNewMessage(pluginName, "command.log.success.off", "&7Log messages will no longer be displayed in the Chat.");
+		
+		languageManager.registerNewMessage(pluginName, "command.world.syntax", "&7World Management\n"
+				+ "&6/world\n"
+				+ "  &ecreate <Name> <WorldType>\n"
+				+ "  &edelete <Name>\n"
+				+ "  &eload <Name>\n"
+				+ "  &eunload <Name>\n"
+				+ "  &etp <Name>\n"
+				+ "  &elist");
+		languageManager.registerNewMessage(pluginName, "command.world.current-world", "&7You are currently inside the world &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.main.error.cant-manipulate-default-world", "&7Default worlds can not be manipulated.");
+		languageManager.registerNewMessage(pluginName, "command.world.main.error.not-in-world-container", "&7Could not find a world named &9{0} &7in the WorldContainer.");
+		languageManager.registerNewMessage(pluginName, "command.world.create.error.invalid-worldType", "&7The WorldType &9{0} &7is invalid. Valid Types&8: &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.create.error.already-exists-in-world-container", "&7A file with the name of &9{0} &7does already exist in the WorldContainer.");
+		languageManager.registerNewMessage(pluginName, "command.world.create.error.world-already-exists", "&7A world with the name of &9{0} &7does already exist.");
+		languageManager.registerNewMessage(pluginName, "command.world.create.error.could-not-create", "&cCould not create world &e{0}&c.");
+		languageManager.registerNewMessage(pluginName, "command.world.create.success", "&7Successfully created the world &9{0} &7with type &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.load.success", "&7Successfully loaded the world &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.load.error", "&7Could not load the world &9{0}&7. Does it exist inside the WorldContainer?");
+		languageManager.registerNewMessage(pluginName, "command.world.unload.success", "&7Successfully unloaded the world &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.unload.error", "&7Could not unload the world &9{0}&7. Does it exist inside the WorldContainer?");
+		languageManager.registerNewMessage(pluginName, "command.world.unload.player-info", "&7The world you were in has been unloaded. Moving you to the default world's spawn location..");
+		languageManager.registerNewMessage(pluginName, "command.world.delete.error.cant-unload-world", "&cCould not unload world &e{0}&c, can't proceed to delete it.");
+		languageManager.registerNewMessage(pluginName, "command.world.delete.success", "&7Successfully deleted the world &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.delete.error.cant-delete-directory", "&cCould not delete the directory of world &e{0}&c.");
+		languageManager.registerNewMessage(pluginName, "command.world.teleport.error.cant-load-world", "&cCould not load world &e{0}&c, can't proceed to teleport towards it.");
+		languageManager.registerNewMessage(pluginName, "command.world.teleport.error.cant-teleport", "&cCould not teleport you to inside the world &e{0}&c.");
+		languageManager.registerNewMessage(pluginName, "command.world.teleport.success", "&7Successfully teleported you inside the world &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.world.list.pre-text", "&7The following worlds exist in the WorldContainer (&9{0}&7)&8:");
+		languageManager.registerNewMessage(pluginName, "command.world.list.world-text", "&7- &9{0} &7({1})");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -115,6 +116,23 @@ public class GlobalUtils {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
 		return sdf.format(new Date(timestamp));
 		
+	}
+	
+	/**
+	 * 
+	 * @param percent - Trigger Chance
+	 * @return If it should trigger
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static boolean shouldTrigger(double percent) {
+		Random r = new Random();
+		float temp = r.nextFloat();
+
+		if (temp < (percent / 100))
+			return true;
+		else
+			return false;
 	}
 
 }

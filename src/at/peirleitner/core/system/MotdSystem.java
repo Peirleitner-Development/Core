@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandMotd;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.MOTD;
 import at.peirleitner.core.util.database.TableType;
@@ -27,7 +28,7 @@ import at.peirleitner.core.util.user.CorePermission;
  * @see CorePermission#COMMAND_MOTD
  * @see Core#getTableMotd()
  */
-public class MotdSystem {
+public class MotdSystem implements CoreSystem {
 
 	private MOTD cachedMotd;
 	private final String table = TableType.MOTD.getTableName(true);
@@ -202,6 +203,16 @@ public class MotdSystem {
 			return false;
 		}
 
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	@Override
+	public TableType getTableType() {
+		return TableType.MOTD;
 	}
 
 }

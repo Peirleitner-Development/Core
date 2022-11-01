@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandLicense;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
@@ -28,7 +29,7 @@ import at.peirleitner.core.util.user.UserLicense;
  * @see UserLicense
  * @see MasterLicense
  */
-public class LicenseSystem {
+public class LicenseSystem implements CoreSystem {
 
 	private final String tableMaster = TableType.LICENSES_MASTER.getTableName(true);
 	private final String tableUser = TableType.LICENSES_USER.getTableName(true);
@@ -555,6 +556,21 @@ public class LicenseSystem {
 		long expire = rs.getLong(4);
 
 		return new UserLicense(owner, licenseID, issued, expire);
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	/**
+	 * This does not return anything as this system uses two different TableTypes.
+	 * @see TableType#LICENSES_MASTER
+	 * @see TableType#LICENSES_USER
+	 */
+	@Override
+	public TableType getTableType() {
+		return null;
 	}
 
 }

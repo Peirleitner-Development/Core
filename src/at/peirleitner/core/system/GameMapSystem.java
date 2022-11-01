@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.CustomLocation;
 import at.peirleitner.core.util.GlobalUtils;
 import at.peirleitner.core.util.LogType;
@@ -28,7 +29,7 @@ import net.md_5.bungee.api.ChatColor;
  * @author Markus Peirleitner (Rengobli)
  *
  */
-public class GameMapSystem {
+public class GameMapSystem implements CoreSystem {
 
 	private final String table = TableType.MAPS.getTableName(true);
 	private Collection<GameMap> cachedMaps;
@@ -629,6 +630,16 @@ public class GameMapSystem {
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	@Override
+	public TableType getTableType() {
+		return TableType.MAPS;
 	}
 
 }

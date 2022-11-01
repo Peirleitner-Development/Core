@@ -8,11 +8,12 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
 
-public class StatSystem {
+public class StatSystem implements CoreSystem {
 
 	private final String table = TableType.STATS.getTableName(true);
 	private final SaveType saveType = Core.getInstance().getSettingsManager().getSaveType();
@@ -127,6 +128,16 @@ public class StatSystem {
 	 */
 	public final boolean incrementStatistic(@Nonnull UUID uuid, @Nonnull String statistic) {
 		return this.addStatistic(uuid, statistic, 1);
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	@Override
+	public TableType getTableType() {
+		return TableType.STATS;
 	}
 
 }

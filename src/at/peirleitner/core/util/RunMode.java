@@ -7,6 +7,7 @@ import at.peirleitner.core.Core;
  * This will be set by the {@link Core} class on plugin initialization and can
  * not be changed manually.
  * 
+ * @since 1.0.0
  * @author Markus Peirleitner (Rengobli)
  *
  */
