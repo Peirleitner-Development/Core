@@ -8,6 +8,7 @@ import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.manager.SettingsManager;
 
 public enum CorePermission {
@@ -70,6 +71,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_LOG("core.command.log"),
+	
+	/**
+	 * Allows usage of the {@link CommandWorld} command
+	 * @since 1.0.10
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_WORLD("core.command.world"),
 	
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is full

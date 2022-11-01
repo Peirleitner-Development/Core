@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.Language;
@@ -22,7 +23,7 @@ import at.peirleitner.core.util.user.User;
  * @author Markus Peirleitner (Rengobli)
  *
  */
-public final class UserSystem {
+public final class UserSystem implements CoreSystem {
 
 	private final String table = TableType.USERS.getTableName(true);
 	private Collection<User> cachedUsers;
@@ -429,6 +430,16 @@ public final class UserSystem {
 			return false;
 		}
 
+	}
+
+	@Override
+	public void createTable() {
+		return;
+	}
+
+	@Override
+	public TableType getTableType() {
+		return TableType.USERS;
 	}
 
 }

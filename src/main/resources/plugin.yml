@@ -42,4 +42,8 @@ commands:
     description: Send money to another player
   log:
     usage: </command>
-    description: Toggle display of log messages 
+    description: Toggle display of log messages
+  world:
+    usage: </command>
+    description: Bukkit World Management
+    aliases: [w]
