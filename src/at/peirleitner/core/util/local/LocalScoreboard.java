@@ -26,20 +26,6 @@ public class LocalScoreboard {
 		return DEFAULT_TEAMS_ENABLED;
 	}
 
-	// private boolean ENABLE_COLLISION;
-	//
-	// public void enableCollision() {
-	// ENABLE_COLLISION = true;
-	// for (Player all : Bukkit.getOnlinePlayers())
-	// this.resetDefaultTeams(all);
-	// }
-	//
-	// public void disableCollision() {
-	// ENABLE_COLLISION = false;
-	// for (Player all : Bukkit.getOnlinePlayers())
-	// this.refreshDefaultTeams(all);
-	// }
-
 	public void enableDefaultTeams() {
 		DEFAULT_TEAMS_ENABLED = true;
 		for (Player all : Bukkit.getOnlinePlayers())
@@ -98,33 +84,16 @@ public class LocalScoreboard {
 			return;
 		}
 
-		// Scoreboard main = Bukkit.getScoreboardManager().getMainScoreboard();
-		//
-		// Team col = main.getTeam("collision");
-		// if (col == null)
-		// col = main.registerNewTeam("collision");
-		// if (ENABLE_COLLISION)
-		// col.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
-		// else
-		// col.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-		// for (Player all : Bukkit.getOnlinePlayers()) {
-		// col.addEntry(all.getName());
-		// }
-
 		Scoreboard s = this.getPlayerScoreboard(p);
 		for (Rank rank : Core.getInstance().getRanks()) {
 			Team t = s.getTeam("" + this.getTeamID(rank));
 			if (t == null) {
 				t = s.registerNewTeam("" + this.getTeamID(rank));
-//				Bukkit.getConsoleSender().sendMessage("Registered team §a" + rank.getRightOrdinal() + " for rank " + rank.getName());
+//				
 			}
 
 			t.setCanSeeFriendlyInvisibles(true);
-			// t.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-
-			// Tab prefix is set down below to be able to display guilds since 1.0.1
 			t.setPrefix((!rank.isDefault() ? rank.getColoredDisplayName() + " " : ""));
-//			t.setSuffix(g == null ? "" : " " + ChatColor.GRAY + "[" + g.getColor() + g.getTag() + ChatColor.GRAY + "]");
 
 			t.setColor(ChatColor.GRAY);
 
@@ -138,7 +107,6 @@ public class LocalScoreboard {
 				o = getPlayerScoreboard(p).registerNewObjective("lvl", "dummy");
 			o.setDisplaySlot(DisplaySlot.BELOW_NAME);
 			o.setDisplayName(ChatColor.YELLOW + "Level");
-//			o.getScore(all.getName()).setScore(user.getLevel()); // TODO: Update to real level
 
 			Rank rank = user.getRank();
 
@@ -150,19 +118,7 @@ public class LocalScoreboard {
 					? rank.getChatColor() + "" + ChatColor.BOLD + rank.getDisplayName().toUpperCase() + " "
 					: "") + ChatColor.GRAY + all.getName());
 
-			// t.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-//			all.setPlayerListName("§7" + pRank.getColor() + pRank.getName() + " §7| §7" + pRank.getColor()
-//					+ all.getName() 
-//					+ (Survival.getInstance().getAPI().getVanishedPlayers().contains(cp.getUUID()) ? " §4*VANISH*" : "")
-//					+ (cp.getDonationAmount() > 0 ? " §c❤ " : "") 
-//					+ (cp.isAFK() ? " §c*AFK*" : "")
-//					+ (Survival.getInstance().getAPI().isInTutorial(all.getUniqueId()) ? " §b*TUTORIAL*" : "")
-//					);
-
 		}
-
-//		Team t = getPlayerScoreboard(p).getTeam("" + NayolaCore.getInstance().getUserSystem().getUser(p.getUniqueId()).getRank().getRightOrdinal());
-//		t.addEntry(p.getName());
 
 		p.setScoreboard(s);
 	}

@@ -1,0 +1,12 @@
+at.peirleitner.core
+at.peirleitner.core.api.exception
+at.peirleitner.core.api.local
+at.peirleitner.core.command.local
+at.peirleitner.core.listener.local
+at.peirleitner.core.listener.network
+at.peirleitner.core.manager
+at.peirleitner.core.system
+at.peirleitner.core.util
+at.peirleitner.core.util.database
+at.peirleitner.core.util.local
+at.peirleitner.core.util.user
