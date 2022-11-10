@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandEconomy;
+import at.peirleitner.core.command.local.CommandHelp;
 import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
@@ -18,6 +19,8 @@ import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandStore;
+import at.peirleitner.core.command.local.CommandTeleport;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -69,6 +72,9 @@ public class SpigotMain extends JavaPlugin {
 		new CommandPay();
 		new CommandLog();
 		new CommandWorld();
+		new CommandTeleport();
+		new CommandHelp();
+		new CommandStore();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -277,6 +283,15 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.world.teleport.success", "&7Successfully teleported you inside the world &9{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.world.list.pre-text", "&7The following worlds exist in the WorldContainer (&9{0}&7)&8:");
 		languageManager.registerNewMessage(pluginName, "command.world.list.world-text", "&7- &9{0} &7({1})");
+		
+		languageManager.registerNewMessage(pluginName, "command.teleport.syntax", "&7Syntax&8: &9/teleport <Player> [Player]");
+		languageManager.registerNewMessage(pluginName, "command.teleport.self.success", "&7Successfully teleported you towards &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.teleport.other.sender.success", "&7Successfully teleported &9{0} &7towards &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.teleport.other.target1.success", "&9{0} &7teleported you towards &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.teleport.other.target2.success", "&9{0} &7teleported &9{1} &7towards you.");
+		languageManager.registerNewMessage(pluginName, "command.teleport.error.target1-cant-be-target2", "&7You can't teleport the player towards itself.");
+		
+		languageManager.registerNewMessage(pluginName, "command.store.text", "&7Online-Shop&8: &9{0}");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");

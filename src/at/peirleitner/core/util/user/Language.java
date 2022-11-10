@@ -18,17 +18,19 @@ public enum Language {
 	 * @since 1.0.0
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	ENGLISH("English", "English", "EN"),
-	GERMAN("Deutsch", "German", "DE");
+	ENGLISH("English", "English", "EN", "eng"),
+	GERMAN("Deutsch", "German", "DE", "deu");
 
 	private final String nativeName;
 	private final String englishName;
 	private final String code;
+	private final String isoCode;
 
-	private Language(String nativeName, String englishName, String code) {
+	private Language(String nativeName, String englishName, String code, String isoCode) {
 		this.nativeName = nativeName;
 		this.englishName = englishName;
 		this.code = code;
+		this.isoCode = isoCode;
 	}
 
 	/**
@@ -59,6 +61,16 @@ public enum Language {
 	 */
 	public final String getCode() {
 		return code;
+	}
+	
+	/**
+	 * 
+	 * @return ISO 639-3 Code
+	 * @since 1.0.11
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getIsoCode() {
+		return isoCode;
 	}
 
 }

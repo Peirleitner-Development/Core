@@ -47,3 +47,13 @@ commands:
     usage: </command>
     description: Bukkit World Management
     aliases: [w]
+  teleport:
+    usage: </command>
+    description: Player teleporting
+    aliases: [tp]
+  help:
+    usage: </command>
+    description: Display help page
+    aliases: [hilfe, ?]
+  store:
+    usage: </command>
