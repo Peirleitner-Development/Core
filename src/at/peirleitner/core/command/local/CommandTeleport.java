@@ -17,6 +17,13 @@ import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
 import at.peirleitner.core.util.user.User;
 
+/**
+ * Player teleporting
+ * 
+ * @since 1.0.11
+ * @author Markus Peirleitner (Rengobli)
+ *
+ */
 public class CommandTeleport implements CommandExecutor {
 
 	public CommandTeleport() {
@@ -48,8 +55,8 @@ public class CommandTeleport implements CommandExecutor {
 						Core.getInstance().getLanguageManager().getMessage(PredefinedMessage.TARGET_PLAYER_NOT_FOUND));
 				return true;
 			}
-			
-			if(p == target) {
+
+			if (p == target) {
 				cs.sendMessage(
 						Core.getInstance().getLanguageManager().getMessage(PredefinedMessage.CANT_TARGET_YOURSELF));
 				return true;
@@ -88,15 +95,16 @@ public class CommandTeleport implements CommandExecutor {
 
 			User t1 = Core.getInstance().getUserSystem().getUser(target1.getUniqueId());
 			User t2 = Core.getInstance().getUserSystem().getUser(target2.getUniqueId());
-			
-			if(sender != null && sender == t1 || sender != null && sender == t2) {
+
+			if (sender != null && sender == t1 || sender != null && sender == t2) {
 				cs.sendMessage(
 						Core.getInstance().getLanguageManager().getMessage(PredefinedMessage.CANT_TARGET_YOURSELF));
 				return true;
 			}
-			
-			if(target1 == target2) {
-				Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(), "command.teleport.error.target1-cant-be-target2", null, true);
+
+			if (target1 == target2) {
+				Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
+						"command.teleport.error.target1-cant-be-target2", null, true);
 				return true;
 			}
 
