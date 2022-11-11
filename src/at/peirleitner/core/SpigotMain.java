@@ -30,6 +30,7 @@ import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
 import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.listener.local.ServerListPingListener;
+import at.peirleitner.core.listener.local.SignChangeListener;
 import at.peirleitner.core.manager.GUIManager;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
@@ -85,6 +86,7 @@ public class SpigotMain extends JavaPlugin {
 		new ServerListPingListener();
 		new LeavesDecayListener();
 		new LogMessageCreateListener();
+		new SignChangeListener();
 		
 		// Run
 		this.startTabHeaderRunnable();
@@ -308,6 +310,7 @@ public class SpigotMain extends JavaPlugin {
 				+ "&7Web&8: &e{1}");
 		languageManager.registerNewMessage(pluginName, "listener.server-list-ping.maintenance", "&e{0} &7[&d{1}&7]\n"
 				+ "&8> &cServer Maintenance &7| &e{2}");
+		languageManager.registerNewMessage(pluginName, "listener.sign-change.sign-color.no-permission", "&7Colored Signs may only be created by Members with an active Premium Membership.");
 		
 		// GUI
 		languageManager.registerNewMessage(pluginName, "gui.license.title", "&3My Licenses");
