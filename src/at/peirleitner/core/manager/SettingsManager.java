@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandVote;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.PredefinedDatabaseSetting;
 import at.peirleitner.core.util.database.SaveType;
@@ -118,8 +119,23 @@ public class SettingsManager {
 		// v1.0.8
 		map.put(path + "enable-log-on-join", "false");
 		map.put(path + "send-debug-logs-in-chat", "false");
+		
+		// v1.0.14
+		map.put(path + "log-to-discord", "false");
+		map.put(path + "discord-webhook-url", "ENTER_WEBHOOK_URL");
+		map.put(path + "vote-url", "ENTER_VOTE_URL");
 
 		return map;
+	}
+	
+	/**
+	 * 
+	 * @return Vote URL to be displayed on {@link CommandVote}
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final String getVoteURL() {
+		return this.getSetting(Core.getInstance().getPluginName(), "manager.settings.vote-url");
 	}
 	
 	/**

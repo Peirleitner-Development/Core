@@ -31,6 +31,7 @@ import at.peirleitner.core.system.ModerationSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.util.DiscordWebhook;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
@@ -59,6 +60,10 @@ public final class Core {
 	private Collection<SaveType> saveTypes;
 	private final Collection<Rank> ranks;
 	private File ranksFile;
+
+	private final String DISCORD_WEBHOOK_START_URL = "https://discord.com/api/webhooks/";
+	private final String DISCORD_WEBHOOK_INVALID = "Webhook URL invalid";
+	private final String DISCORD_WEBHOOK_ERROR = "Error on Webhook execution: {error}";
 
 	// Manager
 	private SettingsManager settingsManager;
@@ -122,7 +127,7 @@ public final class Core {
 		this.economySystem = new EconomySystem();
 		this.moderationSystem = new ModerationSystem();
 
-		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
+		this.log(this.getClass(), LogType.DEBUG, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
 
 		// Checks
@@ -132,7 +137,7 @@ public final class Core {
 							+ this.getSettingsManager().getFile(this.getPluginName()).getPath()
 							+ "', database interaction will not work on some systems until this has been set.");
 		} else {
-			this.log(this.getClass(), LogType.INFO,
+			this.log(this.getClass(), LogType.DEBUG,
 					"Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
 		}
 
@@ -316,7 +321,7 @@ public final class Core {
 			return;
 		}
 
-		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
+		Core.getInstance().log(this.getClass(), LogType.DEBUG, "Loaded " + this.ranks.size() + " Ranks");
 
 	}
 
@@ -538,22 +543,61 @@ public final class Core {
 			org.bukkit.Bukkit.getConsoleSender().sendMessage(level.getColor() + logMessage);
 
 			try {
-				
-				if(Class.forName("at.peirleitner.core.SpigotMain") != null) {
-					
+
+				if (Class.forName("at.peirleitner.core.SpigotMain") != null) {
+
 					at.peirleitner.core.api.local.LogMessageCreateEvent event = new at.peirleitner.core.api.local.LogMessageCreateEvent(
 							pluginName, c, level, message);
 					SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
-					
+
 				}
-				
+
 			} catch (ClassNotFoundException | IllegalStateException e) {
-				// Async Events will still print to console, even tho the User won't get a message
+				// Async Events will still print to console, even tho the User won't get a
+				// message
 			}
 
 		} else {
 			net.md_5.bungee.api.ProxyServer.getInstance().getConsole()
 					.sendMessage(new net.md_5.bungee.api.chat.TextComponent(level.getColor() + logMessage));
+		}
+
+		// Create Webhook
+		if (!message.equals(DISCORD_WEBHOOK_INVALID) && !message.equals(DISCORD_WEBHOOK_ERROR) && !(level == LogType.DEBUG)) {
+			this.createWebhook("[" + c.getName() + "/" + level.toString() + "] " + message);
+		}
+
+	}
+
+	/**
+	 * @since 1.0.14
+	 * @param message
+	 */
+	public final void createWebhook(@Nonnull String message) {
+
+		if (this.getSettingsManager() == null)
+			return;
+
+		if (this.getSettingsManager().isSetting(this.getPluginName(), "manager.settings.log-to-discord")) {
+
+			String url = this.getSettingsManager().getSetting(this.getPluginName(),
+					"manager.settings.discord-webhook-url");
+
+			if (!url.startsWith(DISCORD_WEBHOOK_START_URL)) {
+				this.log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
+				return;
+			}
+
+			DiscordWebhook webhook = new DiscordWebhook(url);
+			webhook.setContent(message);
+			webhook.setUsername(this.getSettingsManager().getServerName());
+
+			try {
+				webhook.execute();
+			} catch (IOException ex) {
+				this.log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR);
+			}
+
 		}
 
 	}
@@ -732,7 +776,7 @@ public final class Core {
 	public final EconomySystem getEconomySystem() {
 		return this.economySystem;
 	}
-	
+
 	/**
 	 * 
 	 * @return {@link ModerationSystem}

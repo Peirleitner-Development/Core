@@ -21,6 +21,7 @@ import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandStore;
 import at.peirleitner.core.command.local.CommandTeleport;
+import at.peirleitner.core.command.local.CommandVote;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -76,6 +77,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandTeleport();
 		new CommandHelp();
 		new CommandStore();
+		new CommandVote();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -294,6 +296,7 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.teleport.error.target1-cant-be-target2", "&7You can't teleport the player towards itself.");
 		
 		languageManager.registerNewMessage(pluginName, "command.store.text", "&7Online-Shop&8: &9{0}");
+		languageManager.registerNewMessage(pluginName, "command.vote.text", "&7Vote for daily rewards&8: &9{0}");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");

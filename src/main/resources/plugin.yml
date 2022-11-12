@@ -53,7 +53,11 @@ commands:
     aliases: [tp]
   help:
     usage: </command>
-    description: Display help page
-    aliases: [hilfe, ?]
+    description: Display Help-Page
+    aliases: [hilfe]
   store:
     usage: </command>
+    description: Display the Store URL
+  vote:
+    usage: </command>
+    description: Display the Vote URL
