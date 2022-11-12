@@ -27,6 +27,7 @@ import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
+import at.peirleitner.core.system.ModerationSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
@@ -71,6 +72,7 @@ public final class Core {
 	private MaintenanceSystem maintenanceSystem;
 	private LicenseSystem licenseSystem;
 	private EconomySystem economySystem;
+	private ModerationSystem moderationSystem;
 
 	/**
 	 * Create a new Instance
@@ -118,6 +120,7 @@ public final class Core {
 		this.maintenanceSystem = new MaintenanceSystem();
 		this.licenseSystem = new LicenseSystem();
 		this.economySystem = new EconomySystem();
+		this.moderationSystem = new ModerationSystem();
 
 		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -728,6 +731,16 @@ public final class Core {
 	 */
 	public final EconomySystem getEconomySystem() {
 		return this.economySystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link ModerationSystem}
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final ModerationSystem getModerationSystem() {
+		return this.moderationSystem;
 	}
 
 }

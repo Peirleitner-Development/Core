@@ -112,7 +112,24 @@ public enum TableType {
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	ECONOMY("economy");
+	ECONOMY("economy"),
+	
+	/**
+	 * Table name for blocked phrases
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	MODERATION_BLOCKED_PHRASES("moderation_blocked_phrases"),
+	
+	/**
+	 * Table name for allowed domains
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote These will not be flagged by the chat filter
+	 */
+	MODERATION_ALLOWED_DOMAINS("moderation_allowed_domains"),
+	
+	;
 
 	private final String tableName;
 
