@@ -146,7 +146,7 @@ public final class MySQL {
 
 			this.connection = DriverManager.getConnection(
 					"jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true", username, password);
-			Core.getInstance().log(pluginName, this.getClass(), LogType.INFO,
+			Core.getInstance().log(pluginName, this.getClass(), LogType.DEBUG,
 					"Successfully connected to the MySQL Database " + database + ".");
 			return true;
 		} catch (SQLException e) {

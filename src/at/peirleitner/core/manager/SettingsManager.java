@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandVote;
+import at.peirleitner.core.util.DiscordWebHookType;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.PredefinedDatabaseSetting;
 import at.peirleitner.core.util.database.SaveType;
@@ -121,9 +122,13 @@ public class SettingsManager {
 		map.put(path + "send-debug-logs-in-chat", "false");
 		
 		// v1.0.14
-		map.put(path + "log-to-discord", "false");
-		map.put(path + "discord-webhook-url", "ENTER_WEBHOOK_URL");
+		for(DiscordWebHookType type : DiscordWebHookType.values()) {
+			map.put(path + "discord-webhook." + type.toString().toLowerCase() + ".enabled", "false");
+			map.put(path + "discord-webhook." + type.toString().toLowerCase() + ".url", "ENTER_WEBHOOK_URL");
+		}
+		
 		map.put(path + "vote-url", "ENTER_VOTE_URL");
+		map.put("system.moderation.chat-cooldown", "3");
 
 		return map;
 	}

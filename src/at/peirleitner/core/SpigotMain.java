@@ -32,6 +32,7 @@ import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.listener.local.ServerListPingListener;
 import at.peirleitner.core.listener.local.SignChangeListener;
+import at.peirleitner.core.listener.local.VoteListener;
 import at.peirleitner.core.manager.GUIManager;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
@@ -89,6 +90,7 @@ public class SpigotMain extends JavaPlugin {
 		new LeavesDecayListener();
 		new LogMessageCreateListener();
 		new SignChangeListener();
+		new VoteListener();
 		
 		// Run
 		this.startTabHeaderRunnable();
@@ -143,7 +145,8 @@ public class SpigotMain extends JavaPlugin {
 		// Command
 		languageManager.registerNewMessage(pluginName, "command.core.syntax", "&fCore Management\n"
 				+ "&f/core\n"
-				+ "  &9loadDefaultSaveTypes &7- &fLoad default SaveTypes");
+				+ "  &9loadDefaultSaveTypes &7- &fLoad default SaveTypes\n"
+				+ "  &9reload &7- &fReload Configuration");
 		languageManager.registerNewMessage(pluginName, "command.core.loadDefaultSaveTypes.info", "&7Loading of default SaveTypes has been finished, see console for further details.");
 		
 		languageManager.registerNewMessage(pluginName, "command.language.current-language", "&7Current language&8: &9{0}&7. Use &9/language <New Language> &7to change it. Available&8: &9{1}&7.");

@@ -164,7 +164,7 @@ public class LanguageManager {
 
 		}
 
-		Core.getInstance().log(this.getClass(), LogType.INFO,
+		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Loaded " + messages + " Messages for " + plugins.size() + " different Plugins on " + languages.size()
 						+ "/" + Language.values().length + " different languages.");
 		return true;

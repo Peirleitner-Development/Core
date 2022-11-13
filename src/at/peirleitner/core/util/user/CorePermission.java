@@ -13,7 +13,9 @@ import at.peirleitner.core.manager.SettingsManager;
 
 public enum CorePermission {
 
-	COMMAND_CORE_ADMIN("Core.command.core.admin"), COMMAND_LANGUAGE("Core.command.language"),
+	COMMAND_CORE_ADMIN("Core.command.core.admin"),
+
+	COMMAND_LANGUAGE("Core.command.language"),
 
 	/**
 	 * Access to the {@link #COMMAND_MOTD} command
@@ -111,6 +113,14 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	BYPASS_FULL_SERVER_JOIN("Core.bypass.fullServerJoin"),
+
+	/**
+	 * Bypass the chat cooldown
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	BYPASS_CHAT_COOLDOWN("Core.bypass.chatCooldown"),
 
 	/**
 	 * Use ColorCodes on Signs

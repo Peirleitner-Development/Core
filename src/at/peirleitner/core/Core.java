@@ -31,6 +31,7 @@ import at.peirleitner.core.system.ModerationSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.util.DiscordWebHookType;
 import at.peirleitner.core.util.DiscordWebhook;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
@@ -564,7 +565,7 @@ public final class Core {
 
 		// Create Webhook
 		if (!message.equals(DISCORD_WEBHOOK_INVALID) && !message.equals(DISCORD_WEBHOOK_ERROR) && !(level == LogType.DEBUG)) {
-			this.createWebhook("[" + c.getName() + "/" + level.toString() + "] " + message);
+			this.createWebhook("[" + c.getName() + "/" + level.toString() + "] " + message, DiscordWebHookType.LOG);
 		}
 
 	}
@@ -573,31 +574,36 @@ public final class Core {
 	 * @since 1.0.14
 	 * @param message
 	 */
-	public final void createWebhook(@Nonnull String message) {
+	public final void createWebhook(@Nonnull String message, DiscordWebHookType type) {
 
-		if (this.getSettingsManager() == null)
-			return;
+		if(this.getRunMode() == RunMode.LOCAL) {
+			
+			new org.bukkit.scheduler.BukkitRunnable() {
+				
+				@Override
+				public void run() {
+					
+					if (getSettingsManager() == null || !type.isEnabled())
+						return;
 
-		if (this.getSettingsManager().isSetting(this.getPluginName(), "manager.settings.log-to-discord")) {
+					if (!type.getURL().startsWith(DISCORD_WEBHOOK_START_URL)) {
+						log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
+						return;
+					}
 
-			String url = this.getSettingsManager().getSetting(this.getPluginName(),
-					"manager.settings.discord-webhook-url");
+					DiscordWebhook webhook = new DiscordWebhook(type.getURL());
+					webhook.setContent(message);
+					webhook.setUsername(getSettingsManager().getServerName());
 
-			if (!url.startsWith(DISCORD_WEBHOOK_START_URL)) {
-				this.log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
-				return;
-			}
-
-			DiscordWebhook webhook = new DiscordWebhook(url);
-			webhook.setContent(message);
-			webhook.setUsername(this.getSettingsManager().getServerName());
-
-			try {
-				webhook.execute();
-			} catch (IOException ex) {
-				this.log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR);
-			}
-
+					try {
+						webhook.execute();
+					} catch (IOException | org.bukkit.plugin.IllegalPluginAccessException ex) {
+//						log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR.replace("{error}", ex.getMessage()));
+					}
+					
+				}
+			}.runTaskAsynchronously(SpigotMain.getInstance());
+			
 		}
 
 	}
@@ -696,7 +702,12 @@ public final class Core {
 			this.getLanguageManager().registerNewMessage(this.getPluginName(),
 					"phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
 		}
-
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-log-restriction-active", "&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam", "&7Your message is too similar to your previous one.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-caps", "&7Your message contains too many uppercase letters.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-cooldown", "&7You may only type a message every &9{0} &7seconds.");
+		
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {

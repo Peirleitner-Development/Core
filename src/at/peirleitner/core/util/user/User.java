@@ -184,6 +184,59 @@ public final class User {
 		}
 
 	}
+	
+	/**
+	 * 
+	 * @param pluginName
+	 * @param key
+	 * @param replacements
+	 * @param prefix
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final void sendAsyncMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
+			@Nonnull boolean prefix) {
+
+		String message = Core.getInstance().getLanguageManager().getMessage(pluginName, this.getLanguage(), key,
+				replacements);
+
+		if (prefix) {
+			message = Core.getInstance().getLanguageManager().getPrefix(pluginName, this.getLanguage()) + message;
+		}
+
+		if (Core.getInstance().getRunMode() == RunMode.NETWORK) {
+
+			net.md_5.bungee.api.connection.ProxiedPlayer pp = net.md_5.bungee.api.ProxyServer.getInstance()
+					.getPlayer(this.getUUID());
+
+			// TODO: Add message to cache, up to a maximum and display it on joining
+			if (pp == null)
+				return;
+
+			pp.sendMessage(
+					new net.md_5.bungee.api.chat.TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+
+		} else {
+
+			org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(this.getUUID());
+
+			// TODO: Add message to cache, up to a maximum and display it on joining
+			if (p == null)
+				return;
+
+			at.peirleitner.core.api.local.AsyncUserMessageSendEvent event = new at.peirleitner.core.api.local.AsyncUserMessageSendEvent(
+					this, pluginName, key, replacements, prefix);
+			at.peirleitner.core.SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
+
+			if (event.isCancelled()) {
+				return;
+			}
+
+			p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+
+		}
+
+	}
 
 	/**
 	 * 

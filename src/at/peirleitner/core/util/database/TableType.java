@@ -9,7 +9,9 @@ import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.util.MOTD;
 import at.peirleitner.core.util.local.GameMap;
+import at.peirleitner.core.util.user.MasterLicense;
 import at.peirleitner.core.util.user.User;
 
 /**
@@ -106,29 +108,40 @@ public enum TableType {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	LICENSES_USER("licenses_user"),
-	
+
 	/**
 	 * Table name for {@link EconomySystem}
+	 * 
 	 * @since 1.0.6
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	ECONOMY("economy"),
-	
+
 	/**
 	 * Table name for blocked phrases
+	 * 
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	MODERATION_BLOCKED_PHRASES("moderation_blocked_phrases"),
-	
+
 	/**
 	 * Table name for allowed domains
+	 * 
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 * @apiNote These will not be flagged by the chat filter
 	 */
 	MODERATION_ALLOWED_DOMAINS("moderation_allowed_domains"),
-	
+
+	/**
+	 * Table name for ChatLogs
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	MODERATION_CHAT_LOGS("moderation_chat_logs"),
+
 	;
 
 	private final String tableName;
@@ -146,7 +159,7 @@ public enum TableType {
 	public final String getTableName(@Nonnull boolean prefix) {
 		return (prefix ? this.getTablePrefix() : "") + this.tableName;
 	}
-	
+
 	/**
 	 * 
 	 * @return Table prefix
@@ -155,7 +168,8 @@ public enum TableType {
 	 * @apiNote Before v1.0.6 this method has been <code>private</code>.
 	 */
 	public final String getTablePrefix() {
-		return Core.getInstance().getMySQL().isConnected() ? Core.getInstance().getMySQL().getTablePrefix() : "NOT_CONNECTED_";
+		return Core.getInstance().getMySQL().isConnected() ? Core.getInstance().getMySQL().getTablePrefix()
+				: "NOT_CONNECTED_";
 	}
 
 }
