@@ -62,3 +62,6 @@ commands:
   vote:
     usage: </command>
     description: Display the Vote URL
+  chatlog:
+    usage: </command>
+    description: Get Information about a ChatLog

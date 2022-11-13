@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import at.peirleitner.core.command.local.CommandChatLog;
 import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandHelp;
@@ -79,6 +80,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandHelp();
 		new CommandStore();
 		new CommandVote();
+		new CommandChatLog();
 		
 		// Listener
 		new PlayerJoinListener();
