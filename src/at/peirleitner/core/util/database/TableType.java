@@ -140,7 +140,11 @@ public enum TableType {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	MODERATION_CHAT_LOGS("moderation_chat_logs"),
+	MODERATION_CHATLOGS("moderation_chatLogs"),
+	
+	MODERATION_CHATLOGS_MESSAGES("moderation_chatLogs_messages"),
+	
+	MODERATION_CHATLOGS_REVIEWS("moderation_chatLogs_reviews")
 
 	;
 

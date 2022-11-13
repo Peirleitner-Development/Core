@@ -301,6 +301,17 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.store.text", "&7Online-Shop&8: &9{0}");
 		languageManager.registerNewMessage(pluginName, "command.vote.text", "&7Vote for daily rewards&8: &9{0}");
 		
+		languageManager.registerNewMessage(pluginName, "command.chatlog.syntax", "&7Syntax&8: &9/chatlog <ID>");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.error.none-found-with-given-id", "&7A ChatLog with the ID of &9{0} &7does not exist.");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.info", "&f&l----- CHATLOG INFORMATION -----\n"
+				+ "&8> &7ID&8: &9{0}\n"
+				+ "&8> &7Created&8: &9{1}\n"
+				+ "&8> &7Creator&8: &9{2}\n"
+				+ "&8> &7Comment&8: &9{3}\n"
+				+ "&8> &7Messages&8: &9{4}\n"
+				+ "&f&l----- CHAT MESSAGES -----");
+//		languageManager.registerNewMessage(pluginName, "command.chatlog.user-chat-message", "&7[{time}] {playerName}: {message}");
+		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
 		languageManager.registerNewMessage(pluginName, "listener.player-join.operator-join-action.disallow", "&cOperators are not allowed to join this server.");

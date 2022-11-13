@@ -2,6 +2,7 @@ package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.command.local.CommandChatLog;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
@@ -104,6 +105,13 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_TELEPORT_OTHER("Core.command.teleport.other"),
+	
+	/**
+	 * Grants access to the {@link CommandChatLog} command
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_CHATLOG("Core.command.chatlog"),
 
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is

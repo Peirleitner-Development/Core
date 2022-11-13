@@ -703,10 +703,15 @@ public final class Core {
 					"phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
 		}
 		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.chatLog.review", "&9{0} &7reviewed the ChatLog &9{1}&7. Result: &9{2}&7.");
+		
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-log-restriction-active", "&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam", "&7Your message is too similar to your previous one.");
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-caps", "&7Your message contains too many uppercase letters.");
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-cooldown", "&7You may only type a message every &9{0} &7seconds.");
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.error.already-has-review", "&7The ChatLog &9{0} &7has already been reviewed.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.success", "&7Successfully reviewed the ChatLog &9{0} &7with &9{1}&7.");
 		
 		if (this.getRunMode() == RunMode.NETWORK) {
 

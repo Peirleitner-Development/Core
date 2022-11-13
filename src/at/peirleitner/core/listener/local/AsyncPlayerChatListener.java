@@ -39,8 +39,8 @@ public class AsyncPlayerChatListener implements Listener {
 		
 		// Check for current Chat Restriction
 		if(Core.getInstance().getModerationSystem().hasActiveChatLog(p.getUniqueId())) {
-//			user.sendAsyncMessage(Core.getInstance().getPluginName(),
-//					"system.moderation.chat-log-restriction-active", Arrays.asList("" + chatLog.getID()), true);
+			user.sendAsyncMessage(Core.getInstance().getPluginName(),
+					"system.moderation.chat-log-restriction-active", Arrays.asList("" + Core.getInstance().getModerationSystem().getActiveChatLog(user.getUUID()).getID()), true);
 			e.setCancelled(true);
 			return;
 		}
@@ -57,12 +57,13 @@ public class AsyncPlayerChatListener implements Listener {
 		if (!flags.isEmpty()) {
 
 			userChatMessage.setFlags(flags);
+			Core.getInstance().getModerationSystem().getCachedMessages().add(userChatMessage);
 
 			for (UserChatMessageFlag flag : flags) {
 
 				if (flag.isForceChatRestriction()) {
 
-					ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(userChatMessage);
+					ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(null, user.getUUID(), "SYSTEM_MODERATION");
 
 					if (chatLog == null) {
 						Core.getInstance().log(getClass(), LogType.WARNING,

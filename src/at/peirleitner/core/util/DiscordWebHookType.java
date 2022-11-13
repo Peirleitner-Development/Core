@@ -13,7 +13,8 @@ public enum DiscordWebHookType {
 
 	LOG,
 	USER_CHAT_MESSAGE,
-	STAFF_NOTIFICATION;
+	STAFF_NOTIFICATION,
+	SERVER_NOTIFICIATION;
 	
 	public final boolean isEnabled() {
 		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "manager.settings.discord-webhook." + this.toString().toLowerCase() + ".enabled");
