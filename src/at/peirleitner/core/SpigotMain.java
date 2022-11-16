@@ -305,13 +305,21 @@ public class SpigotMain extends JavaPlugin {
 		
 		languageManager.registerNewMessage(pluginName, "command.chatlog.syntax", "&7Syntax&8: &9/chatlog <ID>");
 		languageManager.registerNewMessage(pluginName, "command.chatlog.error.none-found-with-given-id", "&7A ChatLog with the ID of &9{0} &7does not exist.");
-		languageManager.registerNewMessage(pluginName, "command.chatlog.info", "&f&l----- CHATLOG INFORMATION -----\n"
+		languageManager.registerNewMessage(pluginName, "command.chatlog.info", "&f&l----- CHATLOG START - INFO -----\n"
 				+ "&8> &7ID&8: &9{0}\n"
-				+ "&8> &7Created&8: &9{1}\n"
-				+ "&8> &7Creator&8: &9{2}\n"
-				+ "&8> &7Comment&8: &9{3}\n"
-				+ "&8> &7Messages&8: &9{4}\n"
-				+ "&f&l----- CHAT MESSAGES -----");
+				+ "&8> &cFlags&8: &9{1}\n"
+				+ "&8> &7Staff&8: &9{2}\n"
+				+ "&8> &7Reviewed&8: &9{3}\n"
+				+ "&8> &7Result&8: &9{4}\n"
+				+ "&f&l----- CHAT MESSAGE -----\n"
+				+ "&8> &7Message ID&8: &9{5}\n"
+				+ "&8> &7User&8: &9{6}\n"
+				+ "&8> &cMessage&8: &9{7}\n"
+				+ "&8> &7Sent&8: &9{8}\n"
+				+ "&8> &7SaveType&8: &9{9}\n"
+				+ "&8> &7Type&8: &9{10}\n"
+				+ "&8> &7Recipient&8: &9{11}\n"
+				+ "&f&l----- CHATLOG END -----");
 //		languageManager.registerNewMessage(pluginName, "command.chatlog.user-chat-message", "&7[{time}] {playerName}: {message}");
 		
 		// Listener

@@ -578,31 +578,37 @@ public final class Core {
 
 		if(this.getRunMode() == RunMode.LOCAL) {
 			
-			new org.bukkit.scheduler.BukkitRunnable() {
+			try {
 				
-				@Override
-				public void run() {
+				new org.bukkit.scheduler.BukkitRunnable() {
 					
-					if (getSettingsManager() == null || !type.isEnabled())
-						return;
+					@Override
+					public void run() {
+						
+						if (getSettingsManager() == null || !type.isEnabled())
+							return;
 
-					if (!type.getURL().startsWith(DISCORD_WEBHOOK_START_URL)) {
-						log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
-						return;
+						if (!type.getURL().startsWith(DISCORD_WEBHOOK_START_URL)) {
+							log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
+							return;
+						}
+
+						DiscordWebhook webhook = new DiscordWebhook(type.getURL());
+						webhook.setContent(message);
+						webhook.setUsername(getSettingsManager().getServerName());
+
+						try {
+							webhook.execute();
+						} catch (IOException ex) {
+//							log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR.replace("{error}", ex.getMessage()));
+						}
+						
 					}
-
-					DiscordWebhook webhook = new DiscordWebhook(type.getURL());
-					webhook.setContent(message);
-					webhook.setUsername(getSettingsManager().getServerName());
-
-					try {
-						webhook.execute();
-					} catch (IOException | org.bukkit.plugin.IllegalPluginAccessException ex) {
-//						log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR.replace("{error}", ex.getMessage()));
-					}
-					
-				}
-			}.runTaskAsynchronously(SpigotMain.getInstance());
+				}.runTaskAsynchronously(SpigotMain.getInstance());
+				
+			}catch(org.bukkit.plugin.IllegalPluginAccessException ex) {
+				// Plugin has disabled
+			}
 			
 		}
 

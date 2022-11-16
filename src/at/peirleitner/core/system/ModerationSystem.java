@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.CoreSystem;
@@ -25,6 +25,7 @@ import at.peirleitner.core.util.moderation.ChatLog;
 import at.peirleitner.core.util.moderation.ChatLogReviewResult;
 import at.peirleitner.core.util.moderation.UserChatMessage;
 import at.peirleitner.core.util.moderation.UserChatMessageFlag;
+import at.peirleitner.core.util.moderation.UserChatMessageType;
 import at.peirleitner.core.util.user.User;
 
 /**
@@ -40,8 +41,8 @@ public class ModerationSystem implements CoreSystem {
 
 	private Collection<String> cachedBlockedPhrases;
 	private Collection<String> cachedAllowedDomains;
-	private Collection<UserChatMessage> cachedMessages;
 	private Collection<String> blockedDomains;
+	private HashMap<UUID, Integer> lastMessage;
 
 	public ModerationSystem() {
 
@@ -49,8 +50,8 @@ public class ModerationSystem implements CoreSystem {
 		this.createTable();
 		this.cachedBlockedPhrases = new ArrayList<>();
 		this.cachedAllowedDomains = new ArrayList<>();
-		this.cachedMessages = new ArrayList<>();
 		this.blockedDomains = new ArrayList<>();
+		this.lastMessage = new HashMap<>();
 
 		// Load
 		this.reload();
@@ -59,6 +60,18 @@ public class ModerationSystem implements CoreSystem {
 
 	public final Collection<String> getBlockedDomains() {
 		return this.blockedDomains;
+	}
+
+	/**
+	 * 
+	 * @return Last message sent by this {@link User}. This will be cleared on
+	 *         server leaving. The Integer refers to the unique ID of the
+	 *         {@link UserChatMessage}.
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final HashMap<UUID, Integer> getLastMessage() {
+		return lastMessage;
 	}
 
 	public final void reload() {
@@ -101,64 +114,87 @@ public class ModerationSystem implements CoreSystem {
 
 	}
 
-	public final Collection<UserChatMessage> getCachedMessages() {
-		return this.cachedMessages;
-	}
+	/**
+	 * 
+	 * @param id - Unique ID of the {@link UserChatMessage}
+	 * @return Message object or <code>null</code> if none can be found or an error
+	 *         occurs
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final UserChatMessage getChatMessage(@Nonnull int id) {
 
-	public final Collection<UserChatMessage> getCachedMessages(@Nonnull UUID uuid) {
+		try {
 
-		Collection<UserChatMessage> messages = new ArrayList<>();
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("SELECT * FROM " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true) + " WHERE id = ?");
+			stmt.setInt(1, id);
+			
+			ResultSet rs = stmt.executeQuery();
 
-		for (UserChatMessage msg : this.getCachedMessages()) {
-			if (msg.getUUID().equals(uuid)) {
-				messages.add(msg);
+			if (rs.next()) {
+
+				UserChatMessage ucm = this.getChatMessageByResultSet(rs);
+				return ucm;
+
+			} else {
+				// None with the given ID
+				return null;
 			}
-		}
 
-		return messages;
-	}
-
-	public final Collection<UserChatMessage> getCachedMessages(@Nonnull UUID uuid, @Nonnull int lastMinutes) {
-
-		Collection<UserChatMessage> messages = new ArrayList<>();
-		long maxAllowed = System.currentTimeMillis() - (1000L * 60 * lastMinutes);
-
-		for (UserChatMessage msg : this.getCachedMessages()) {
-
-			if (msg.getUUID().equals(uuid) && msg.getCreated() >= maxAllowed) {
-				messages.add(msg);
-			}
-
-		}
-
-		return messages;
-	}
-
-	public final UserChatMessage getLatestCachedMessage(@Nonnull UUID uuid) {
-
-		Collection<UserChatMessage> messages = this.getCachedMessages(uuid);
-
-		if (messages.isEmpty()) {
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get Chat Message for ID '" + id + "'/SQL: " + e.getMessage());
 			return null;
 		}
 
-		UserChatMessage latest = null;
-		long greatest = -1;
+	}
 
-		for (UserChatMessage ucm : messages) {
-			if (ucm.getCreated() > greatest) {
-				greatest = ucm.getCreated();
-				latest = ucm;
-			}
+	/**
+	 * Log a {@link UserChatMessage} towards the Database.
+	 * 
+	 * @param message - Message sent by the {@link User}
+	 * @return Unique ID of this message as of incremented in the Database or -1 if
+	 *         an error occurs.
+	 */
+	public final int logChatMessageToDatabase(@Nonnull UserChatMessage message) {
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"INSERT INTO " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true)
+							+ " (uuid, message, sent, saveType, type, recipient) VALUES (?, ?, ?, ?, ?, ?);",
+					Statement.RETURN_GENERATED_KEYS);
+			stmt.setString(1, message.getUUID().toString());
+			stmt.setString(2, message.getMessage());
+			stmt.setLong(3, message.getSent());
+			stmt.setInt(4, message.getSaveTypeID());
+			stmt.setString(5, message.getType().toString());
+			stmt.setString(6, message.getRecipient());
+			
+			stmt.executeUpdate();
+
+			ResultSet rs = stmt.getGeneratedKeys();
+			rs.next();
+
+			return rs.getInt(1);
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not log ChatMessage '" + message.toString() + "' to Database/SQL: " + e.getMessage());
+			return -1;
 		}
 
-		return latest;
 	}
 
 	public final Collection<UserChatMessageFlag> checkMessage(@Nonnull UUID uuid, @Nonnull String message) {
 
 		List<UserChatMessageFlag> flags = new ArrayList<>(UserChatMessageFlag.values().length);
-		UserChatMessage lastMessage = this.getLatestCachedMessage(uuid);
+		UserChatMessage lastMessage = null;
+
+		if (this.getLastMessage().containsKey(uuid)) {
+			lastMessage = this.getChatMessage(this.getLastMessage().get(uuid));
+		}
 
 		// Spam
 		if (lastMessage != null && lastMessage.getMessage().equalsIgnoreCase(message)) {
@@ -216,7 +252,7 @@ public class ModerationSystem implements CoreSystem {
 		// Cooldown
 		if (lastMessage != null) {
 
-			long nextUsage = lastMessage.getCreated() + (1000L * this.getChatCooldown());
+			long nextUsage = lastMessage.getSent() + (1000L * this.getChatCooldown());
 
 			if (nextUsage > System.currentTimeMillis()) {
 				flags.add(UserChatMessageFlag.COOLDOWN);
@@ -327,24 +363,22 @@ public class ModerationSystem implements CoreSystem {
 		return flags;
 	}
 
-	public final ChatLog createChatLog(@Nullable UUID creator, @Nonnull UUID target, @Nullable String comment) {
+	public final ChatLog createChatLog(@Nonnull UserChatMessage message,
+			@Nonnull Collection<UserChatMessageFlag> flags) {
 
-		if (this.hasActiveChatLog(target)) {
-			Core.getInstance().log(getClass(), LogType.DEBUG, "Not creating new ChatLog of User '" + target.toString()
-					+ "' since an active one does already exist.");
+		if (this.hasActiveChatLog(message.getUUID())) {
+			Core.getInstance().log(getClass(), LogType.DEBUG, "Not creating new ChatLog of User '"
+					+ message.getUUID().toString() + "' since an active one does already exist.");
 			return null;
 		}
-
-		// Get messages sent from this User of the last ten minutes
-		Collection<UserChatMessage> messages = this.getCachedMessages(target);
 
 		try {
 
 			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT INTO "
-					+ TableType.MODERATION_CHATLOGS.getTableName(true) + " (creator, comment) VALUES (?, ?);",
+					+ TableType.MODERATION_CHATLOGS.getTableName(true) + " (message, flags) VALUES (?, ?);",
 					Statement.RETURN_GENERATED_KEYS);
-			stmt.setString(1, creator == null ? null : creator.toString());
-			stmt.setString(2, comment);
+			stmt.setInt(1, message.getID());
+			stmt.setString(2, this.toString(flags));
 			stmt.executeUpdate();
 
 			ResultSet rs = stmt.getGeneratedKeys();
@@ -354,41 +388,21 @@ public class ModerationSystem implements CoreSystem {
 
 			ChatLog chatLog = new ChatLog();
 			chatLog.setID(id);
-			chatLog.setCreated(System.currentTimeMillis());
-			chatLog.setCreator(creator);
-			chatLog.setComment(comment);
+			chatLog.setMessageID(message.getID());
+			chatLog.setFlags(flags);
+			chatLog.setStaff(null);
+			chatLog.setReviewed(-1);
+			chatLog.setResult(null);
 
 //			this.getCachedChatLogs().add(chatLog);
 			Core.getInstance().log(getClass(), LogType.DEBUG,
-					"Created ChatLog '" + chatLog.getID() + "', uploading messages to Database (" + messages.size() + ")..");
+					"Created ChatLog '" + chatLog.getID() + "' for ChatMessage '" + chatLog.getMessageID() + "'.");
 
-			for (UserChatMessage ucm : messages) {
-
-				stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-						"INSERT INTO " + TableType.MODERATION_CHATLOGS_MESSAGES.getTableName(true)
-								+ " (chatLog, uuid, message, flags, sent) VALUES (?, ?, ?, ?, ?);",
-						Statement.RETURN_GENERATED_KEYS);
-				stmt.setInt(1, chatLog.getID());
-				stmt.setString(2, ucm.getUUID().toString());
-				stmt.setString(3, ucm.getMessage());
-				stmt.setString(4, ucm.hasFlags() ? this.toString(ucm.getFlags()) : null);
-				stmt.setLong(5, ucm.getCreated());
-
-				stmt.executeUpdate();
-				rs = stmt.getGeneratedKeys();
-				rs.next();
-
-				ucm.setID(rs.getInt(1));
-
-			}
-
-			Core.getInstance().log(getClass(), LogType.DEBUG,
-					"Fully uploaded all logged messages (" + messages.size() + ") towards the Database.");
 			return chatLog;
 
 		} catch (SQLException e) {
-			Core.getInstance().log(getClass(), LogType.ERROR,
-					"Could not create new ChatLog of User '" + target.toString() + "'/SQL: " + e.getMessage());
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not create new ChatLog of User '"
+					+ message.getUUID().toString() + "'/SQL: " + e.getMessage());
 			return null;
 		}
 
@@ -413,7 +427,7 @@ public class ModerationSystem implements CoreSystem {
 
 			if (rs.next()) {
 
-				return this.getByResultSet(rs);
+				return this.getChatLogByResultSet(rs);
 
 			} else {
 				// No ChatLog
@@ -448,7 +462,7 @@ public class ModerationSystem implements CoreSystem {
 
 			while (rs.next()) {
 
-				ChatLog cl = this.getByResultSet(rs);
+				ChatLog cl = this.getChatLogByResultSet(rs);
 				chatLogs.add(cl);
 
 			}
@@ -471,20 +485,31 @@ public class ModerationSystem implements CoreSystem {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	private final ChatLog getByResultSet(@Nonnull ResultSet rs) throws SQLException {
+	public final ChatLog getChatLogByResultSet(@Nonnull ResultSet rs) throws SQLException {
 
 		int id = rs.getInt(1);
-		long created = rs.getLong(2);
-		UUID creator = (rs.getString(3) == null ? null : UUID.fromString(rs.getString(3)));
-		String comment = rs.getString(4);
+		int messageID = rs.getInt(2);
+		Collection<UserChatMessageFlag> flags = this.fromString(rs.getString(3));
+		UUID staff = (rs.getString(4) == null ? null : UUID.fromString(rs.getString(4)));
+		long reviewed = rs.getLong(5);
+		ChatLogReviewResult result = (rs.getString(6) == null ? null : ChatLogReviewResult.valueOf(rs.getString(6)));
 
-		ChatLog chatLog = new ChatLog();
-		chatLog.setID(id);
-		chatLog.setCreated(created);
-		chatLog.setCreator(creator);
-		chatLog.setComment(comment);
+		return new ChatLog(id, messageID, flags, staff, reviewed, result);
+	}
 
-		return chatLog;
+	public final UserChatMessage getChatMessageByResultSet(@Nonnull ResultSet rs) throws SQLException {
+
+		int id = rs.getInt(1);
+		UUID uuid = UUID.fromString(rs.getString(2));
+		String message = rs.getString(3);
+		long sent = rs.getLong(4);
+		int saveType = rs.getInt(5);
+		UserChatMessageType type = UserChatMessageType.valueOf(rs.getString(6));
+		String recipient = rs.getString(7);
+
+		UserChatMessage ucm = new UserChatMessage(id, uuid, message, sent, saveType, type, recipient);
+
+		return ucm;
 	}
 
 	/**
@@ -499,45 +524,14 @@ public class ModerationSystem implements CoreSystem {
 
 		Collection<ChatLog> chatLogs = new ArrayList<>();
 
-//		// Check Cache if available
-//		if(!this.getCachedChatLogs().isEmpty()) {
-//			
-//			for(ChatLog cl : this.getCachedChatLogs()) {
-//				if(cl.getMessage().getUUID().equals(uuid)) {
-//					chatLogs.add(cl);
-//				}
-//			}
-//			
-//			return chatLogs;
-//		}
-
-		// Check from Database if Cache is empty
-		try {
-
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-					"SELECT chatLog FROM " + TableType.MODERATION_CHATLOGS_MESSAGES.getTableName(true) + " WHERE uuid = ?");
-			stmt.setString(1, uuid.toString());
-
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-
-				ChatLog cl = this.getChatLog(rs.getInt(1));
+		for(ChatLog cl : this.getChatLogs()) {
+			if(cl.getChatMessage().getUUID().equals(uuid)) {
 				chatLogs.add(cl);
-
 			}
-
-//			this.getCachedChatLogs().addAll(chatLogs);
-			return chatLogs;
-
-		} catch (SQLException e) {
-			Core.getInstance().log(getClass(), LogType.ERROR,
-					"Could not get ChatLogs for User '" + uuid.toString() + "'/SQL: " + e.getMessage());
-			return null;
 		}
-
+		
+		return chatLogs;
 	}
-
 
 	public final ChatLog getActiveChatLog(@Nonnull UUID uuid) {
 
@@ -549,14 +543,14 @@ public class ModerationSystem implements CoreSystem {
 		}
 
 		for (ChatLog cl : chatLogs) {
-			if (!cl.hasReview()) {
+			if (!cl.isReviewed()) {
 				return cl;
 			}
 		}
 
 		return null;
 	}
-	
+
 	/**
 	 * 
 	 * @param uuid - UUID to get the ChatLogs for
@@ -586,22 +580,20 @@ public class ModerationSystem implements CoreSystem {
 					+ " (" + "domain VARCHAR(80) NOT NULL, " + "added BIGINT(255) NOT NULL DEFAULT '"
 					+ System.currentTimeMillis() + "', " + "staff CHAR(36), " + "PRIMARY KEY(domain));");
 
+			statements.add("CREATE TABLE IF NOT EXISTS " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true)
+					+ " (" + "id INT AUTO_INCREMENT NOT NULL, " + "uuid CHAR(36) NOT NULL, "
+					+ "message VARCHAR(150) NOT NULL, " + "sent BIGINT(255) NOT NULL DEFAULT '"
+					+ System.currentTimeMillis() + "', " + "saveType INT NOT NULL, " + "type ENUM('"
+					+ UserChatMessageType.PUBLIC.toString() + "', '" + UserChatMessageType.PRIVATE.toString() + "'), "
+					+ "recipient VARCHAR(50), " + "PRIMARY KEY (id), " + "FOREIGN KEY (saveType) REFERENCES "
+					+ TableType.SAVE_TYPE.getTableName(true) + "(id));");
+
 			statements.add("CREATE TABLE IF NOT EXISTS " + TableType.MODERATION_CHATLOGS.getTableName(true) + " ("
-					+ "id INT AUTO_INCREMENT NOT NULL, " + "created BIGINT(255) NOT NULL DEFAULT '"
-					+ System.currentTimeMillis() + "', " + "creator CHAR(36), "
-					+ "comment VARCHAR(200), " + "PRIMARY KEY(id));");
-
-			statements.add("CREATE TABLE IF NOT EXISTS " + TableType.MODERATION_CHATLOGS_MESSAGES.getTableName(true)
-					+ " (" + "id INT AUTO_INCREMENT NOT NULL, " + "chatLog INT NOT NULL, " + "uuid CHAR(36) NOT NULL, "
-					+ "message VARCHAR(150) NOT NULL, " + "flags VARCHAR(150), "
-					+ "sent BIGINT(255) NOT NULL, " + "PRIMARY KEY (id), " + "FOREIGN KEY (chatLog) REFERENCES "
-					+ TableType.MODERATION_CHATLOGS.getTableName(true) + "(id));");
-
-			statements.add("CREATE TABLE IF NOT EXISTS " + TableType.MODERATION_CHATLOGS_REVIEWS.getTableName(true)
-					+ " (" + "chatLog INT NOT NULL, " + "staff CHAR(36) NOT NULL, " + "review ENUM('"
+					+ "id INT AUTO_INCREMENT NOT NULL, " + "message INT NOT NULL, " + "flags VARCHAR(150) NOT NULL, "
+					+ "staff CHAR(36), " + "reviewed BIGINT(255) NOT NULL DEFAULT '-1', " + "result ENUM('"
 					+ ChatLogReviewResult.JUSTIFIED.toString() + "', '" + ChatLogReviewResult.NOT_JUSTIFIED.toString()
-					+ "') NOT NULL, " + "reviewed BIGINT(255) NOT NULL DEFAULT '" + System.currentTimeMillis() + "', "
-					+ "PRIMARY KEY (chatLog));");
+					+ "'), " + "PRIMARY KEY (id), " + "FOREIGN KEY (message) REFERENCES "
+					+ TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true) + "(id));");
 
 			for (String s : statements) {
 

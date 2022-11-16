@@ -11,6 +11,7 @@ import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
 import at.peirleitner.core.util.MOTD;
 import at.peirleitner.core.util.local.GameMap;
+import at.peirleitner.core.util.moderation.ChatLog;
 import at.peirleitner.core.util.user.MasterLicense;
 import at.peirleitner.core.util.user.User;
 
@@ -135,18 +136,20 @@ public enum TableType {
 	MODERATION_ALLOWED_DOMAINS("moderation_allowed_domains"),
 
 	/**
-	 * Table name for ChatLogs
+	 * Table name for logged user messages
 	 * 
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	MODERATION_CHATLOGS("moderation_chatLogs"),
-	
-	MODERATION_CHATLOGS_MESSAGES("moderation_chatLogs_messages"),
-	
-	MODERATION_CHATLOGS_REVIEWS("moderation_chatLogs_reviews")
+	MODERATION_LOG_USER_MESSAGES("moderation_log_user_messages"),
 
-	;
+	/**
+	 * Table name for {@link ChatLog}s
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	MODERATION_CHATLOGS("moderation_chatLogs");
 
 	private final String tableName;
 

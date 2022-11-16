@@ -17,6 +17,7 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.moderation.ChatLog;
 import at.peirleitner.core.util.moderation.UserChatMessage;
 import at.peirleitner.core.util.moderation.UserChatMessageFlag;
+import at.peirleitner.core.util.moderation.UserChatMessageType;
 import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Rank;
 import at.peirleitner.core.util.user.User;
@@ -46,24 +47,38 @@ public class AsyncPlayerChatListener implements Listener {
 		}
 
 		// Define Message
-		UserChatMessage userChatMessage = new UserChatMessage(p.getUniqueId(), ChatColor.stripColor(e.getMessage()));
-
+		UserChatMessage userChatMessage = new UserChatMessage();
+		userChatMessage.setUUID(p.getUniqueId());
+		userChatMessage.setMessage(e.getMessage());
+		userChatMessage.setSent(System.currentTimeMillis());
+		userChatMessage.setSaveTypeID(Core.getInstance().getSettingsManager().getSaveType().getID());
+		userChatMessage.setType(UserChatMessageType.PUBLIC);
+		userChatMessage.setRecipient(null);
+		
 		// Checks
 		Collection<UserChatMessageFlag> flags = Core.getInstance().getModerationSystem().checkMessage(user.getUUID(),
 				userChatMessage.getMessage());
 
-		Core.getInstance().log(getClass(), LogType.DEBUG, "Flags: " + flags.toString());
+//		Core.getInstance().log(getClass(), LogType.DEBUG, "Flags: " + flags.toString());
 
 		if (!flags.isEmpty()) {
 
-			userChatMessage.setFlags(flags);
-			Core.getInstance().getModerationSystem().getCachedMessages().add(userChatMessage);
+			int messageID = Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
+			
+			if(messageID == -1) {
+				
+				e.setCancelled(true);
+				
+				Core.getInstance().log(getClass(), LogType.DEBUG, "Message could not be logged towards the Database, ChatLog won't be created.");
+				return;
+			}
+			
+			userChatMessage.setID(messageID);
+			ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(userChatMessage, flags);
 
 			for (UserChatMessageFlag flag : flags) {
 
 				if (flag.isForceChatRestriction()) {
-
-					ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(null, user.getUUID(), "SYSTEM_MODERATION");
 
 					if (chatLog == null) {
 						Core.getInstance().log(getClass(), LogType.WARNING,
@@ -138,7 +153,7 @@ public class AsyncPlayerChatListener implements Listener {
 							.replace("{player}", rank.getChatColor() + p.getDisplayName())
 							.replace("{message}", rank.getRankType().getTextColor() + message));
 
-			Core.getInstance().getModerationSystem().getCachedMessages().add(userChatMessage);
+			Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
 
 			Core.getInstance().createWebhook("[" + rank.getName() + "] " + user.getLastKnownName() + ": " + message,
 					DiscordWebHookType.USER_CHAT_MESSAGE);
