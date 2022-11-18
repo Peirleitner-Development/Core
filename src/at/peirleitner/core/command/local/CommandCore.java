@@ -45,6 +45,13 @@ public class CommandCore implements CommandExecutor {
 				cs.sendMessage(Core.getInstance().getLanguageManager().getMessage(Core.getInstance().getPluginName(),
 						Language.ENGLISH, "command.core.loadDefaultSaveTypes.info", null));
 				return true;
+				
+			} else if(args[0].equalsIgnoreCase("reload")) {
+				
+				Core.getInstance().getModerationSystem().reload();
+				
+				return true;
+				
 			} else {
 				this.sendHelp(cs);
 				return true;

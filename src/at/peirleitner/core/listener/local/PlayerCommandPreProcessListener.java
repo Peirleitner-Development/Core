@@ -1,6 +1,7 @@
 package at.peirleitner.core.listener.local;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,6 +26,23 @@ public class PlayerCommandPreProcessListener implements Listener {
 		Player p = e.getPlayer();
 		User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
 		String cmd = e.getMessage().split(" ")[0];
+		
+		if(cmd.contains("/") && cmd.contains(":")) {
+			user.sendAsyncMessage(Core.getInstance().getPluginName(), "listener.player-command-pre-process.error.plugin-enters-are-disabled", null, true);
+			e.setCancelled(true);
+			return;
+		}
+
+		// Check Restriction
+		if (Core.getInstance().getModerationSystem().hasActiveChatLog(user.getUUID())
+				&& this.getBlockedCommandsInChatRestriction().contains(cmd.toLowerCase())) {
+			user.sendMessage(Core.getInstance().getPluginName(), "system.moderation.chat-log-restriction-active",
+					Arrays.asList(
+							"" + Core.getInstance().getModerationSystem().getActiveChatLog(user.getUUID()).getID()),
+					true);
+			e.setCancelled(true);
+			return;
+		}
 
 		HelpTopic ht = Bukkit.getHelpMap().getHelpTopic(cmd);
 
@@ -38,6 +56,10 @@ public class PlayerCommandPreProcessListener implements Listener {
 
 		}
 
+	}
+
+	private Collection<String> getBlockedCommandsInChatRestriction() {
+		return Arrays.asList("/msg", "/tell", "/whisper", "/r", "/reply", "/me");
 	}
 
 }

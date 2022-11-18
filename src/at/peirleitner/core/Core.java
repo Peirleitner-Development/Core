@@ -27,9 +27,12 @@ import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
+import at.peirleitner.core.system.ModerationSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.util.DiscordWebHookType;
+import at.peirleitner.core.util.DiscordWebhook;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.CredentialsFile;
@@ -59,6 +62,10 @@ public final class Core {
 	private final Collection<Rank> ranks;
 	private File ranksFile;
 
+	private final String DISCORD_WEBHOOK_START_URL = "https://discord.com/api/webhooks/";
+	private final String DISCORD_WEBHOOK_INVALID = "Webhook URL invalid";
+	private final String DISCORD_WEBHOOK_ERROR = "Error on Webhook execution: {error}";
+
 	// Manager
 	private SettingsManager settingsManager;
 	private LanguageManager languageManager;
@@ -71,6 +78,7 @@ public final class Core {
 	private MaintenanceSystem maintenanceSystem;
 	private LicenseSystem licenseSystem;
 	private EconomySystem economySystem;
+	private ModerationSystem moderationSystem;
 
 	/**
 	 * Create a new Instance
@@ -118,8 +126,9 @@ public final class Core {
 		this.maintenanceSystem = new MaintenanceSystem();
 		this.licenseSystem = new LicenseSystem();
 		this.economySystem = new EconomySystem();
+		this.moderationSystem = new ModerationSystem();
 
-		this.log(this.getClass(), LogType.INFO, "Successfully enabled the Core instance with RunMode " + runMode
+		this.log(this.getClass(), LogType.DEBUG, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
 
 		// Checks
@@ -129,7 +138,7 @@ public final class Core {
 							+ this.getSettingsManager().getFile(this.getPluginName()).getPath()
 							+ "', database interaction will not work on some systems until this has been set.");
 		} else {
-			this.log(this.getClass(), LogType.INFO,
+			this.log(this.getClass(), LogType.DEBUG,
 					"Running on SaveType " + this.getSettingsManager().getSaveType().getName() + ".");
 		}
 
@@ -313,7 +322,7 @@ public final class Core {
 			return;
 		}
 
-		Core.getInstance().log(this.getClass(), LogType.INFO, "Loaded " + this.ranks.size() + " Ranks");
+		Core.getInstance().log(this.getClass(), LogType.DEBUG, "Loaded " + this.ranks.size() + " Ranks");
 
 	}
 
@@ -535,22 +544,72 @@ public final class Core {
 			org.bukkit.Bukkit.getConsoleSender().sendMessage(level.getColor() + logMessage);
 
 			try {
-				
-				if(Class.forName("at.peirleitner.core.SpigotMain") != null) {
-					
+
+				if (Class.forName("at.peirleitner.core.SpigotMain") != null) {
+
 					at.peirleitner.core.api.local.LogMessageCreateEvent event = new at.peirleitner.core.api.local.LogMessageCreateEvent(
 							pluginName, c, level, message);
 					SpigotMain.getInstance().getServer().getPluginManager().callEvent(event);
-					
+
 				}
-				
+
 			} catch (ClassNotFoundException | IllegalStateException e) {
-				// Async Events will still print to console, even tho the User won't get a message
+				// Async Events will still print to console, even tho the User won't get a
+				// message
 			}
 
 		} else {
 			net.md_5.bungee.api.ProxyServer.getInstance().getConsole()
 					.sendMessage(new net.md_5.bungee.api.chat.TextComponent(level.getColor() + logMessage));
+		}
+
+		// Create Webhook
+		if (!message.equals(DISCORD_WEBHOOK_INVALID) && !message.equals(DISCORD_WEBHOOK_ERROR) && !(level == LogType.DEBUG)) {
+			this.createWebhook("[" + c.getName() + "/" + level.toString() + "] " + message, DiscordWebHookType.LOG);
+		}
+
+	}
+
+	/**
+	 * @since 1.0.14
+	 * @param message
+	 */
+	public final void createWebhook(@Nonnull String message, DiscordWebHookType type) {
+
+		if(this.getRunMode() == RunMode.LOCAL) {
+			
+			try {
+				
+				new org.bukkit.scheduler.BukkitRunnable() {
+					
+					@Override
+					public void run() {
+						
+						if (getSettingsManager() == null || !type.isEnabled())
+							return;
+
+						if (!type.getURL().startsWith(DISCORD_WEBHOOK_START_URL)) {
+							log(getClass(), LogType.DEBUG, DISCORD_WEBHOOK_INVALID);
+							return;
+						}
+
+						DiscordWebhook webhook = new DiscordWebhook(type.getURL());
+						webhook.setContent(message);
+						webhook.setUsername(getSettingsManager().getServerName());
+
+						try {
+							webhook.execute();
+						} catch (IOException ex) {
+//							log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR.replace("{error}", ex.getMessage()));
+						}
+						
+					}
+				}.runTaskAsynchronously(SpigotMain.getInstance());
+				
+			}catch(org.bukkit.plugin.IllegalPluginAccessException ex) {
+				// Plugin has disabled
+			}
+			
 		}
 
 	}
@@ -649,7 +708,18 @@ public final class Core {
 			this.getLanguageManager().registerNewMessage(this.getPluginName(),
 					"phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
 		}
-
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.chatLog.review", "&9{0} &7reviewed the ChatLog &9{1}&7. Result: &9{2}&7.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.active-duties", "&7There are currently &f{0} &7Tasks waiting for moderative review. Use &f/mod &7to display them.");
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-log-restriction-active", "&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam", "&7Your message is too similar to your previous one.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-caps", "&7Your message contains too many uppercase letters.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-cooldown", "&7You may only type a message every &9{0} &7seconds.");
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.error.already-has-review", "&7The ChatLog &9{0} &7has already been reviewed.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.success", "&7Successfully reviewed the ChatLog &9{0} &7with &9{1}&7.");
+		
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
@@ -728,6 +798,16 @@ public final class Core {
 	 */
 	public final EconomySystem getEconomySystem() {
 		return this.economySystem;
+	}
+
+	/**
+	 * 
+	 * @return {@link ModerationSystem}
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final ModerationSystem getModerationSystem() {
+		return this.moderationSystem;
 	}
 
 }

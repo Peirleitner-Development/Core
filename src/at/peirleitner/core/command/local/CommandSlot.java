@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
+import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.CorePermission;
 import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.PredefinedMessage;
@@ -66,6 +67,8 @@ public class CommandSlot implements CommandExecutor {
 									: Core.getInstance().getUserSystem().getUser(p.getUniqueId()).getDisplayName(),
 									"" + slots),
 							false);
+					
+					Core.getInstance().log(getClass(), LogType.INFO, cs.getName() + " updated the Slots to " + slots);
 					return true;
 
 				} else {

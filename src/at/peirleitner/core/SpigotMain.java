@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import at.peirleitner.core.command.local.CommandChatLog;
 import at.peirleitner.core.command.local.CommandCore;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandHelp;
@@ -15,12 +16,14 @@ import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandStore;
 import at.peirleitner.core.command.local.CommandTeleport;
+import at.peirleitner.core.command.local.CommandVote;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -31,6 +34,7 @@ import at.peirleitner.core.listener.local.PlayerJoinListener;
 import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.listener.local.ServerListPingListener;
 import at.peirleitner.core.listener.local.SignChangeListener;
+import at.peirleitner.core.listener.local.VoteListener;
 import at.peirleitner.core.manager.GUIManager;
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.util.RunMode;
@@ -76,6 +80,9 @@ public class SpigotMain extends JavaPlugin {
 		new CommandTeleport();
 		new CommandHelp();
 		new CommandStore();
+		new CommandVote();
+		new CommandChatLog();
+		new CommandMod();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -87,6 +94,7 @@ public class SpigotMain extends JavaPlugin {
 		new LeavesDecayListener();
 		new LogMessageCreateListener();
 		new SignChangeListener();
+		new VoteListener();
 		
 		// Run
 		this.startTabHeaderRunnable();
@@ -123,6 +131,11 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "notify.motd.update", "&7[&9+&7] &9{0} &7updated the MOTD&8:\n"
 				+ "&7[&9+&7] &9{1}\n"
 				+ "&7[&9+&7] &9{2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.create", "&7[&9+&7] &9{0} &7has been restricted from the Chat by &9ModerationSystem&8!\n"
+				+ "&7[&9+&7] &7Reason&8: &9Automatic ChatLog ({1}) {2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.review.staff", "&7[&9+&7] &9{0} &7has reviewed the ChatLog &9{1}&7.\n"
+				+ "&7[&9+&7] &7Result&8: &9{2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.review.target", "&7A recent ChatLog that has been issued against you has been reviewed by the staff. Result&8: &9{0}&7.");
 		
 		// Other
 		languageManager.registerNewMessage(pluginName, "maintenance.kick", "&f&l{0}\n"
@@ -141,7 +154,8 @@ public class SpigotMain extends JavaPlugin {
 		// Command
 		languageManager.registerNewMessage(pluginName, "command.core.syntax", "&fCore Management\n"
 				+ "&f/core\n"
-				+ "  &9loadDefaultSaveTypes &7- &fLoad default SaveTypes");
+				+ "  &9loadDefaultSaveTypes &7- &fLoad default SaveTypes\n"
+				+ "  &9reload &7- &fReload Configuration");
 		languageManager.registerNewMessage(pluginName, "command.core.loadDefaultSaveTypes.info", "&7Loading of default SaveTypes has been finished, see console for further details.");
 		
 		languageManager.registerNewMessage(pluginName, "command.language.current-language", "&7Current language&8: &9{0}&7. Use &9/language <New Language> &7to change it. Available&8: &9{1}&7.");
@@ -294,6 +308,35 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.teleport.error.target1-cant-be-target2", "&7You can't teleport the player towards itself.");
 		
 		languageManager.registerNewMessage(pluginName, "command.store.text", "&7Online-Shop&8: &9{0}");
+		languageManager.registerNewMessage(pluginName, "command.vote.text", "&7Vote for daily rewards&8: &9{0}");
+		
+		languageManager.registerNewMessage(pluginName, "command.chatlog.syntax", "&7Syntax&8: &9/chatlog <review/ID> [ID] [Result]");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.error.none-found-with-given-id", "&7A ChatLog with the ID of &9{0} &7does not exist.");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.info", "&f&l----- CHATLOG START - INFO -----\n"
+				+ "&8> &7ID&8: &9{0}\n"
+				+ "&8> &cFlags&8: &9{1}\n"
+				+ "&8> &7Staff&8: &9{2}\n"
+				+ "&8> &7Reviewed&8: &9{3}\n"
+				+ "&8> &7Result&8: &9{4}\n"
+				+ "&f&l----- CHAT MESSAGE -----\n"
+				+ "&8> &7Message ID&8: &9{5}\n"
+				+ "&8> &7User&8: &9{6}\n"
+				+ "&8> &cMessage&8: &9{7}\n"
+				+ "&8> &7Sent&8: &9{8}\n"
+				+ "&8> &7SaveType&8: &9{9}\n"
+				+ "&8> &7Type&8: &9{10}\n"
+				+ "&8> &7Recipient&8: &9{11}\n"
+				+ "&8> &7MetaData&8: &9{12}\n"
+				+ "&f&l----- CHATLOG END -----");
+//		languageManager.registerNewMessage(pluginName, "command.chatlog.user-chat-message", "&7[{time}] {playerName}: {message}");
+		languageManager.registerNewMessage(pluginName, "command.chatLog.review.success", "&7Successfully reviewed the ChatLog &9{0}&7. Entered Result&8: &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.chatLog.review.error.sql", "&cCould not review the ChatLog &e{0}&c. Please contact the server developers.");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.error.invalid-review-result", "&7The Review &9{0} &7is invalid. Available Reviews&8: &9{1}&7.");
+		
+		languageManager.registerNewMessage(pluginName, "command.mod.active-tasks", "&7The following Tasks &7(&f{0}&7) require moderative action&8:\n"
+				+ "&8> &9ChatLogs &7(&f{1}&7)&8: &f{2}\n"
+				+ "&8> &9Reports &7(&f{3}&7)&8: &f{4}\n"
+				+ "&8> &9Support Requests &7(&f{5}&7)&8: &f{6}");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
@@ -311,6 +354,7 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "listener.server-list-ping.maintenance", "&e{0} &7[&d{1}&7]\n"
 				+ "&8> &cServer Maintenance &7| &e{2}");
 		languageManager.registerNewMessage(pluginName, "listener.sign-change.sign-color.no-permission", "&7Colored Signs may only be created by Members with an active Premium Membership.");
+		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.error.plugin-enters-are-disabled", "&7You may not specify a certain plugin for a command action.");
 		
 		// GUI
 		languageManager.registerNewMessage(pluginName, "gui.license.title", "&3My Licenses");

@@ -43,7 +43,8 @@ public enum LanguagePhrase {
 	TOOL_ELYTRA("Elytra"),
 	NONE("None"),
 	LOADED("Loaded"),
-	NOT_LOADED("Not loaded")
+	NOT_LOADED("Not loaded"),
+	NOT_REVIEWED("Not reviewed")
 	;
 	
 	private final String defaultValue;

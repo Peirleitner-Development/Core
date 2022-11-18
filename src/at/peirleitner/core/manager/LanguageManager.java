@@ -164,7 +164,7 @@ public class LanguageManager {
 
 		}
 
-		Core.getInstance().log(this.getClass(), LogType.INFO,
+		Core.getInstance().log(this.getClass(), LogType.DEBUG,
 				"Loaded " + messages + " Messages for " + plugins.size() + " different Plugins on " + languages.size()
 						+ "/" + Language.values().length + " different languages.");
 		return true;
@@ -502,6 +502,36 @@ public class LanguageManager {
 
 				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
 				user.sendMessage(pluginName, key, replacements, prefix);
+
+			}
+
+		} else {
+			// TODO: Network-Mode
+		}
+
+	}
+
+	/**
+	 * 
+	 * @param pluginName
+	 * @param key
+	 * @param replacements
+	 * @param prefix
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final void notifyStaffAsync(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
+			@Nonnull boolean prefix) {
+
+		if (Core.getInstance().getRunMode() == RunMode.LOCAL) {
+
+			for (org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+
+				if (!all.hasPermission(CorePermission.NOTIFY_STAFF.getPermission()))
+					continue;
+
+				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
+				user.sendAsyncMessage(pluginName, key, replacements, prefix);
 
 			}
 

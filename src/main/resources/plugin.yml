@@ -3,6 +3,7 @@ version: '${project.version}'
 author: Markus Peirleitner (Rengobli)
 website: www.peirleitner.at
 api-version: 1.19
+softdepend: [Votifier]
 
 main: at.peirleitner.core.SpigotMain
 
@@ -53,7 +54,17 @@ commands:
     aliases: [tp]
   help:
     usage: </command>
-    description: Display help page
-    aliases: [hilfe, ?]
+    description: Display Help-Page
+    aliases: [hilfe]
   store:
     usage: </command>
+    description: Display the Store URL
+  vote:
+    usage: </command>
+    description: Display the Vote URL
+  chatlog:
+    usage: </command>
+    description: Get Information about a ChatLog
+  mod:
+    usage: </command>
+    description: Get Information about active moderation tasks

@@ -2,10 +2,12 @@ package at.peirleitner.core.util.user;
 
 import javax.annotation.Nonnull;
 
+import at.peirleitner.core.command.local.CommandChatLog;
 import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandWorld;
@@ -13,7 +15,9 @@ import at.peirleitner.core.manager.SettingsManager;
 
 public enum CorePermission {
 
-	COMMAND_CORE_ADMIN("Core.command.core.admin"), COMMAND_LANGUAGE("Core.command.language"),
+	COMMAND_CORE_ADMIN("Core.command.core.admin"),
+
+	COMMAND_LANGUAGE("Core.command.language"),
 
 	/**
 	 * Access to the {@link #COMMAND_MOTD} command
@@ -104,6 +108,30 @@ public enum CorePermission {
 	COMMAND_TELEPORT_OTHER("Core.command.teleport.other"),
 
 	/**
+	 * Grants access to the {@link CommandChatLog} command (check)
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_CHATLOG_CHECK("Core.command.chatlog"),
+	
+	/**
+	 * Grants access to the {@link CommandChatLog} command (review)
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_CHATLOG_REVIEW("Core.command.review"),
+
+	/**
+	 * Grants access to the {@link CommandMod} command
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_MOD("Core.command.mod"),
+
+	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is
 	 * full
 	 * 
@@ -113,6 +141,14 @@ public enum CorePermission {
 	BYPASS_FULL_SERVER_JOIN("Core.bypass.fullServerJoin"),
 
 	/**
+	 * Bypass the chat cooldown
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	BYPASS_CHAT_COOLDOWN("Core.bypass.chatCooldown"),
+
+	/**
 	 * Use ColorCodes on Signs
 	 * 
 	 * @since 1.0.12
@@ -120,6 +156,12 @@ public enum CorePermission {
 	 */
 	EXTRA_SIGN_COLOR("Core.extra.signColor"),
 
+	/**
+	 * Receive staff notifications such as reports or bans
+	 * 
+	 * @since Undefined
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	NOTIFY_STAFF("Core.notify");
 
 	private String permission;
