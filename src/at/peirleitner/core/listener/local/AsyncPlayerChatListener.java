@@ -37,11 +37,13 @@ public class AsyncPlayerChatListener implements Listener {
 
 		Player p = e.getPlayer();
 		User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
-		
+
 		// Check for current Chat Restriction
-		if(Core.getInstance().getModerationSystem().hasActiveChatLog(p.getUniqueId())) {
-			user.sendAsyncMessage(Core.getInstance().getPluginName(),
-					"system.moderation.chat-log-restriction-active", Arrays.asList("" + Core.getInstance().getModerationSystem().getActiveChatLog(user.getUUID()).getID()), true);
+		if (Core.getInstance().getModerationSystem().hasActiveChatLog(p.getUniqueId())) {
+			user.sendAsyncMessage(Core.getInstance().getPluginName(), "system.moderation.chat-log-restriction-active",
+					Arrays.asList(
+							"" + Core.getInstance().getModerationSystem().getActiveChatLog(user.getUUID()).getID()),
+					true);
 			e.setCancelled(true);
 			return;
 		}
@@ -54,7 +56,11 @@ public class AsyncPlayerChatListener implements Listener {
 		userChatMessage.setSaveTypeID(Core.getInstance().getSettingsManager().getSaveType().getID());
 		userChatMessage.setType(UserChatMessageType.PUBLIC);
 		userChatMessage.setRecipient(null);
-		
+		userChatMessage.setMetaData(null);
+
+		int messageID = Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
+		userChatMessage.setID(messageID);
+
 		// Checks
 		Collection<UserChatMessageFlag> flags = Core.getInstance().getModerationSystem().checkMessage(user.getUUID(),
 				userChatMessage.getMessage());
@@ -63,22 +69,21 @@ public class AsyncPlayerChatListener implements Listener {
 
 		if (!flags.isEmpty()) {
 
-			int messageID = Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
-			
-			if(messageID == -1) {
-				
+			if (messageID == -1) {
+
 				e.setCancelled(true);
-				
-				Core.getInstance().log(getClass(), LogType.DEBUG, "Message could not be logged towards the Database, ChatLog won't be created.");
+
+				Core.getInstance().log(getClass(), LogType.DEBUG,
+						"Message could not be logged towards the Database, ChatLog won't be created, message won't be sent either.");
 				return;
 			}
-			
-			userChatMessage.setID(messageID);
-			ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(userChatMessage, flags);
 
 			for (UserChatMessageFlag flag : flags) {
 
 				if (flag.isForceChatRestriction()) {
+
+					// Only create ChatLogs if a restriction is forced
+					ChatLog chatLog = Core.getInstance().getModerationSystem().createChatLog(userChatMessage, flags);
 
 					if (chatLog == null) {
 						Core.getInstance().log(getClass(), LogType.WARNING,
@@ -89,6 +94,9 @@ public class AsyncPlayerChatListener implements Listener {
 					// Create Messages
 					user.sendAsyncMessage(Core.getInstance().getPluginName(),
 							"system.moderation.chat-log-restriction-active", Arrays.asList("" + chatLog.getID()), true);
+					Core.getInstance().getLanguageManager().notifyStaffAsync(Core.getInstance().getPluginName(),
+							"notify.chatLog.create",
+							Arrays.asList(user.getDisplayName(), "" + chatLog.getID(), flags.toString()), false);
 					Core.getInstance().createWebhook(user.getLastKnownName()
 							+ " has been flagged by the Chat Message Filter and automatically been restricted from the Chat. ChatLog-ID: "
 							+ chatLog.getID() + ". Flags: " + flags.toString(), DiscordWebHookType.STAFF_NOTIFICATION);
@@ -99,12 +107,14 @@ public class AsyncPlayerChatListener implements Listener {
 				}
 
 				if (flag == UserChatMessageFlag.SPAM) {
-					user.sendAsyncMessage(Core.getInstance().getPluginName(), "system.moderation.chat-spam", null, true);
+					user.sendAsyncMessage(Core.getInstance().getPluginName(), "system.moderation.chat-spam", null,
+							true);
 					continue;
 				}
 
 				if (flag == UserChatMessageFlag.CAPS) {
-					user.sendAsyncMessage(Core.getInstance().getPluginName(), "system.moderation.chat-caps", null, true);
+					user.sendAsyncMessage(Core.getInstance().getPluginName(), "system.moderation.chat-caps", null,
+							true);
 					continue;
 				}
 
@@ -154,6 +164,7 @@ public class AsyncPlayerChatListener implements Listener {
 							.replace("{message}", rank.getRankType().getTextColor() + message));
 
 			Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
+			Core.getInstance().getModerationSystem().getLastMessage().put(user.getUUID(), userChatMessage.getID());
 
 			Core.getInstance().createWebhook("[" + rank.getName() + "] " + user.getLastKnownName() + ": " + message,
 					DiscordWebHookType.USER_CHAT_MESSAGE);

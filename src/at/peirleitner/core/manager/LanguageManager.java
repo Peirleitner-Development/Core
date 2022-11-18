@@ -511,4 +511,34 @@ public class LanguageManager {
 
 	}
 
+	/**
+	 * 
+	 * @param pluginName
+	 * @param key
+	 * @param replacements
+	 * @param prefix
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final void notifyStaffAsync(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
+			@Nonnull boolean prefix) {
+
+		if (Core.getInstance().getRunMode() == RunMode.LOCAL) {
+
+			for (org.bukkit.entity.Player all : org.bukkit.Bukkit.getOnlinePlayers()) {
+
+				if (!all.hasPermission(CorePermission.NOTIFY_STAFF.getPermission()))
+					continue;
+
+				User user = Core.getInstance().getUserSystem().getUser(all.getUniqueId());
+				user.sendAsyncMessage(pluginName, key, replacements, prefix);
+
+			}
+
+		} else {
+			// TODO: Network-Mode
+		}
+
+	}
+
 }

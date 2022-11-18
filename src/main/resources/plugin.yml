@@ -3,7 +3,7 @@ version: '${project.version}'
 author: Markus Peirleitner (Rengobli)
 website: www.peirleitner.at
 api-version: 1.19
-softdepend: [NuVotifier]
+softdepend: [Votifier]
 
 main: at.peirleitner.core.SpigotMain
 
@@ -65,3 +65,6 @@ commands:
   chatlog:
     usage: </command>
     description: Get Information about a ChatLog
+  mod:
+    usage: </command>
+    description: Get Information about active moderation tasks

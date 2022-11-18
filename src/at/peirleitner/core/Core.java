@@ -710,6 +710,7 @@ public final class Core {
 		}
 		
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.chatLog.review", "&9{0} &7reviewed the ChatLog &9{1}&7. Result: &9{2}&7.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.active-duties", "&7There are currently &f{0} &7Tasks waiting for moderative review. Use &f/mod &7to display them.");
 		
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-log-restriction-active", "&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam", "&7Your message is too similar to your previous one.");

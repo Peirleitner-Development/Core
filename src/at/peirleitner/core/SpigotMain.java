@@ -16,6 +16,7 @@ import at.peirleitner.core.command.local.CommandLanguage;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
@@ -81,6 +82,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandStore();
 		new CommandVote();
 		new CommandChatLog();
+		new CommandMod();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -129,6 +131,11 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "notify.motd.update", "&7[&9+&7] &9{0} &7updated the MOTD&8:\n"
 				+ "&7[&9+&7] &9{1}\n"
 				+ "&7[&9+&7] &9{2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.create", "&7[&9+&7] &9{0} &7has been restricted from the Chat by &9ModerationSystem&8!\n"
+				+ "&7[&9+&7] &7Reason&8: &9Automatic ChatLog ({1}) {2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.review.staff", "&7[&9+&7] &9{0} &7has reviewed the ChatLog &9{1}&7.\n"
+				+ "&7[&9+&7] &7Result&8: &9{2}");
+		languageManager.registerNewMessage(pluginName, "notify.chatLog.review.target", "&7A recent ChatLog that has been issued against you has been reviewed by the staff. Result&8: &9{0}&7.");
 		
 		// Other
 		languageManager.registerNewMessage(pluginName, "maintenance.kick", "&f&l{0}\n"
@@ -303,7 +310,7 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.store.text", "&7Online-Shop&8: &9{0}");
 		languageManager.registerNewMessage(pluginName, "command.vote.text", "&7Vote for daily rewards&8: &9{0}");
 		
-		languageManager.registerNewMessage(pluginName, "command.chatlog.syntax", "&7Syntax&8: &9/chatlog <ID>");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.syntax", "&7Syntax&8: &9/chatlog <review/ID> [ID] [Result]");
 		languageManager.registerNewMessage(pluginName, "command.chatlog.error.none-found-with-given-id", "&7A ChatLog with the ID of &9{0} &7does not exist.");
 		languageManager.registerNewMessage(pluginName, "command.chatlog.info", "&f&l----- CHATLOG START - INFO -----\n"
 				+ "&8> &7ID&8: &9{0}\n"
@@ -319,8 +326,17 @@ public class SpigotMain extends JavaPlugin {
 				+ "&8> &7SaveType&8: &9{9}\n"
 				+ "&8> &7Type&8: &9{10}\n"
 				+ "&8> &7Recipient&8: &9{11}\n"
+				+ "&8> &7MetaData&8: &9{12}\n"
 				+ "&f&l----- CHATLOG END -----");
 //		languageManager.registerNewMessage(pluginName, "command.chatlog.user-chat-message", "&7[{time}] {playerName}: {message}");
+		languageManager.registerNewMessage(pluginName, "command.chatLog.review.success", "&7Successfully reviewed the ChatLog &9{0}&7. Entered Result&8: &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.chatLog.review.error.sql", "&cCould not review the ChatLog &e{0}&c. Please contact the server developers.");
+		languageManager.registerNewMessage(pluginName, "command.chatlog.error.invalid-review-result", "&7The Review &9{0} &7is invalid. Available Reviews&8: &9{1}&7.");
+		
+		languageManager.registerNewMessage(pluginName, "command.mod.active-tasks", "&7The following Tasks &7(&f{0}&7) require moderative action&8:\n"
+				+ "&8> &9ChatLogs &7(&f{1}&7)&8: &f{2}\n"
+				+ "&8> &9Reports &7(&f{3}&7)&8: &f{4}\n"
+				+ "&8> &9Support Requests &7(&f{5}&7)&8: &f{6}");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command", "&7The command &9{0} &7could not be validated.");
@@ -338,6 +354,7 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "listener.server-list-ping.maintenance", "&e{0} &7[&d{1}&7]\n"
 				+ "&8> &cServer Maintenance &7| &e{2}");
 		languageManager.registerNewMessage(pluginName, "listener.sign-change.sign-color.no-permission", "&7Colored Signs may only be created by Members with an active Premium Membership.");
+		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.error.plugin-enters-are-disabled", "&7You may not specify a certain plugin for a command action.");
 		
 		// GUI
 		languageManager.registerNewMessage(pluginName, "gui.license.title", "&3My Licenses");

@@ -121,6 +121,30 @@ public class PlayerJoinListener implements Listener {
 				SpigotMain.getInstance().getLocalScoreboard().refreshDefaultTeams();
 			}
 		}.runTaskLater(SpigotMain.getInstance(), 20L);
+		
+		// Staff Notifications
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				
+				if(p.hasPermission(CorePermission.NOTIFY_STAFF.getPermission())) {
+					
+					// Define
+					int toDoModerationTasks = 0;
+					
+					// ChatLogs
+					toDoModerationTasks += Core.getInstance().getModerationSystem().getUnreviewedChatLogs().size();
+					
+					// Display
+					if(toDoModerationTasks > 0) {
+						user.sendAsyncMessage(Core.getInstance().getPluginName(), "notify.system.moderation.active-duties", Arrays.asList("" + toDoModerationTasks), true);
+					}
+					
+				}
+				
+			}
+		}.runTaskLaterAsynchronously(SpigotMain.getInstance(), 20L);
 
 	}
 

@@ -27,13 +27,14 @@ public class UserChatMessage {
 	private int saveTypeID;
 	private UserChatMessageType type;
 	private String recipient;
+	private String metaData;
 
 	public UserChatMessage() {
 		
 	}
 	
 	public UserChatMessage(int id, UUID uuid, String message, long sent, int saveTypeID, UserChatMessageType type,
-			String recipient) {
+			String recipient, String metaData) {
 		this.id = id;
 		this.uuid = uuid;
 		this.message = message;
@@ -41,6 +42,7 @@ public class UserChatMessage {
 		this.saveTypeID = saveTypeID;
 		this.type = type;
 		this.recipient = recipient;
+		this.metaData = metaData;
 	}
 
 	public final int getID() {
@@ -139,6 +141,20 @@ public class UserChatMessage {
 
 	}
 	
+	
+	
+	public final String getMetaData() {
+		return metaData;
+	}
+
+	public final void setMetaData(String metaData) {
+		this.metaData = metaData;
+	}
+	
+	public final boolean hasMetaData() {
+		return this.getMetaData() == null ? false : true;
+	}
+
 	public final ChatLog getChatLog() {
 		
 		try {
@@ -169,7 +185,7 @@ public class UserChatMessage {
 	@Override
 	public String toString() {
 		return "UserChatMessage [id=" + id + ", uuid=" + uuid + ", message=" + message + ", sent=" + sent
-				+ ", saveTypeID=" + saveTypeID + ", type=" + type + ", recipient=" + recipient + "]";
+				+ ", saveTypeID=" + saveTypeID + ", type=" + type + ", recipient=" + recipient + ", metaData=" + metaData + "]";
 	}
 	
 	

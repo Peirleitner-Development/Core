@@ -7,6 +7,7 @@ import at.peirleitner.core.command.local.CommandEconomy;
 import at.peirleitner.core.command.local.CommandLicense;
 import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
+import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandWorld;
@@ -105,13 +106,30 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_TELEPORT_OTHER("Core.command.teleport.other"),
-	
+
 	/**
-	 * Grants access to the {@link CommandChatLog} command
+	 * Grants access to the {@link CommandChatLog} command (check)
+	 * 
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	COMMAND_CHATLOG("Core.command.chatlog"),
+	COMMAND_CHATLOG_CHECK("Core.command.chatlog"),
+	
+	/**
+	 * Grants access to the {@link CommandChatLog} command (review)
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_CHATLOG_REVIEW("Core.command.review"),
+
+	/**
+	 * Grants access to the {@link CommandMod} command
+	 * 
+	 * @since 1.0.14
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_MOD("Core.command.mod"),
 
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is
@@ -138,6 +156,12 @@ public enum CorePermission {
 	 */
 	EXTRA_SIGN_COLOR("Core.extra.signColor"),
 
+	/**
+	 * Receive staff notifications such as reports or bans
+	 * 
+	 * @since Undefined
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	NOTIFY_STAFF("Core.notify");
 
 	private String permission;

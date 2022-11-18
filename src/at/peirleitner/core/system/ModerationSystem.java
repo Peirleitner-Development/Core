@@ -62,6 +62,28 @@ public class ModerationSystem implements CoreSystem {
 		return this.blockedDomains;
 	}
 
+	private final boolean isDomainWhitelisted(@Nonnull String message) {
+
+		for (String allowedDomain : this.getAllowedDomains()) {
+			if(message.toLowerCase().contains(allowedDomain.toLowerCase())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public final boolean isDomainBlocked(@Nonnull String message) {
+
+		for (String blockedDomain : this.getBlockedDomains()) {
+			if(message.toLowerCase().contains("." + blockedDomain.toLowerCase()) && !this.isDomainWhitelisted(message)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * 
 	 * @return Last message sent by this {@link User}. This will be cleared on
@@ -126,10 +148,10 @@ public class ModerationSystem implements CoreSystem {
 
 		try {
 
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("SELECT * FROM " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true) + " WHERE id = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true) + " WHERE id = ?");
 			stmt.setInt(1, id);
-			
+
 			ResultSet rs = stmt.executeQuery();
 
 			if (rs.next()) {
@@ -161,9 +183,9 @@ public class ModerationSystem implements CoreSystem {
 
 		try {
 
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-					"INSERT INTO " + TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true)
-							+ " (uuid, message, sent, saveType, type, recipient) VALUES (?, ?, ?, ?, ?, ?);",
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT INTO "
+					+ TableType.MODERATION_LOG_USER_MESSAGES.getTableName(true)
+					+ " (uuid, message, sent, saveType, type, recipient, metaData) VALUES (?, ?, ?, ?, ?, ?, ?);",
 					Statement.RETURN_GENERATED_KEYS);
 			stmt.setString(1, message.getUUID().toString());
 			stmt.setString(2, message.getMessage());
@@ -171,7 +193,8 @@ public class ModerationSystem implements CoreSystem {
 			stmt.setInt(4, message.getSaveTypeID());
 			stmt.setString(5, message.getType().toString());
 			stmt.setString(6, message.getRecipient());
-			
+			stmt.setString(7, message.getMetaData());
+
 			stmt.executeUpdate();
 
 			ResultSet rs = stmt.getGeneratedKeys();
@@ -191,10 +214,14 @@ public class ModerationSystem implements CoreSystem {
 
 		List<UserChatMessageFlag> flags = new ArrayList<>(UserChatMessageFlag.values().length);
 		UserChatMessage lastMessage = null;
+		
+		
 
 		if (this.getLastMessage().containsKey(uuid)) {
 			lastMessage = this.getChatMessage(this.getLastMessage().get(uuid));
 		}
+		
+//		Core.getInstance().log(getClass(), LogType.DEBUG, "Last Message: " + (lastMessage == null ? "NULL" : lastMessage.toString()) + ". All: " + this.lastMessage.toString());
 
 		// Spam
 		if (lastMessage != null && lastMessage.getMessage().equalsIgnoreCase(message)) {
@@ -203,27 +230,28 @@ public class ModerationSystem implements CoreSystem {
 
 		// Caps
 		int length = message.length();
-		int caps = 0;
-		double maxAllowed = 75.0;
+		
+		if(length > 4) {
+			
+			int caps = 0;
+			double maxAllowed = 50.0;
 
-		for (int i = 0; i < length; i++) {
-
-			char c = message.charAt(i);
-
-			if (Character.isUpperCase(c)) {
-				caps++;
+			for (char c : message.toCharArray()) {
+				if (Character.isUpperCase(c)) {
+					caps++;
+				}
 			}
 
-		}
+			if (caps > 0) {
 
-		if (caps > 0) {
+				double capsPercentage = (caps * 1D) / (message.length() * 1D) * 100D;
 
-			int capsPercentage = (length / caps);
+				if (capsPercentage > maxAllowed) {
+					flags.add(UserChatMessageFlag.CAPS);
+				}
 
-			if (capsPercentage > maxAllowed) {
-				flags.add(UserChatMessageFlag.CAPS);
 			}
-
+			
 		}
 
 		// Blocked Phrase
@@ -235,18 +263,8 @@ public class ModerationSystem implements CoreSystem {
 		}
 
 		// Advertising
-		for (String s : this.getBlockedDomains()) {
-			if (message.toLowerCase().contains("." + s.toLowerCase())) {
-
-				for (String allowed : this.getAllowedDomains()) {
-					if (message.contains(allowed)) {
-						continue;
-					}
-				}
-
-				flags.add(UserChatMessageFlag.ADVERTISING);
-				break;
-			}
+		if(this.isDomainBlocked(message)) {
+			flags.add(UserChatMessageFlag.ADVERTISING);
 		}
 
 		// Cooldown
@@ -408,6 +426,49 @@ public class ModerationSystem implements CoreSystem {
 
 	}
 
+	public final boolean reviewChatLog(@Nonnull UUID staff, @Nonnull int id, @Nonnull ChatLogReviewResult result) {
+
+		ChatLog chatLog = this.getChatLog(id);
+
+		if (chatLog == null) {
+			Core.getInstance().log(getClass(), LogType.DEBUG,
+					"Could not review ChatLog '" + id + "': None found with the given ID.");
+			return false;
+		}
+
+		if (chatLog.isReviewed()) {
+			Core.getInstance().log(getClass(), LogType.DEBUG,
+					"Could not review ChatLog '" + id + "': Already reviewed.");
+			return false;
+		}
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("UPDATE " + TableType.MODERATION_CHATLOGS.getTableName(true)
+							+ " SET staff = ?, reviewed = ?, result = ? WHERE id = ?");
+			stmt.setString(1, staff.toString());
+			stmt.setLong(2, System.currentTimeMillis());
+			stmt.setString(3, result.toString());
+			stmt.setInt(4, id);
+
+			stmt.executeUpdate();
+
+			// Just for completion because I'm a monk
+			chatLog.setStaff(staff);
+			chatLog.setReviewed(System.currentTimeMillis());
+			chatLog.setResult(result);
+
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not review ChatLog '" + id + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
 	/**
 	 * 
 	 * @param id - ChatLog ID
@@ -477,6 +538,33 @@ public class ModerationSystem implements CoreSystem {
 
 	}
 
+	public final Collection<ChatLog> getUnreviewedChatLogs() {
+
+		Collection<ChatLog> chatLogs = new ArrayList<>();
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.MODERATION_CHATLOGS.getTableName(true) + " WHERE result IS NULL");
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+
+				ChatLog cl = this.getChatLogByResultSet(rs);
+				chatLogs.add(cl);
+
+			}
+
+			return chatLogs;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get ChatLogs from Database/SQL: " + e.getMessage());
+			return null;
+		}
+
+	}
+
 	/**
 	 * 
 	 * @param rs - ResultSet
@@ -506,8 +594,9 @@ public class ModerationSystem implements CoreSystem {
 		int saveType = rs.getInt(5);
 		UserChatMessageType type = UserChatMessageType.valueOf(rs.getString(6));
 		String recipient = rs.getString(7);
+		String metaData = rs.getString(8);
 
-		UserChatMessage ucm = new UserChatMessage(id, uuid, message, sent, saveType, type, recipient);
+		UserChatMessage ucm = new UserChatMessage(id, uuid, message, sent, saveType, type, recipient, metaData);
 
 		return ucm;
 	}
@@ -524,12 +613,12 @@ public class ModerationSystem implements CoreSystem {
 
 		Collection<ChatLog> chatLogs = new ArrayList<>();
 
-		for(ChatLog cl : this.getChatLogs()) {
-			if(cl.getChatMessage().getUUID().equals(uuid)) {
+		for (ChatLog cl : this.getChatLogs()) {
+			if (cl.getChatMessage().getUUID().equals(uuid)) {
 				chatLogs.add(cl);
 			}
 		}
-		
+
 		return chatLogs;
 	}
 
@@ -585,8 +674,8 @@ public class ModerationSystem implements CoreSystem {
 					+ "message VARCHAR(150) NOT NULL, " + "sent BIGINT(255) NOT NULL DEFAULT '"
 					+ System.currentTimeMillis() + "', " + "saveType INT NOT NULL, " + "type ENUM('"
 					+ UserChatMessageType.PUBLIC.toString() + "', '" + UserChatMessageType.PRIVATE.toString() + "'), "
-					+ "recipient VARCHAR(50), " + "PRIMARY KEY (id), " + "FOREIGN KEY (saveType) REFERENCES "
-					+ TableType.SAVE_TYPE.getTableName(true) + "(id));");
+					+ "recipient VARCHAR(50), " + "metadata VARCHAR(100), " + "" + "PRIMARY KEY (id), "
+					+ "FOREIGN KEY (saveType) REFERENCES " + TableType.SAVE_TYPE.getTableName(true) + "(id));");
 
 			statements.add("CREATE TABLE IF NOT EXISTS " + TableType.MODERATION_CHATLOGS.getTableName(true) + " ("
 					+ "id INT AUTO_INCREMENT NOT NULL, " + "message INT NOT NULL, " + "flags VARCHAR(150) NOT NULL, "
