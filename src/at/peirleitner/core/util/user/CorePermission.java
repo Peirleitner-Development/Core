@@ -113,7 +113,7 @@ public enum CorePermission {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	COMMAND_CHATLOG_CHECK("Core.command.chatlog"),
+	COMMAND_CHATLOG_CHECK("Core.command.chatlog.check"),
 	
 	/**
 	 * Grants access to the {@link CommandChatLog} command (review)
@@ -121,7 +121,7 @@ public enum CorePermission {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	COMMAND_CHATLOG_REVIEW("Core.command.review"),
+	COMMAND_CHATLOG_REVIEW("Core.command.chatlog.review"),
 
 	/**
 	 * Grants access to the {@link CommandMod} command

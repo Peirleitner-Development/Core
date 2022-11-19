@@ -163,7 +163,6 @@ public class AsyncPlayerChatListener implements Listener {
 							.replace("{player}", rank.getChatColor() + p.getDisplayName())
 							.replace("{message}", rank.getRankType().getTextColor() + message));
 
-			Core.getInstance().getModerationSystem().logChatMessageToDatabase(userChatMessage);
 			Core.getInstance().getModerationSystem().getLastMessage().put(user.getUUID(), userChatMessage.getID());
 
 			Core.getInstance().createWebhook("[" + rank.getName() + "] " + user.getLastKnownName() + ": " + message,
