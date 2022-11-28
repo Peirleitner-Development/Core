@@ -44,7 +44,8 @@ public enum LanguagePhrase {
 	NONE("None"),
 	LOADED("Loaded"),
 	NOT_LOADED("Not loaded"),
-	NOT_REVIEWED("Not reviewed")
+	NOT_REVIEWED("Not reviewed"),
+	BACK("Back")
 	;
 	
 	private final String defaultValue;
