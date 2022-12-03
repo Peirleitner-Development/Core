@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -135,4 +136,23 @@ public class GlobalUtils {
 			return false;
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return List of entered String, separated by line break
+	 * @since 1.0.15
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static List<String> getLore(@Nonnull String s) {
+		
+		List<String> lore = new ArrayList<>();
+		String[] split = s.split("\n");
+		
+		for(String msg : split) {
+			lore.add(msg);
+		}
+		
+		return lore;
+	}
+	
 }
