@@ -655,6 +655,12 @@ public class LocalUtils {
 		return success;
 	}
 
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
 	public static boolean isHelmet(@Nonnull ItemStack is) {
 		return Arrays.asList(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.CHAINMAIL_HELMET),
 				new ItemStack(Material.IRON_HELMET), new ItemStack(Material.DIAMOND_HELMET),
@@ -662,18 +668,36 @@ public class LocalUtils {
 				new ItemStack(Material.TURTLE_HELMET)).contains(is);
 	}
 	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
 	public static boolean isChestplate(@Nonnull ItemStack is) {
 		return Arrays.asList(new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_CHESTPLATE),
 				new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.DIAMOND_CHESTPLATE),
 				new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE)).contains(is);
 	}
 	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
 	public static boolean isLeggings(@Nonnull ItemStack is) {
 		return Arrays.asList(new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.CHAINMAIL_LEGGINGS),
 				new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.DIAMOND_LEGGINGS),
 				new ItemStack(Material.GOLDEN_LEGGINGS), new ItemStack(Material.NETHERITE_LEGGINGS)).contains(is);
 	}
 	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
 	public static boolean isBoots(@Nonnull ItemStack is) {
 		return Arrays.asList(new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.CHAINMAIL_BOOTS),
 				new ItemStack(Material.IRON_BOOTS), new ItemStack(Material.DIAMOND_BOOTS),
