@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 
 import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
+import at.peirleitner.core.system.CooldownSystem;
 import at.peirleitner.core.system.EconomySystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
@@ -79,6 +80,7 @@ public final class Core {
 	private LicenseSystem licenseSystem;
 	private EconomySystem economySystem;
 	private ModerationSystem moderationSystem;
+	private CooldownSystem cooldownSystem;
 
 	/**
 	 * Create a new Instance
@@ -127,6 +129,7 @@ public final class Core {
 		this.licenseSystem = new LicenseSystem();
 		this.economySystem = new EconomySystem();
 		this.moderationSystem = new ModerationSystem();
+		this.cooldownSystem = new CooldownSystem();
 
 		this.log(this.getClass(), LogType.DEBUG, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -564,7 +567,8 @@ public final class Core {
 		}
 
 		// Create Webhook
-		if (!message.equals(DISCORD_WEBHOOK_INVALID) && !message.equals(DISCORD_WEBHOOK_ERROR) && !(level == LogType.DEBUG)) {
+		if (!message.equals(DISCORD_WEBHOOK_INVALID) && !message.equals(DISCORD_WEBHOOK_ERROR)
+				&& !(level == LogType.DEBUG)) {
 			this.createWebhook("[" + c.getName() + "/" + level.toString() + "] " + message, DiscordWebHookType.LOG);
 		}
 
@@ -576,15 +580,15 @@ public final class Core {
 	 */
 	public final void createWebhook(@Nonnull String message, DiscordWebHookType type) {
 
-		if(this.getRunMode() == RunMode.LOCAL) {
-			
+		if (this.getRunMode() == RunMode.LOCAL) {
+
 			try {
-				
+
 				new org.bukkit.scheduler.BukkitRunnable() {
-					
+
 					@Override
 					public void run() {
-						
+
 						if (getSettingsManager() == null || !type.isEnabled())
 							return;
 
@@ -602,14 +606,14 @@ public final class Core {
 						} catch (IOException ex) {
 //							log(getClass(), LogType.ERROR, DISCORD_WEBHOOK_ERROR.replace("{error}", ex.getMessage()));
 						}
-						
+
 					}
 				}.runTaskAsynchronously(SpigotMain.getInstance());
-				
-			}catch(org.bukkit.plugin.IllegalPluginAccessException ex) {
+
+			} catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
 				// Plugin has disabled
 			}
-			
+
 		}
 
 	}
@@ -708,18 +712,28 @@ public final class Core {
 			this.getLanguageManager().registerNewMessage(this.getPluginName(),
 					"phrase." + phrase.toString().toLowerCase(), phrase.getDefaultValue());
 		}
-		
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.chatLog.review", "&9{0} &7reviewed the ChatLog &9{1}&7. Result: &9{2}&7.");
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.active-duties", "&7There are currently &f{0} &7Tasks waiting for moderative review. Use &f/mod &7to display them.");
-		
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-log-restriction-active", "&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam", "&7Your message is too similar to your previous one.");
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-caps", "&7Your message contains too many uppercase letters.");
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-cooldown", "&7You may only type a message every &9{0} &7seconds.");
-		
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.error.already-has-review", "&7The ChatLog &9{0} &7has already been reviewed.");
-		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.success", "&7Successfully reviewed the ChatLog &9{0} &7with &9{1}&7.");
-		
+
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.chatLog.review",
+				"&9{0} &7reviewed the ChatLog &9{1}&7. Result: &9{2}&7.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "notify.system.moderation.active-duties",
+				"&7There are currently &f{0} &7Tasks waiting for moderative review. Use &f/mod &7to display them.");
+
+		this.getLanguageManager().registerNewMessage(this.getPluginName(),
+				"system.moderation.chat-log-restriction-active",
+				"&7You have been temporarily restricted from the Chat until our Staff has reviewed a recent ChatLog that has been issued against you. ID&8: &9{0}");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-spam",
+				"&7Your message is too similar to your previous one.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-caps",
+				"&7Your message contains too many uppercase letters.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chat-cooldown",
+				"&7You may only type a message every &9{0} &7seconds.");
+
+		this.getLanguageManager().registerNewMessage(this.getPluginName(),
+				"system.moderation.chatLog.review.error.already-has-review",
+				"&7The ChatLog &9{0} &7has already been reviewed.");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.success",
+				"&7Successfully reviewed the ChatLog &9{0} &7with &9{1}&7.");
+
 		if (this.getRunMode() == RunMode.NETWORK) {
 
 		} else if (this.getRunMode() == RunMode.LOCAL) {
@@ -808,6 +822,16 @@ public final class Core {
 	 */
 	public final ModerationSystem getModerationSystem() {
 		return this.moderationSystem;
+	}
+
+	/**
+	 * 
+	 * @return {@link CooldownSystem}
+	 * @since 1.0.15
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final CooldownSystem getCooldownSystem() {
+		return cooldownSystem;
 	}
 
 }

@@ -424,20 +424,23 @@ public class LocalUtils {
 	 */
 	public static final boolean createWorld(@Nonnull User user, @Nonnull String name, @Nonnull WorldType worldType) {
 
-		if(isDefaultWorld(name)) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.cant-manipulate-default-world", null, true);
+		if (isDefaultWorld(name)) {
+			user.sendMessage(Core.getInstance().getPluginName(),
+					"command.world.main.error.cant-manipulate-default-world", null, true);
 			return false;
 		}
-		
+
 		if (isWorld(name)) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.already-exists-in-world-container", Arrays.asList(name), true);
+			user.sendMessage(Core.getInstance().getPluginName(),
+					"command.world.create.error.already-exists-in-world-container", Arrays.asList(name), true);
 			return false;
 		}
 
 		World w = Bukkit.getWorld(name);
 
 		if (w != null) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.world-already-exists", Arrays.asList(w.getName()), true);
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.world-already-exists",
+					Arrays.asList(w.getName()), true);
 			return false;
 		}
 
@@ -463,23 +466,25 @@ public class LocalUtils {
 			wc.type(org.bukkit.WorldType.NORMAL);
 			break;
 		}
-		
+
 		w = Bukkit.createWorld(wc);
-		
-		if(w == null) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.could-not-create", Arrays.asList(name), true);
+
+		if (w == null) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.error.could-not-create",
+					Arrays.asList(name), true);
 			return false;
 		}
 
-		if(worldType == WorldType.VOID) {
+		if (worldType == WorldType.VOID) {
 			Location spawn = w.getSpawnLocation();
 			w.getBlockAt(spawn.getBlockX(), spawn.getBlockY() - 1, spawn.getBlockZ()).setType(Material.BEDROCK);
 		}
-		
-		user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.success", Arrays.asList(name, worldType.toString()), true);
+
+		user.sendMessage(Core.getInstance().getPluginName(), "command.world.create.success",
+				Arrays.asList(name, worldType.toString()), true);
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * @param worldName
@@ -488,25 +493,26 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static boolean unloadWorld(@Nonnull String worldName) {
-		
-		if(isDefaultWorld(worldName)) {
+
+		if (isDefaultWorld(worldName)) {
 			return false;
 		}
-		
+
 		World w = Bukkit.getWorld(worldName);
-		
-		if(w == null) {
+
+		if (w == null) {
 			return false;
 		}
-		
-		for(Player all : w.getPlayers()) {
+
+		for (Player all : w.getPlayers()) {
 			all.teleport(Bukkit.getWorld("world").getSpawnLocation());
-			Core.getInstance().getLanguageManager().sendMessage(all, Core.getInstance().getPluginName(), "command.world.unload.player-info", Arrays.asList(worldName), true);
+			Core.getInstance().getLanguageManager().sendMessage(all, Core.getInstance().getPluginName(),
+					"command.world.unload.player-info", Arrays.asList(worldName), true);
 		}
-		
+
 		return Bukkit.unloadWorld(w, true);
 	}
-	
+
 	/**
 	 * 
 	 * @param worldName
@@ -515,22 +521,22 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static boolean loadWorld(@Nonnull String worldName) {
-		
-		if(!isWorld(worldName)) {
+
+		if (!isWorld(worldName)) {
 			return false;
 		}
-		
+
 		World w = Bukkit.getWorld(worldName);
-		
-		if(w != null) {
+
+		if (w != null) {
 			// Already loaded
 			return true;
 		}
-		
+
 		Bukkit.createWorld(new WorldCreator(worldName));
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * @return Default world names as specified by Microsoft
@@ -538,15 +544,15 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static final String[] getDefaultWorldNames() {
-		
+
 		String[] names = new String[3];
 		names[0] = "world";
 		names[1] = "world_nether";
 		names[2] = "world_the_end";
-		
+
 		return names;
 	}
-	
+
 	/**
 	 * 
 	 * @param worldName
@@ -555,16 +561,16 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static final boolean isDefaultWorld(@Nonnull String worldName) {
-		
-		for(String s : getDefaultWorldNames()) {
-			if(s.equalsIgnoreCase(worldName)) {
+
+		for (String s : getDefaultWorldNames()) {
+			if (s.equalsIgnoreCase(worldName)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @param user
@@ -574,39 +580,44 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static boolean deleteWorld(@Nonnull User user, @Nonnull String worldName) {
-		
-		if(isDefaultWorld(worldName)) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.cant-manipulate-default-world", null, true);
+
+		if (isDefaultWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(),
+					"command.world.main.error.cant-manipulate-default-world", null, true);
 			return false;
 		}
-		
-		if(!isWorld(worldName)) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container", Arrays.asList(worldName), true);
+
+		if (!isWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container",
+					Arrays.asList(worldName), true);
 			return false;
 		}
-		
+
 		World w = Bukkit.getWorld(worldName);
-		
-		if(w != null) {
-			if(!unloadWorld(worldName)) {
-				user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-unload-world", Arrays.asList(w.getName()), true);
+
+		if (w != null) {
+			if (!unloadWorld(worldName)) {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-unload-world",
+						Arrays.asList(w.getName()), true);
 				return false;
 			}
 		}
-		
+
 		File f = new File(Bukkit.getWorldContainer() + "/" + worldName);
-		
+
 		try {
 			FileUtils.deleteDirectory(f);
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.success", Arrays.asList(worldName), true);
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.success",
+					Arrays.asList(worldName), true);
 			return true;
 		} catch (IOException e) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-delete-directory", Arrays.asList(worldName), true);
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.delete.error.cant-delete-directory",
+					Arrays.asList(worldName), true);
 			return false;
 		}
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * @param user
@@ -616,28 +627,81 @@ public class LocalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static boolean teleportToWorld(@Nonnull User user, @Nonnull String worldName) {
-		
-		if(!isWorld(worldName)) {
-			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container", Arrays.asList(worldName), true);
+
+		if (!isWorld(worldName)) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.world.main.error.not-in-world-container",
+					Arrays.asList(worldName), true);
 			return false;
 		}
-		
+
 		World w = Bukkit.getWorld(worldName);
-		
-		if(w == null) {
-			
-			if(!loadWorld(worldName)) {
-				user.sendMessage(Core.getInstance().getPluginName(), "command.world.teleport.error.cant-load-world", Arrays.asList(worldName), true);
+
+		if (w == null) {
+
+			if (!loadWorld(worldName)) {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.world.teleport.error.cant-load-world",
+						Arrays.asList(worldName), true);
 				return false;
 			}
-			
+
 		}
-		
+
 		w = Bukkit.getWorld(worldName);
 		boolean success = Bukkit.getPlayer(user.getUUID()).teleport(w.getSpawnLocation());
-		
-		user.sendMessage(Core.getInstance().getPluginName(), "command.world.teleport." + (success ? "success" : "error.cant-teleport"), Arrays.asList(worldName), true);
+
+		user.sendMessage(Core.getInstance().getPluginName(),
+				"command.world.teleport." + (success ? "success" : "error.cant-teleport"), Arrays.asList(worldName),
+				true);
 		return success;
+	}
+
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
+	public static boolean isHelmet(@Nonnull ItemStack is) {
+		return Arrays.asList(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.CHAINMAIL_HELMET),
+				new ItemStack(Material.IRON_HELMET), new ItemStack(Material.DIAMOND_HELMET),
+				new ItemStack(Material.GOLDEN_HELMET), new ItemStack(Material.NETHERITE_HELMET),
+				new ItemStack(Material.TURTLE_HELMET)).contains(is);
+	}
+	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
+	public static boolean isChestplate(@Nonnull ItemStack is) {
+		return Arrays.asList(new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_CHESTPLATE),
+				new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.DIAMOND_CHESTPLATE),
+				new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.NETHERITE_CHESTPLATE)).contains(is);
+	}
+	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
+	public static boolean isLeggings(@Nonnull ItemStack is) {
+		return Arrays.asList(new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.CHAINMAIL_LEGGINGS),
+				new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.DIAMOND_LEGGINGS),
+				new ItemStack(Material.GOLDEN_LEGGINGS), new ItemStack(Material.NETHERITE_LEGGINGS)).contains(is);
+	}
+	
+	/**
+	 * 
+	 * @param is
+	 * @return
+	 * @since 1.0.15
+	 */
+	public static boolean isBoots(@Nonnull ItemStack is) {
+		return Arrays.asList(new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.CHAINMAIL_BOOTS),
+				new ItemStack(Material.IRON_BOOTS), new ItemStack(Material.DIAMOND_BOOTS),
+				new ItemStack(Material.GOLDEN_BOOTS), new ItemStack(Material.NETHERITE_BOOTS)).contains(is);
 	}
 
 }

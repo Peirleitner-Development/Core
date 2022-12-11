@@ -149,7 +149,15 @@ public enum TableType {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	MODERATION_CHATLOGS("moderation_chatLogs");
+	MODERATION_CHATLOGS("moderation_chatLogs"),
+	
+	/**
+	 * @since 1.0.15
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COOLDOWNS("cooldowns"),
+	
+	;
 
 	private final String tableName;
 
