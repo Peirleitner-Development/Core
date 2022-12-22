@@ -64,7 +64,14 @@ public enum PredefinedMessage {
 	 * @since 1.0.9
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	NOT_ENOUGH_ECONOMY("main.not-enough-economy");
+	NOT_ENOUGH_ECONOMY("main.not-enough-economy"),
+	
+	/**
+	 * Inventory full
+	 * @since 1.0.16
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	INVENTORY_FULL("main.inventory-full");
 	
 	private final String path;
 
