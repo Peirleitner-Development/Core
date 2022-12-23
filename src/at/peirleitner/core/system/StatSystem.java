@@ -17,6 +17,7 @@ import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.AvailableUserStatistic;
+import at.peirleitner.core.util.user.Language;
 import at.peirleitner.core.util.user.User;
 import at.peirleitner.core.util.user.UserStatistic;
 
@@ -40,7 +41,37 @@ public class StatSystem implements CoreSystem {
 
 		Core.getInstance().getSettingsManager().registerSetting(Core.getInstance().getPluginName(),
 				"system.stats.enable-caching", "true");
+		
+		this.loadStatistics();
 
+	}
+
+	private final void loadStatistics() {
+		
+		if(!this.isCachingEnabled()) {
+			return;
+		}
+		
+		this.getCachedStatistics().clear();
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM " + TableType.STATISTICS_AVAILABLE.getTableName(true));
+			ResultSet rs = stmt.executeQuery();
+			
+			while(rs.next()) {
+				
+				AvailableUserStatistic statistic = this.getAvailableUserStatisticByResultSet(rs);
+				this.getCachedStatistics().add(statistic);
+				
+			}
+			
+			Core.getInstance().log(getClass(), LogType.DEBUG, "Cached " + this.getCachedStatistics().size() + " available Statistics.");
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not load available Statistics from Database/SQL: " + e.getMessage());
+		}
+		
 	}
 
 	public final HashSet<AvailableUserStatistic> getCachedStatistics() {
@@ -168,6 +199,47 @@ public class StatSystem implements CoreSystem {
 
 		return statistic;
 	}
+	
+	public final AvailableUserStatistic getAvailableUserStatisticByDevName(@Nonnull String devName) {
+		
+		if (this.isCachingEnabled()) {
+
+			for (AvailableUserStatistic aus : this.getCachedStatistics()) {
+				if (aus.getDevName().equals(devName.toUpperCase())) {
+					return aus;
+				}
+			}
+
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Tried to get cached Statistic with DevName '" + devName + "', but no Result could be found.");
+			return null;
+		}
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.STATISTICS_AVAILABLE.getTableName(true) + " WHERE devName = ?");
+			stmt.setString(1, devName.toUpperCase());
+
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+
+				AvailableUserStatistic stat = this.getAvailableUserStatisticByResultSet(rs);
+				return stat;
+
+			} else {
+				// No Result
+				return null;
+			}
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get Statistic by DevName '" + devName + "'/SQL: " + e.getMessage());
+			return null;
+		}
+		
+	}
 
 	public final AvailableUserStatistic getAvailableUserStatisticByID(@Nonnull int id) {
 
@@ -210,12 +282,23 @@ public class StatSystem implements CoreSystem {
 
 	}
 
+	/**
+	 * Register a new Statistic.
+	 * @param devName - Development Name. This will also be the message key <i>(statistic.devName)</i>
+	 * @param displayName - Name of this Statistics in {@link Language#ENGLISH}. A new entry inside the language manager will be created for translation.
+	 * @param description - Description of this Statistics in {@link Language#ENGLISH}. A new entry inside the language manager will be created for translation.
+	 * @param saveType
+	 * @param iconName
+	 * @return If the Statistic has been registered
+	 * @since 1.0.17
+	 * @author Markus Peirleitner (Rengobli)
+	 */
 	public final boolean registerStatistic(@Nonnull String devName, @Nonnull String displayName,
 			@Nonnull String description, @Nonnull SaveType saveType, @Nonnull String iconName) {
 
 		if (this.isStatistic(devName, saveType)) {
-			Core.getInstance().log(getClass(), LogType.DEBUG, "Could not register Statistic with Developer Name '"
-					+ devName + "': A Statistic with the given Name does already exist.");
+//			Core.getInstance().log(getClass(), LogType.DEBUG, "Could not register Statistic with Developer Name '"
+//					+ devName + "': A Statistic with the given Name does already exist.");
 			return false;
 		}
 
@@ -253,7 +336,10 @@ public class StatSystem implements CoreSystem {
 			if (this.isCachingEnabled()) {
 				this.getCachedStatistics().add(statistic);
 			}
-
+			
+			Core.getInstance().getLanguageManager().registerNewMessage(Core.getInstance().getPluginName(), "statistic." + statistic.getDevName().toLowerCase() + ".displayName", statistic.getDisplayName());
+			Core.getInstance().getLanguageManager().registerNewMessage(Core.getInstance().getPluginName(), "statistic." + statistic.getDevName().toLowerCase() + ".description", statistic.getDescription());
+			
 			Core.getInstance().log(getClass(), LogType.DEBUG,
 					"Registered new Statistic '" + statistic.toString() + "'.");
 			return true;
@@ -272,6 +358,12 @@ public class StatSystem implements CoreSystem {
 		if (!this.isStatistic(statistic.getDevName(), statistic.getSaveType())) {
 			Core.getInstance().log(getClass(), LogType.ERROR, "Could not add Statistic for User '" + uuid.toString()
 					+ "': Invalid Statistic (Not registered) (" + statistic.toString() + "').");
+			return false;
+		}
+		
+		statistic = this.getAvailableUserStatisticByID(statistic.getID());
+		
+		if(!statistic.isEnabled()) {
 			return false;
 		}
 
@@ -301,6 +393,10 @@ public class StatSystem implements CoreSystem {
 			return false;
 		}
 
+	}
+	
+	public final boolean incrementStatistic(@Nonnull UUID uuid, @Nonnull AvailableUserStatistic statistic) {
+		return this.addStatistic(uuid, statistic, 1);
 	}
 
 	public final Collection<UserStatistic> getStatistics(@Nonnull UUID uuid) {
