@@ -201,17 +201,6 @@ public final class Core {
 
 	/**
 	 * @deprecated See {@link TableType}
-	 * @return {@link #table_stats}
-	 * @since 1.0.2
-	 * @author Markus Peirleitner (Rengobli)
-	 */
-	@Deprecated(forRemoval = true, since = "1.0.6")
-	public final String getTableStats() {
-		return TableType.STATS.getTableName(true);
-	}
-
-	/**
-	 * @deprecated See {@link TableType}
 	 * @return {@link #table_shop}
 	 * @since 1.0.2
 	 * @author Markus Peirleitner (Rengobli)
@@ -386,11 +375,6 @@ public final class Core {
 				+ "enabled BOOLEAN NOT NULL DEFAULT '1', " + "language VARCHAR(50) NOT NULL DEFAULT '"
 				+ this.getDefaultLanguage().toString() + "', " + "immune BOOLEAN NOT NULL DEFAULT '0', "
 				+ "freepass BOOLEAN NOT NULL DEFAULT '0', " + "PRIMARY KEY (uuid));");
-
-		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.STATS.getTableName(false) + " ("
-				+ "uuid CHAR(36) NOT NULL, " + "saveType INT NOT NULL, " + "statistic VARCHAR(50) NOT NULL, "
-				+ "amount INT NOT NULL DEFAULT '-1', " + "PRIMARY KEY (uuid, saveType, statistic), "
-				+ "FOREIGN KEY (saveType) REFERENCES " + prefix + TableType.SAVE_TYPE.getTableName(false) + "(id));");
 
 		statements.add("CREATE TABLE IF NOT EXISTS " + prefix + TableType.MAPS.getTableName(false) + " ("
 				+ "id INT AUTO_INCREMENT NOT NULL, " + "name VARCHAR(50) NOT NULL, " + "saveType INT NOT NULL, "

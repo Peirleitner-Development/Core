@@ -21,12 +21,14 @@ import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandStats;
 import at.peirleitner.core.command.local.CommandStore;
 import at.peirleitner.core.command.local.CommandTeleport;
 import at.peirleitner.core.command.local.CommandVote;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
+import at.peirleitner.core.listener.local.GuiClickListener;
 import at.peirleitner.core.listener.local.LeavesDecayListener;
 import at.peirleitner.core.listener.local.LogMessageCreateListener;
 import at.peirleitner.core.listener.local.PlayerCommandPreProcessListener;
@@ -35,8 +37,9 @@ import at.peirleitner.core.listener.local.PlayerQuitListener;
 import at.peirleitner.core.listener.local.ServerListPingListener;
 import at.peirleitner.core.listener.local.SignChangeListener;
 import at.peirleitner.core.listener.local.VoteListener;
-import at.peirleitner.core.manager.GUIManager;
 import at.peirleitner.core.manager.LanguageManager;
+import at.peirleitner.core.manager.local.GUIManager;
+import at.peirleitner.core.manager.local.LocalGuiManager;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.local.LocalScoreboard;
 import at.peirleitner.core.util.user.PredefinedMessage;
@@ -48,6 +51,7 @@ public class SpigotMain extends JavaPlugin {
 	private LocalScoreboard localScoreboard;
 	
 	private GUIManager guiManager;
+	private LocalGuiManager localGuiManager;
 
 	@Override
 	public void onEnable() {
@@ -64,6 +68,7 @@ public class SpigotMain extends JavaPlugin {
 		
 		// Manager
 		this.guiManager = new GUIManager();
+		this.localGuiManager = new LocalGuiManager();
 		
 		// Commands
 		new CommandLanguage();
@@ -83,6 +88,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandVote();
 		new CommandChatLog();
 		new CommandMod();
+		new CommandStats();
 		
 		// Listener
 		new PlayerJoinListener();
@@ -95,6 +101,7 @@ public class SpigotMain extends JavaPlugin {
 		new LogMessageCreateListener();
 		new SignChangeListener();
 		new VoteListener();
+		new GuiClickListener();
 		
 		// Run
 		this.startTabHeaderRunnable();
@@ -116,6 +123,10 @@ public class SpigotMain extends JavaPlugin {
 	
 	public final GUIManager getGUIManager() {
 		return this.guiManager;
+	}
+	
+	public final LocalGuiManager getLocalGuiManager() {
+		return this.localGuiManager;
 	}
 	
 	public final LocalScoreboard getLocalScoreboard() {
@@ -361,6 +372,12 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "gui.license.item.no-licenses.name", "&7No Licenses");
 		languageManager.registerNewMessage(pluginName, "gui.license.item.license.description", "&7Received&8: &9{0}\n"
 				+ "&7Expiration&8: &9{1}");
+		
+		languageManager.registerNewMessage(pluginName, "gui.statistics.item.statistic.description", "&7&o{0}\n"
+				+ "&7First Available&8: &9{1}\n"
+				+ "&7Last Change&8: &9{2}\n"
+				+ "&7Unlocked&8: &9{3}\n"
+				+ "&7Current Statistic&8: &9{4}");
 		
 	}
 	

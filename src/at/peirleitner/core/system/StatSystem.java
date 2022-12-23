@@ -3,6 +3,10 @@ package at.peirleitner.core.system;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -12,132 +16,476 @@ import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
+import at.peirleitner.core.util.user.AvailableUserStatistic;
+import at.peirleitner.core.util.user.User;
+import at.peirleitner.core.util.user.UserStatistic;
 
+/**
+ * System that manages statistics of a {@link User}
+ * 
+ * @since 1.0.17
+ * @author Markus Peirleitner (Rengobli)
+ *
+ */
 public class StatSystem implements CoreSystem {
 
-	private final String table = TableType.STATS.getTableName(true);
-	private final SaveType saveType = Core.getInstance().getSettingsManager().getSaveType();
+	private final HashSet<AvailableUserStatistic> cachedStatistics;
+	private final HashSet<UserStatistic> cachedUserStatistics;
+
+	public StatSystem() {
+
+		this.createTable();
+		this.cachedStatistics = new HashSet<>();
+		this.cachedUserStatistics = new HashSet<>();
+
+		Core.getInstance().getSettingsManager().registerSetting(Core.getInstance().getPluginName(),
+				"system.stats.enable-caching", "true");
+
+	}
+
+	public final HashSet<AvailableUserStatistic> getCachedStatistics() {
+		return cachedStatistics;
+	}
+
+	public final HashSet<UserStatistic> getCachedUserStatistics() {
+		return cachedUserStatistics;
+	}
+
+	public final boolean isCachingEnabled() {
+		return Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(),
+				"system.stats.enable-caching");
+	}
 
 	/**
 	 * 
-	 * @param uuid
-	 * @param statistic
-	 * @return Statistic amount <b>OR</b><br>
-	 *         -1 - If the User doesn't have a Statistic <b>OR</b><br>
-	 *         -2 - If an error occurs
-	 * @since 1.0.0
+	 * @param devName
+	 * @param saveType
+	 * @return If the given Statistic does already exist
+	 * @since 1.0.17
 	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote This is case-insensitive
 	 */
-	public final int getStatistic(@Nonnull UUID uuid, @Nonnull String statistic) {
+	public final boolean isStatistic(@Nonnull String devName, @Nonnull SaveType saveType) {
+
+		if (this.isCachingEnabled()) {
+
+			for (AvailableUserStatistic stat : this.getAvailableStatistics()) {
+				if (stat.getDevName().equals(devName.toUpperCase()) && stat.getSaveType() == saveType) {
+					return true;
+				}
+			}
+
+			return false;
+
+		}
 
 		try {
 
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
-					.prepareStatement("SELECT amount FROM " + table + " WHERE uuid = ? AND saveType = ?");
-			stmt.setString(1, uuid.toString());
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM "
+					+ TableType.STATISTICS_AVAILABLE.getTableName(true) + " WHERE devName = ? AND saveType = ?");
+			stmt.setString(1, devName.toUpperCase());
 			stmt.setInt(2, saveType.getID());
 
 			ResultSet rs = stmt.executeQuery();
 
-			if (!rs.next()) {
-				return -1;
+			if (rs.next()) {
+				return true;
 			} else {
-				return rs.getInt(1);
+				// Does not exist
+				return false;
 			}
 
 		} catch (SQLException e) {
-			Core.getInstance().log(this.getClass(), LogType.ERROR,
-					"Could not get Statistic '" + statistic + "' on SaveType '" + saveType.getName() + "' for UUID '"
-							+ uuid.toString() + "'/SQL: " + e.getMessage());
-			return -2;
-		}
-
-	}
-
-	public final boolean hasStatistic(@Nonnull UUID uuid, @Nonnull String statistic) {
-		return this.getStatistic(uuid, statistic) < 0 ? false : true;
-	}
-
-	public final boolean addStatistic(@Nonnull UUID uuid, @Nonnull String statistic, @Nonnull int amount) {
-
-		// Create Statistic if none exists
-		if (!this.hasStatistic(uuid, statistic)) {
-			return this.createStatistic(uuid, statistic, amount);
-		}
-
-		try {
-
-			int current = this.getStatistic(uuid, statistic);
-
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-					"UPDATE " + table + " SET amount = ? WHERE uuid = ? AND saveType = ? AND statistic = ?");
-			stmt.setInt(1, current + amount);
-			stmt.setString(2, uuid.toString());
-			stmt.setInt(3, this.saveType.getID());
-			stmt.setString(4, statistic);
-
-			stmt.execute();
-
-			Core.getInstance().log(this.getClass(), LogType.ERROR, "Added Statistic '" + statistic + "' on SaveType '"
-					+ saveType.getName() + "' for UUID '" + uuid.toString() + "' with value '" + amount + "'.");
-			return true;
-
-		} catch (SQLException e) {
-			Core.getInstance().log(this.getClass(), LogType.ERROR,
-					"Could not add Statistic '" + statistic + "' on SaveType '" + saveType.getName() + "' for UUID '"
-							+ uuid.toString() + "'/SQL: " + e.getMessage());
-			return false;
-		}
-
-	}
-
-	private final boolean createStatistic(@Nonnull UUID uuid, @Nonnull String statistic, @Nonnull int amount) {
-
-		try {
-
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
-					"INSERT INTO " + table + " (uuid, saveType, statistic, amount) VALUES (?, ?, ?, ?);");
-			stmt.setString(1, uuid.toString());
-			stmt.setInt(2, saveType.getID());
-			stmt.setString(3, statistic);
-			stmt.setInt(4, amount);
-
-			stmt.execute();
-
-			Core.getInstance().log(this.getClass(), LogType.ERROR, "Created Statistic '" + statistic + "' on SaveType '"
-					+ saveType.getName() + "' for UUID '" + uuid.toString() + "' with value '" + amount + "'.");
-			return true;
-
-		} catch (SQLException e) {
-			Core.getInstance().log(this.getClass(), LogType.ERROR,
-					"Could not create Statistic '" + statistic + "' on SaveType '" + saveType.getName() + "' for UUID '"
-							+ uuid.toString() + "'/SQL: " + e.getMessage());
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not check if the Statistic with Developer Name '"
+					+ devName + "' exisits/SQL: " + e.getMessage());
 			return false;
 		}
 
 	}
 
 	/**
-	 * Same as {@link #addStatistic(UUID, String, int)}, but increases it with 1
 	 * 
-	 * @param uuid
-	 * @param statistic
-	 * @return
-	 * @since 1.0.0
+	 * @return Available Statistics
+	 * @since 1.0.17
 	 * @author Markus Peirleitner (Rengobli)
+	 * @apiNote This will return the cached values if {@link #isCachingEnabled()} is
+	 *          set to <code>true</code>.
 	 */
-	public final boolean incrementStatistic(@Nonnull UUID uuid, @Nonnull String statistic) {
-		return this.addStatistic(uuid, statistic, 1);
+	public final AvailableUserStatistic[] getAvailableStatistics() {
+
+		if (this.isCachingEnabled()) {
+			AvailableUserStatistic[] stats = this.getCachedStatistics()
+					.toArray(new AvailableUserStatistic[this.getCachedStatistics().size()]);
+			return stats;
+		}
+
+		Collection<AvailableUserStatistic> available = new ArrayList<>();
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("SELECT * FROM " + TableType.STATISTICS_AVAILABLE.getTableName(true));
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+
+				AvailableUserStatistic statistic = this.getAvailableUserStatisticByResultSet(rs);
+				available.add(statistic);
+
+			}
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get available statistics/SQL: " + e.getMessage());
+			return null;
+		}
+
+		AvailableUserStatistic[] stats = available.toArray(new AvailableUserStatistic[available.size()]);
+		return stats;
+	}
+
+	public final AvailableUserStatistic getAvailableUserStatisticByResultSet(@Nonnull ResultSet rs)
+			throws SQLException {
+
+		int id = rs.getInt(1);
+		String devName = rs.getString(2);
+		String displayName = rs.getString(3);
+		String description = rs.getString(4);
+		SaveType saveType = Core.getInstance().getSaveTypeByID(rs.getInt(5));
+		long created = rs.getLong(6);
+		boolean isEnabled = rs.getBoolean(7);
+		String iconName = rs.getString(8);
+
+		AvailableUserStatistic statistic = new AvailableUserStatistic();
+		statistic.setID(id);
+		statistic.setDevName(devName);
+		statistic.setDisplayName(displayName);
+		statistic.setDescription(description);
+		statistic.setSaveType(saveType);
+		statistic.setCreated(created);
+		statistic.setEnabled(isEnabled);
+		statistic.setIconName(iconName);
+
+		return statistic;
+	}
+
+	public final AvailableUserStatistic getAvailableUserStatisticByID(@Nonnull int id) {
+
+		if (this.isCachingEnabled()) {
+
+			for (AvailableUserStatistic aus : this.getCachedStatistics()) {
+				if (aus.getID() == id) {
+					return aus;
+				}
+			}
+
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Tried to get cached Statistic with ID '" + id + "', but no Result could be found.");
+			return null;
+		}
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.STATISTICS_AVAILABLE.getTableName(true) + " WHERE id = ?");
+			stmt.setInt(1, id);
+
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+
+				AvailableUserStatistic stat = this.getAvailableUserStatisticByResultSet(rs);
+				return stat;
+
+			} else {
+				// No Result
+				return null;
+			}
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get Statistic by ID '" + id + "'/SQL: " + e.getMessage());
+			return null;
+		}
+
+	}
+
+	public final boolean registerStatistic(@Nonnull String devName, @Nonnull String displayName,
+			@Nonnull String description, @Nonnull SaveType saveType, @Nonnull String iconName) {
+
+		if (this.isStatistic(devName, saveType)) {
+			Core.getInstance().log(getClass(), LogType.DEBUG, "Could not register Statistic with Developer Name '"
+					+ devName + "': A Statistic with the given Name does already exist.");
+			return false;
+		}
+
+		AvailableUserStatistic statistic = new AvailableUserStatistic();
+		statistic.setDevName(devName.toUpperCase());
+		statistic.setDisplayName(displayName);
+		statistic.setDescription(description);
+		statistic.setSaveType(saveType);
+		statistic.setCreated(System.currentTimeMillis());
+		statistic.setEnabled(false);
+		statistic.setIconName(iconName);
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT INTO "
+					+ TableType.STATISTICS_AVAILABLE.getTableName(true)
+					+ " (devName, displayName, description, saveType, created, enabled, iconName) VALUES (?, ?, ?, ?, ?, ?, ?);",
+					Statement.RETURN_GENERATED_KEYS);
+			stmt.setString(1, statistic.getDevName());
+			stmt.setString(2, statistic.getDisplayName());
+			stmt.setString(3, statistic.getDescription());
+			stmt.setInt(4, statistic.getSaveType().getID());
+			stmt.setLong(5, statistic.getCreated());
+			stmt.setBoolean(6, statistic.isEnabled());
+			stmt.setString(7, statistic.getIconName());
+
+			stmt.executeUpdate();
+
+			ResultSet rs = stmt.getGeneratedKeys();
+			rs.next();
+
+			int id = rs.getInt(1);
+			statistic.setID(id);
+
+			if (this.isCachingEnabled()) {
+				this.getCachedStatistics().add(statistic);
+			}
+
+			Core.getInstance().log(getClass(), LogType.DEBUG,
+					"Registered new Statistic '" + statistic.toString() + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not register new Statistic '" + statistic.toString() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
+	public final boolean addStatistic(@Nonnull UUID uuid, @Nonnull AvailableUserStatistic statistic,
+			@Nonnull int amount) {
+
+		if (!this.isStatistic(statistic.getDevName(), statistic.getSaveType())) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not add Statistic for User '" + uuid.toString()
+					+ "': Invalid Statistic (Not registered) (" + statistic.toString() + "').");
+			return false;
+		}
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT INTO "
+					+ TableType.STATISTICS_USER.getTableName(true)
+					+ " (uuid, statistic, amount, firstAdded, lastAdded) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount = (amount + ?), lastAdded = ?");
+			stmt.setString(1, uuid.toString());
+			stmt.setInt(2, statistic.getID());
+			stmt.setInt(3, amount);
+			stmt.setLong(4, System.currentTimeMillis());
+			stmt.setLong(5, System.currentTimeMillis());
+
+			stmt.setInt(6, amount);
+			stmt.setLong(7, System.currentTimeMillis());
+
+			stmt.executeUpdate();
+
+			Core.getInstance().log(getClass(), LogType.DEBUG,
+					"Updated Statistic '" + statistic.getID() + "' for User '" + uuid.toString() + "'.");
+			return true;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not add Statistic '" + statistic.getID()
+					+ "' for User '" + uuid.toString() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+
+	}
+
+	public final Collection<UserStatistic> getStatistics(@Nonnull UUID uuid) {
+
+		Collection<UserStatistic> statistics = new ArrayList<>();
+
+		// Return from Cache if available
+		if (this.isCachingEnabled()) {
+
+			for (UserStatistic us : this.getCachedUserStatistics()) {
+				if (us.getUUID().equals(uuid)) {
+					statistics.add(us);
+				}
+			}
+
+			return statistics;
+		}
+
+		// Return from Database
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.STATISTICS_USER.getTableName(true) + " WHERE uuid = ?");
+			stmt.setString(1, uuid.toString());
+
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+
+				UserStatistic us = this.getUserStatisticByResultSet(rs);
+				statistics.add(us);
+
+			}
+
+			return statistics;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not get Statistics for User '" + uuid.toString() + "'/SQL: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+	public final Collection<UserStatistic> getStatistics(@Nonnull UUID uuid, @Nonnull SaveType saveType) {
+
+		Collection<UserStatistic> statistics = new ArrayList<>();
+
+		// Return from Cache if available
+		if (this.isCachingEnabled()) {
+
+			for (UserStatistic us : this.getCachedUserStatistics()) {
+				if (us.getUUID().equals(uuid) && us.getStatistic().getSaveType().getID() == saveType.getID()) {
+					statistics.add(us);
+				}
+			}
+
+			return statistics;
+		}
+
+		// Return from Database
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.STATISTICS_USER.getTableName(true) + " WHERE uuid = ?");
+			stmt.setString(1, uuid.toString());
+
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+
+				UserStatistic us = this.getUserStatisticByResultSet(rs);
+
+				if (us.getStatistic().getSaveType().getID() != saveType.getID()) {
+					continue;
+				}
+
+				statistics.add(us);
+
+			}
+
+			return statistics;
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not get Statistics for User '" + uuid.toString()
+					+ "' on SaveType '" + saveType.getID() + "'/SQL: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
+
+	public final UserStatistic getStatistic(@Nonnull UUID uuid, @Nonnull AvailableUserStatistic statistic) {
+
+		// Return from Cache if available
+		if (this.isCachingEnabled()) {
+
+			for (UserStatistic us : this.getCachedUserStatistics()) {
+
+				if (us.getUUID().equals(uuid) && us.getStatistic().getID() == statistic.getID()) {
+					return us;
+				}
+
+			}
+
+		}
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT * FROM "
+					+ TableType.STATISTICS_USER.getTableName(true) + " WHERE uuid = ? AND statistic = ?");
+			stmt.setString(1, uuid.toString());
+			stmt.setInt(2, statistic.getID());
+
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+
+				UserStatistic us = this.getUserStatisticByResultSet(rs);
+				return us;
+
+			} else {
+				// No Statistic
+				return null;
+			}
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not get User Statistic for User '"
+					+ uuid.toString() + "' on Statistic '" + statistic.toString() + "'/SQL: " + e.getMessage());
+			return null;
+		}
+
+	}
+
+	public final UserStatistic getUserStatisticByResultSet(@Nonnull ResultSet rs) throws SQLException {
+
+		UUID uuid = UUID.fromString(rs.getString(1));
+		AvailableUserStatistic statistic = this.getAvailableUserStatisticByID(rs.getInt(2));
+		int amount = rs.getInt(3);
+		long firstAdded = rs.getLong(4);
+		long lastAdded = rs.getLong(5);
+
+		UserStatistic us = new UserStatistic(uuid);
+		us.setStatistic(statistic);
+		us.setAmount(amount);
+		us.setFirstAdded(firstAdded);
+		us.setLastAdded(lastAdded);
+
+		return us;
+
 	}
 
 	@Override
 	public void createTable() {
-		return;
+
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("CREATE TABLE IF NOT EXISTS " + TableType.STATISTICS_AVAILABLE.getTableName(true)
+							+ " (" + "id INT AUTO_INCREMENT NOT NULL, " + "devName VARCHAR(50) NOT NULL, "
+							+ "displayName VARCHAR(30) NOT NULL, " + "description VARCHAR(300) NOT NULL, "
+							+ "saveType INT NOT NULL, " + "created BIGINT(255) NOT NULL, "
+							+ "enabled BOOLEAN NOT NULL DEFAULT '0', "
+							+ "iconName VARCHAR(100) NOT NULL DEFAULT 'PAPER', "
+							+ "PRIMARY KEY (id, devName, displayName, saveType), "
+							+ "FOREIGN KEY (saveType) REFERENCES " + TableType.SAVE_TYPE.getTableName(true) + "(id));");
+
+			stmt.execute();
+
+			stmt = Core.getInstance().getMySQL().getConnection()
+					.prepareStatement("CREATE TABLE IF NOT EXISTS " + TableType.STATISTICS_USER.getTableName(true)
+							+ " (" + "uuid CHAR(36) NOT NULL, " + "statistic INT NOT NULL, " + "amount INT NOT NULL, "
+							+ "firstAdded BIGINT(255) NOT NULL, " + "lastAdded BIGINT(255) NOT NULL, "
+							+ "PRIMARY KEY (uuid, statistic), " + "FOREIGN KEY (statistic) REFERENCES "
+							+ TableType.STATISTICS_AVAILABLE.getTableName(true) + "(id));");
+
+			stmt.execute();
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR,
+					"Could not create Table for StatSystem/SQL: " + e.getMessage());
+		}
+
 	}
 
 	@Override
 	public TableType getTableType() {
-		return TableType.STATS;
+		return null;
 	}
 
 }

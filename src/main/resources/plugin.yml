@@ -68,3 +68,6 @@ commands:
   mod:
     usage: </command>
     description: Get Information about active moderation tasks
+  stats:
+    usage: </command>
+    description: Display user statistics

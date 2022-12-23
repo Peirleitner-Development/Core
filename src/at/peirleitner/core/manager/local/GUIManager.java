@@ -1,4 +1,4 @@
-package at.peirleitner.core.manager;
+package at.peirleitner.core.manager.local;
 
 import java.util.HashMap;
 import java.util.UUID;
