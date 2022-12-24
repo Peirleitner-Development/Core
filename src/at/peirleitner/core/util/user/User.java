@@ -1,5 +1,6 @@
 package at.peirleitner.core.util.user;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -184,7 +185,7 @@ public final class User {
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @param pluginName
@@ -194,8 +195,8 @@ public final class User {
 	 * @since 1.0.14
 	 * @author Markus Peirleitner (Rengobli)
 	 */
-	public final void sendAsyncMessage(@Nonnull String pluginName, @Nonnull String key, @Nullable List<String> replacements,
-			@Nonnull boolean prefix) {
+	public final void sendAsyncMessage(@Nonnull String pluginName, @Nonnull String key,
+			@Nullable List<String> replacements, @Nonnull boolean prefix) {
 
 		String message = Core.getInstance().getLanguageManager().getMessage(pluginName, this.getLanguage(), key,
 				replacements);
@@ -364,6 +365,27 @@ public final class User {
 	 */
 	public final boolean hasEconomy(@Nonnull SaveType saveType, @Nonnull double amount) {
 		return this.getEconomy(saveType) >= amount;
+	}
+
+	/**
+	 * 
+	 * @return All Statistics of this User
+	 * @since 1.0.17
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final Collection<UserStatistic> getStatistics() {
+		return Core.getInstance().getStatSystem().getStatistics(this.getUUID());
+	}
+
+	/**
+	 * 
+	 * @param saveType - SaveType to gain the Statistics for
+	 * @return All Statistics of this User, as of the given SaveType
+	 * @since 1.0.17
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final Collection<UserStatistic> getStatistics(@Nonnull SaveType saveType) {
+		return Core.getInstance().getStatSystem().getStatistics(this.getUUID(), saveType);
 	}
 
 	@Deprecated

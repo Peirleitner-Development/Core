@@ -43,15 +43,6 @@ public enum TableType {
 	USERS("users"),
 
 	/**
-	 * Table name for statistics
-	 * 
-	 * @since 1.0.6
-	 * @author Markus Peirleitner (Rengobli)
-	 * @see StatSystem
-	 */
-	STATS("stats"),
-
-	/**
 	 * Table name for shops (Unused as of v1.0.6)
 	 * 
 	 * @since 1.0.6
@@ -156,6 +147,24 @@ public enum TableType {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COOLDOWNS("cooldowns"),
+	
+	/**
+	 * Table name for statistics
+	 * 
+	 * @since 1.0.17
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see StatSystem
+	 */
+	STATISTICS_AVAILABLE("statistics_available"),
+	
+	/**
+	 * Table name for statistics
+	 * 
+	 * @since 1.0.17
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see StatSystem
+	 */
+	STATISTICS_USER("statistics_user"),
 	
 	;
 
