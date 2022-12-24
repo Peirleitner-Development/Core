@@ -43,11 +43,13 @@ public class LocalGuiManager {
 		GUI gui = new GUI();
 		gui.setTitle(GUI_STATISTICS);
 
-		gui.setItem(1,
-				new ItemBuilder(Material.RED_BED).name(LanguagePhrase.BACK.getTranslatedText(user.getUUID())).build());
+		if (Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(),
+				"system.stats.show-back-item")) {
+			gui.setItem(1, new ItemBuilder(Material.RED_BED).name(LanguagePhrase.BACK.getTranslatedText(user.getUUID()))
+					.build());
+		}
 
-		Collection<UserStatistic> statisics = Core.getInstance().getStatSystem().getStatistics(user.getUUID(),
-				saveType);
+		Collection<UserStatistic> statisics = user.getStatistics(saveType);
 		List<String> desc = new ArrayList<>();
 
 		if (statisics.isEmpty()) {
@@ -67,8 +69,8 @@ public class LocalGuiManager {
 							"gui.statistics.item.statistic.description",
 							Arrays.asList(us.getStatistic().getDescription(),
 									GlobalUtils.getFormatedDate(us.getStatistic().getCreated()),
-									GlobalUtils.getFormatedDate(us.getFirstAdded()),
-									GlobalUtils.getFormatedDate(us.getLastAdded()), "" + us.getAmount()))
+									GlobalUtils.getFormatedDate(us.getLastAdded()),
+									GlobalUtils.getFormatedDate(us.getFirstAdded()), "" + us.getAmount()))
 					.split("\n");
 
 			for (String s : description) {

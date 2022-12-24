@@ -35,7 +35,14 @@ public class CommandStats implements CommandExecutor {
 		Player p = (Player) cs;
 		User user = Core.getInstance().getUserSystem().getUser(p.getUniqueId());
 
-		SpigotMain.getInstance().getLocalGuiManager().getStatisticMainGUI(user).open(p);
+		boolean showDirectly = Core.getInstance().getSettingsManager().isSetting(Core.getInstance().getPluginName(), "system.stats.show-stats-of-current-saveType-directly");
+		
+		if(showDirectly) {
+			SpigotMain.getInstance().getLocalGuiManager().getStatisticsGUI(user, Core.getInstance().getSettingsManager().getSaveType()).open(p);
+		} else {
+			SpigotMain.getInstance().getLocalGuiManager().getStatisticMainGUI(user).open(p);
+		}
+		
 		return true;
 
 	}
