@@ -1,6 +1,7 @@
 package at.peirleitner.core.listener.local;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -8,7 +9,6 @@ import at.peirleitner.core.Core;
 import at.peirleitner.core.SpigotMain;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.user.User;
-import net.md_5.bungee.event.EventHandler;
 
 public class PlayerQuitListener implements Listener {
 
@@ -36,6 +36,11 @@ public class PlayerQuitListener implements Listener {
 
 			if (Core.getInstance().getUserSystem().isCachingEnabled()) {
 				Core.getInstance().getUserSystem().getCachedUsers().remove(user);
+			}
+			
+			// v1.0.18
+			if(Core.getInstance().getExperienceSystem().isCachingEnabled() && Core.getInstance().getExperienceSystem().isCached(user.getUUID())) {
+				Core.getInstance().getExperienceSystem().updateCacheToDatabase(user.getUUID());
 			}
 
 		}

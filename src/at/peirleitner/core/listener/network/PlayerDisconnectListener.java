@@ -30,9 +30,15 @@ public class PlayerDisconnectListener implements Listener {
 
 		// Update data if the server is running in network-mode.
 		Core.getInstance().getUserSystem().setLastLogout(user, System.currentTimeMillis());
-		
-		if(Core.getInstance().getUserSystem().isCachingEnabled()) {
+
+		if (Core.getInstance().getUserSystem().isCachingEnabled()) {
 			Core.getInstance().getUserSystem().getCachedUsers().remove(user);
+		}
+
+		// v1.0.18
+		if (Core.getInstance().getExperienceSystem().isCachingEnabled()
+				&& Core.getInstance().getExperienceSystem().isCached(user.getUUID())) {
+			Core.getInstance().getExperienceSystem().updateCacheToDatabase(user.getUUID());
 		}
 
 	}
