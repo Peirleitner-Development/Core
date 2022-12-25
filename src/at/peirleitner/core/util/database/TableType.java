@@ -166,6 +166,8 @@ public enum TableType {
 	 */
 	STATISTICS_USER("statistics_user"),
 	
+	EXPERIENCE("experience"),
+	
 	;
 
 	private final String tableName;

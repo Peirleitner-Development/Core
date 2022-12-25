@@ -9,7 +9,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import at.peirleitner.core.Core;
+import at.peirleitner.core.system.ExperienceSystem;
 import at.peirleitner.core.system.LicenseSystem;
+import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.database.SaveType;
 import net.md_5.bungee.api.ChatColor;
@@ -372,6 +374,7 @@ public final class User {
 	 * @return All Statistics of this User
 	 * @since 1.0.17
 	 * @author Markus Peirleitner (Rengobli)
+	 * @see StatSystem
 	 */
 	public final Collection<UserStatistic> getStatistics() {
 		return Core.getInstance().getStatSystem().getStatistics(this.getUUID());
@@ -383,9 +386,47 @@ public final class User {
 	 * @return All Statistics of this User, as of the given SaveType
 	 * @since 1.0.17
 	 * @author Markus Peirleitner (Rengobli)
+	 * @see StatSystem
 	 */
 	public final Collection<UserStatistic> getStatistics(@Nonnull SaveType saveType) {
 		return Core.getInstance().getStatSystem().getStatistics(this.getUUID(), saveType);
+	}
+	
+	/**
+	 * 
+	 * @return Experience across all {@link SaveType}s
+	 * @since 1.0.18
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see ExperienceSystem
+	 */
+	public final UserExperience[] getExperience() {
+		return Core.getInstance().getExperienceSystem().getExperience(this.getUUID());
+	}
+	
+	/**
+	 * 
+	 * @param saveType - SaveType to gain the Experience for
+	 * @return Experience on the given {@link SaveType}
+	 * @since 1.0.18
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see ExperienceSystem
+	 */
+	public final UserExperience getExperience(@Nonnull SaveType saveType) {
+		return Core.getInstance().getExperienceSystem().getExperience(this.getUUID(), saveType);
+	}
+	
+	/**
+	 * 
+	 * @param saveType - SaveType 
+	 * @param amount - Amount of Experience to add
+	 * @param message - If a message should be displayed
+	 * @return If the Experience has been added successfully.
+	 * @since 1.0.18
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see ExperienceSystem#addExperience(UUID, SaveType, int)
+	 */
+	public final boolean addExperience(@Nonnull SaveType saveType, @Nonnull int amount, @Nonnull boolean message) {
+		return Core.getInstance().getExperienceSystem().addExperience(this.getUUID(), saveType, amount, message);
 	}
 
 	@Deprecated

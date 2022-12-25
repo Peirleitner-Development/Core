@@ -25,6 +25,7 @@ import at.peirleitner.core.manager.LanguageManager;
 import at.peirleitner.core.manager.SettingsManager;
 import at.peirleitner.core.system.CooldownSystem;
 import at.peirleitner.core.system.EconomySystem;
+import at.peirleitner.core.system.ExperienceSystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MaintenanceSystem;
@@ -81,6 +82,7 @@ public final class Core {
 	private EconomySystem economySystem;
 	private ModerationSystem moderationSystem;
 	private CooldownSystem cooldownSystem;
+	private ExperienceSystem experienceSystem;
 
 	/**
 	 * Create a new Instance
@@ -130,6 +132,7 @@ public final class Core {
 		this.economySystem = new EconomySystem();
 		this.moderationSystem = new ModerationSystem();
 		this.cooldownSystem = new CooldownSystem();
+		this.experienceSystem = new ExperienceSystem();
 
 		this.log(this.getClass(), LogType.DEBUG, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -717,6 +720,16 @@ public final class Core {
 				"&7The ChatLog &9{0} &7has already been reviewed.");
 		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.moderation.chatLog.review.success",
 				"&7Successfully reviewed the ChatLog &9{0} &7with &9{1}&7.");
+		
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.experience.experience-add", "&7+{0} EXP");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.experience.level-up", "&8&k-------------------------------\n\n"
+				+ "             &b&lLEVEL UP!\n"
+				+ "                 &b{0} &7>>> &b{1}\n\n"
+				+ "&8&k-------------------------------");
+		this.getLanguageManager().registerNewMessage(this.getPluginName(), "system.experience.prestige-level-up", "&8&k-------------------------------\n\n"
+				+ "             &e&lPRESTIGE LEVEL UP!\n"
+				+ "                 &e{0} &7>>> &e{1}\n\n"
+				+ "&8&k-------------------------------");
 
 		if (this.getRunMode() == RunMode.NETWORK) {
 
@@ -816,6 +829,16 @@ public final class Core {
 	 */
 	public final CooldownSystem getCooldownSystem() {
 		return cooldownSystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link ExperienceSystem}
+	 * @since 1.0.18
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final ExperienceSystem getExperienceSystem() {
+		return experienceSystem;
 	}
 
 }
