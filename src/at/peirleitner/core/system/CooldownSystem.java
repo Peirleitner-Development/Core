@@ -54,6 +54,23 @@ public class CooldownSystem implements CoreSystem {
 		}
 
 	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param metadata
+	 * @param saveType
+	 * @param seconds
+	 * @return
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean addCooldown(@Nonnull UUID uuid, @Nonnull String metadata, @Nonnull int saveType, @Nonnull int seconds) {
+		
+		long expiration = System.currentTimeMillis() + (1000L * seconds);
+		return this.addCooldown(uuid, metadata, saveType, expiration);
+		
+	}
 
 	public final boolean addCooldown(@Nonnull UUID uuid, @Nonnull String metadata, @Nonnull int saveType,
 			@Nonnull long nextUsage) {

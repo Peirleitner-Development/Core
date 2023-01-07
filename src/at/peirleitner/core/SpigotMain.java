@@ -21,6 +21,7 @@ import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandMoney;
 import at.peirleitner.core.command.local.CommandMotd;
 import at.peirleitner.core.command.local.CommandPay;
+import at.peirleitner.core.command.local.CommandRedeem;
 import at.peirleitner.core.command.local.CommandSlot;
 import at.peirleitner.core.command.local.CommandStats;
 import at.peirleitner.core.command.local.CommandStore;
@@ -90,6 +91,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandChatLog();
 		new CommandMod();
 		new CommandStats();
+		new CommandRedeem();
 
 		// Listener
 		new PlayerJoinListener();
@@ -451,6 +453,13 @@ public class SpigotMain extends JavaPlugin {
 						+ "&8> &9ChatLogs &7(&f{1}&7)&8: &f{2}\n" + "&8> &9Reports &7(&f{3}&7)&8: &f{4}\n"
 						+ "&8> &9Support Requests &7(&f{5}&7)&8: &f{6}");
 
+		languageManager.registerNewMessage(pluginName, "command.redeem.syntax", "&7Syntax&8: &9/redeem <Code>");
+		languageManager.registerNewMessage(pluginName, "command.redeem.invalid-code-length", "&7Your entered Voucher length of &9{0} &7is invalid. Vouchers always have a length of &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.redeem.error.invalid-voucher", "&7Your entered Voucher &7is invalid.");
+		languageManager.registerNewMessage(pluginName, "command.redeem.error.max-redeems-reached", "&7This Voucher has already reached its maxmium amount of redeems (&9{0}&7).");
+		languageManager.registerNewMessage(pluginName, "command.redeem.error.expired", "&7This Voucher has expired on &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.redeem.error.already-redeemed", "&7You've already redeemed this Voucher.");
+		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command",
 				"&7The command &9{0} &7could not be validated.");

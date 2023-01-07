@@ -1,5 +1,9 @@
 package at.peirleitner.core.util;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +57,7 @@ public class GlobalUtils {
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 
 	 * @param string
@@ -73,37 +77,37 @@ public class GlobalUtils {
 
 		return new CustomLocation(worldName, x, y, z, yaw, pitch);
 	}
-	
+
 	public static String getCustomLocationStringFromList(@Nonnull Collection<CustomLocation> locations) {
-		
+
 		StringBuilder sb = new StringBuilder();
-		
-		for(CustomLocation cl : locations) {
+
+		for (CustomLocation cl : locations) {
 			sb.append(cl.toString() + ":");
 		}
-		
+
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 
-	 * @param string - String to translate
+	 * @param string    - String to translate
 	 * @param separator - Should always be :
 	 * @return Collection of CustomLocations
 	 * @since 1.0.3
 	 */
 	public static Collection<CustomLocation> getCustomLocationListFromString(@Nonnull String string) {
-		
+
 		String[] s = string.split(":");
 		Collection<CustomLocation> locs = new ArrayList<>(s.length);
-		
-		for(String str : s) {
+
+		for (String str : s) {
 			locs.add(getCustomLocationFromString(str));
 		}
-		
+
 		return locs;
 	}
-	
+
 	/**
 	 * 
 	 * @param timestamp - TimeStamp to convert into a String
@@ -113,12 +117,12 @@ public class GlobalUtils {
 	 * @apiNote dd.MM.YYYY HH:mm:ss
 	 */
 	public static String getFormatedDate(@Nonnull long timestamp) {
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
 		return sdf.format(new Date(timestamp));
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * @param percent - Trigger Chance
@@ -144,15 +148,61 @@ public class GlobalUtils {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	public static List<String> getLore(@Nonnull String s) {
-		
+
 		List<String> lore = new ArrayList<>();
 		String[] split = s.split("\n");
-		
-		for(String msg : split) {
+
+		for (String msg : split) {
 			lore.add(msg);
 		}
-		
+
 		return lore;
 	}
 	
+	/**
+	 * 
+	 * @param string
+	 * @return SHA-256 generated HashCode for the input String
+	 * @throws NoSuchAlgorithmException
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public static final char[] getShaHashCode(@Nonnull String string) throws NoSuchAlgorithmException {
+		return toHexString(getSHA(string));
+	}
+
+	/**
+	 * @param input
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	private static final byte[] getSHA(@Nonnull String input) throws NoSuchAlgorithmException {
+
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		return md.digest(input.getBytes(StandardCharsets.UTF_8));
+
+	}
+
+	/**
+	 * 
+	 * @param hash
+	 * @return
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	private static final char[] toHexString(@Nonnull byte[] hash) {
+
+		BigInteger bi = new BigInteger(1, hash);
+		StringBuilder sb = new StringBuilder(bi.toString(16));
+
+		while (sb.length() < 64) {
+			sb.insert(0, '0');
+		}
+
+		return sb.toString().toCharArray();
+
+	}
+
 }
