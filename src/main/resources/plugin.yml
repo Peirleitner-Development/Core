@@ -71,3 +71,9 @@ commands:
   stats:
     usage: </command>
     description: Display user statistics
+  redeem:
+    usage: </command>
+    description: Redeem a Voucher
+  voucher:
+    usage: </command>
+    description: Manage Vouchers

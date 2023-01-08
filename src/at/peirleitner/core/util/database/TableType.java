@@ -4,11 +4,13 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.system.EconomySystem;
+import at.peirleitner.core.system.ExperienceSystem;
 import at.peirleitner.core.system.GameMapSystem;
 import at.peirleitner.core.system.LicenseSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.system.VoucherSystem;
 import at.peirleitner.core.util.MOTD;
 import at.peirleitner.core.util.local.GameMap;
 import at.peirleitner.core.util.moderation.ChatLog;
@@ -166,7 +168,26 @@ public enum TableType {
 	 */
 	STATISTICS_USER("statistics_user"),
 	
+	/**
+	 * @since 1.0.18
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see ExperienceSystem
+	 */
 	EXPERIENCE("experience"),
+	
+	/**
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see VoucherSystem
+	 */
+	VOUCHER_CODES("voucher_codes"),
+	
+	/**
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 * @see VoucherSystem
+	 */
+	VOUCHER_USERS("voucher_users")
 	
 	;
 
