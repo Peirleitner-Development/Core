@@ -63,7 +63,8 @@ public class CommandVoucher implements CommandExecutor {
 			for (Voucher v : vouchers) {
 				Core.getInstance().getLanguageManager().sendMessage(cs, Core.getInstance().getPluginName(),
 						"command.voucher.list.per-voucher",
-						Arrays.asList("" + v.getID(), GlobalUtils.getFormatedDate(v.getCreated()),
+						Arrays.asList("" + v.getID(), 
+								GlobalUtils.getFormatedDate(v.getCreated()),
 								Core.getInstance().getUserSystem().getUser(v.getCreator()).getDisplayName(),
 								v.getCode(), "" + v.getMaxRedeems(), v.getCommand(),
 								v.getExpiration() == -1 ? "Never" : GlobalUtils.getFormatedDate(v.getExpiration()),
@@ -73,6 +74,16 @@ public class CommandVoucher implements CommandExecutor {
 
 		} else if (args.length == 2 && args[0].equalsIgnoreCase("disable")) {
 
+			try {
+				
+				int id = Integer.valueOf(args[1]);
+				Core.getInstance().getVoucherSystem().disable(user, id);
+				
+			}catch(NumberFormatException ex) {
+				this.sendHelp(cs);
+				return true;
+			}
+			
 		} else if (args.length == 4 && args[0].equalsIgnoreCase("create")) {
 
 			try {

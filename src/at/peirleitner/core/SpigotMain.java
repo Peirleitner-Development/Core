@@ -472,15 +472,19 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.voucher.list.pre-text", "&7Available Vouchers (&9{0}&7)&8:");
 		languageManager.registerNewMessage(pluginName, "command.voucher.list.per-voucher", "&7----- &9#{0} &7-----\n"
 				+ "&7Created8: &9{1} &7by &9{2}\n"
-				+ "&7Code&8: &9{2}\n"
-				+ "&7Max Redeems&8: &9{3}\n"
-				+ "&7Command&8: &9{4}\n"
-				+ "&7Expiration&8: &9{5}\n"
-				+ "&7SaveType&8: &9{6}");
+				+ "&7Code&8: &9{3}\n"
+				+ "&7Max Redeems&8: &9{4}\n"
+				+ "&7Command&8: &9{5}\n"
+				+ "&7Expiration&8: &9{6}\n"
+				+ "&7SaveType&8: &9{7}");
 		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.invalid-max-redeems", "&cInvalid amount of maximum redeems&8: &e{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.invalid-expiration-in-days", "&cInvalid amount of expiration in days&8: &e{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.sql", "&cCould not create new Voucher, please contact a developer&7.");
 		languageManager.registerNewMessage(pluginName, "command.voucher.create.success", "&7Successfully created the Voucher #&9{0} &7with Code &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.disable.error.invalid-id", "&7No Voucher with the ID of &9{0} &7has been found.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.disable.error.already-expired", "&7The Voucher &9{0} &7already expired on &9{1}&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.disable.success", "&7Successfully disabled the Voucher &9{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.disable.error.sql", "&cThe Voucher &e{0} &ccould not be disabled, please contact a developer&7.");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command",

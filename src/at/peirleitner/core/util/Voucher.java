@@ -107,7 +107,7 @@ public final class Voucher {
 			ResultSet rs = stmt.executeQuery();
 			
 			if(rs.next()) {
-				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has already redeemed the Voucher '" + this.getID() + "'.");
+//				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has already redeemed the Voucher '" + this.getID() + "'.");
 				return true;
 			} else {
 //				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has not redeemed the Voucher '" + this.getID() + "'.");

@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.CoreSystem;
 import at.peirleitner.core.util.DiscordWebHookType;
+import at.peirleitner.core.util.GlobalUtils;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.RunMode;
 import at.peirleitner.core.util.Voucher;
@@ -119,7 +120,7 @@ public final class VoucherSystem implements CoreSystem {
 			int id = rs.getInt(1);
 
 			Core.getInstance().createWebhook("User '" + user.getUUID().toString() + "/" + user.getLastKnownName()
-					+ "' created the Voucher #" + id, DiscordWebHookType.STAFF_NOTIFICATION);
+					+ "' created the Voucher #" + id, DiscordWebHookType.LOG);
 
 			user.sendMessage(Core.getInstance().getPluginName(), "command.voucher.create.success",
 					Arrays.asList("" + id, code), true);
@@ -156,7 +157,41 @@ public final class VoucherSystem implements CoreSystem {
 	}
 
 	public final boolean disable(@Nonnull User user, @Nonnull int id) {
-		return false;
+		
+		Voucher voucher = this.getByID(id);
+		
+		if(voucher == null) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.voucher.disable.error.invalid-id", Arrays.asList("" + id), true);
+			return false;
+		}
+		
+		if(voucher.isExpired()) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.voucher.disable.error.already-expired", Arrays.asList("" + voucher.getID(), GlobalUtils.getFormatedDate(voucher.getExpiration())), true);
+			return false;
+		}
+		
+		try {
+			
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("UPDATE " + TableType.VOUCHER_CODES.getTableName(true) + " SET expiration = ? WHERE id = ?");
+			stmt.setLong(1, System.currentTimeMillis());
+			stmt.setInt(2, voucher.getID());
+			
+			int updated = stmt.executeUpdate();
+			
+			if(updated == 1) {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.voucher.disable.success", Arrays.asList("" + voucher.getID()), true);
+				Core.getInstance().createWebhook("", DiscordWebHookType.LOG);
+				return true;
+			} else {
+				user.sendMessage(Core.getInstance().getPluginName(), "command.voucher.disable.error.sql", Arrays.asList("" + voucher.getID()), true);
+				return false;
+			}
+			
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not disable Voucher '" + voucher.getID() + "'/SQL: " + e.getMessage());
+			return false;
+		}
+		
 	}
 
 	public final boolean redeem(@Nonnull User user, @Nonnull String code) {
@@ -170,6 +205,30 @@ public final class VoucherSystem implements CoreSystem {
 
 		return voucher.redeem(user);
 
+	}
+	
+	public final Voucher getByID(@Nonnull int id) {
+		
+		try {
+
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement(
+					"SELECT * FROM " + TableType.VOUCHER_CODES.getTableName(true) + " WHERE id = ?");
+			stmt.setInt(1, id);
+
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				return this.getByResultSet(rs);
+			} else {
+				// None found
+				return null;
+			}
+
+		} catch (SQLException e) {
+			Core.getInstance().log(getClass(), LogType.ERROR, "Could not get Voucher by ID/SQL: " + e.getMessage());
+			return null;
+		}
+		
 	}
 
 	/**
