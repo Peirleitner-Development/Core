@@ -33,6 +33,7 @@ import at.peirleitner.core.system.ModerationSystem;
 import at.peirleitner.core.system.MotdSystem;
 import at.peirleitner.core.system.StatSystem;
 import at.peirleitner.core.system.UserSystem;
+import at.peirleitner.core.system.VoucherSystem;
 import at.peirleitner.core.util.DiscordWebHookType;
 import at.peirleitner.core.util.DiscordWebhook;
 import at.peirleitner.core.util.LogType;
@@ -83,6 +84,7 @@ public final class Core {
 	private ModerationSystem moderationSystem;
 	private CooldownSystem cooldownSystem;
 	private ExperienceSystem experienceSystem;
+	private VoucherSystem voucherSystem;
 
 	/**
 	 * Create a new Instance
@@ -133,6 +135,7 @@ public final class Core {
 		this.moderationSystem = new ModerationSystem();
 		this.cooldownSystem = new CooldownSystem();
 		this.experienceSystem = new ExperienceSystem();
+		this.voucherSystem = new VoucherSystem();
 
 		this.log(this.getClass(), LogType.DEBUG, "Successfully enabled the Core instance with RunMode " + runMode
 				+ ". Network-Mode is set to " + this.isNetwork() + ".");
@@ -839,6 +842,16 @@ public final class Core {
 	 */
 	public final ExperienceSystem getExperienceSystem() {
 		return experienceSystem;
+	}
+	
+	/**
+	 * 
+	 * @return {@link VoucherSystem}
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final VoucherSystem getVoucherSystem() {
+		return voucherSystem;
 	}
 
 }

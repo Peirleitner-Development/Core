@@ -47,6 +47,8 @@ public enum LanguagePhrase {
 	NOT_REVIEWED("Not reviewed"),
 	BACK("Back"),
 	NOT_SET("Not set"),
+	NEVER("Never"),
+	ILLEGAL_INTEGER("Illegal Integer")
 	;
 	
 	private final String defaultValue;

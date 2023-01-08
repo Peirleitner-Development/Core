@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.util.CoreSystem;
+import at.peirleitner.core.util.GlobalUtils;
 import at.peirleitner.core.util.LogType;
 import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
@@ -161,6 +163,38 @@ public class CooldownSystem implements CoreSystem {
 			return false;
 		}
 
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @param metadata
+	 * @param saveType
+	 * @param message
+	 * @return
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	public final boolean hasCooldown(@Nonnull UUID uuid, @Nonnull String metadata, @Nonnull int saveType, @Nonnull boolean message) {
+		
+		boolean has = this.hasCooldown(uuid, metadata, saveType);
+		
+		if(message && has) {
+			
+			Collection<CooldownInfo> cooldowns = this.getActiveCooldowns(uuid, Core.getInstance().getSaveTypeByID(saveType));
+			
+			for(CooldownInfo ci : cooldowns) {
+				if(ci.getMetadata().equals(metadata)) {
+					
+					long nextUsage = ci.getNextUsage();
+					Core.getInstance().getUserSystem().getUser(uuid).sendMessage(Core.getInstance().getPluginName(), "system.cooldown.has-cooldown-main-message", Arrays.asList(GlobalUtils.getFormatedDate(nextUsage)), true);
+					
+				}
+			}
+			
+		}
+		
+		return has;
 	}
 
 	/**

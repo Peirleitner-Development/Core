@@ -27,6 +27,7 @@ import at.peirleitner.core.command.local.CommandStats;
 import at.peirleitner.core.command.local.CommandStore;
 import at.peirleitner.core.command.local.CommandTeleport;
 import at.peirleitner.core.command.local.CommandVote;
+import at.peirleitner.core.command.local.CommandVoucher;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.listener.local.AsyncPlayerChatListener;
 import at.peirleitner.core.listener.local.AsyncPlayerPreLoginListener;
@@ -92,6 +93,7 @@ public class SpigotMain extends JavaPlugin {
 		new CommandMod();
 		new CommandStats();
 		new CommandRedeem();
+		new CommandVoucher();
 
 		// Listener
 		new PlayerJoinListener();
@@ -456,9 +458,29 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "command.redeem.syntax", "&7Syntax&8: &9/redeem <Code>");
 		languageManager.registerNewMessage(pluginName, "command.redeem.invalid-code-length", "&7Your entered Voucher length of &9{0} &7is invalid. Vouchers always have a length of &9{1}&7.");
 		languageManager.registerNewMessage(pluginName, "command.redeem.error.invalid-voucher", "&7Your entered Voucher &7is invalid.");
+		languageManager.registerNewMessage(pluginName, "command.redeem.error.invalid-save-type", "&7This Voucher is only valid on &9{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.redeem.error.max-redeems-reached", "&7This Voucher has already reached its maxmium amount of redeems (&9{0}&7).");
 		languageManager.registerNewMessage(pluginName, "command.redeem.error.expired", "&7This Voucher has expired on &9{0}&7.");
 		languageManager.registerNewMessage(pluginName, "command.redeem.error.already-redeemed", "&7You've already redeemed this Voucher.");
+		languageManager.registerNewMessage(pluginName, "command.redeem.success", "&7Successfully redeemed your entered Voucher.");
+		
+		languageManager.registerNewMessage(pluginName, "command.voucher.syntax", "&7Syntax&8: &9/voucher\n"
+				+ "  &9list\n"
+				+ "  &9create <Command> <Max Redeems> <Expiration in Days>\n"
+				+ "  &9disable <ID>");
+		languageManager.registerNewMessage(pluginName, "command.voucher.list.none-exist", "&7No Vouchers have yet been created.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.list.pre-text", "&7Available Vouchers (&9{0}&7)&8:");
+		languageManager.registerNewMessage(pluginName, "command.voucher.list.per-voucher", "&7----- &9#{0} &7-----\n"
+				+ "&7Created8: &9{1} &7by &9{2}\n"
+				+ "&7Code&8: &9{2}\n"
+				+ "&7Max Redeems&8: &9{3}\n"
+				+ "&7Command&8: &9{4}\n"
+				+ "&7Expiration&8: &9{5}\n"
+				+ "&7SaveType&8: &9{6}");
+		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.invalid-max-redeems", "&cInvalid amount of maximum redeems&8: &e{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.invalid-expiration-in-days", "&cInvalid amount of expiration in days&8: &e{0}&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.create.error.sql", "&cCould not create new Voucher, please contact a developer&7.");
+		languageManager.registerNewMessage(pluginName, "command.voucher.create.success", "&7Successfully created the Voucher #&9{0} &7with Code &9{1}&7.");
 		
 		// Listener
 		languageManager.registerNewMessage(pluginName, "listener.player-command-pre-process.unknown-command",
@@ -491,6 +513,8 @@ public class SpigotMain extends JavaPlugin {
 		languageManager.registerNewMessage(pluginName, "gui.statistics.item.statistic.description",
 				"&7&o{0}\n" + "&7First Available&8: &9{1}\n" + "&7Last Change&8: &9{2}\n" + "&7Unlocked&8: &9{3}\n"
 						+ "&7Current Statistic&8: &9{4}");
+		
+		languageManager.registerNewMessage(pluginName, "system.cooldown.has-cooldown-main-message", "&7This action may be performed again on &9{0}&7.");
 
 	}
 

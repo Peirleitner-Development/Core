@@ -9,7 +9,9 @@ import at.peirleitner.core.command.local.CommandLog;
 import at.peirleitner.core.command.local.CommandMaintenance;
 import at.peirleitner.core.command.local.CommandMod;
 import at.peirleitner.core.command.local.CommandPay;
+import at.peirleitner.core.command.local.CommandRedeem;
 import at.peirleitner.core.command.local.CommandSlot;
+import at.peirleitner.core.command.local.CommandVoucher;
 import at.peirleitner.core.command.local.CommandWorld;
 import at.peirleitner.core.manager.SettingsManager;
 
@@ -114,7 +116,7 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_CHATLOG_CHECK("Core.command.chatlog.check"),
-	
+
 	/**
 	 * Grants access to the {@link CommandChatLog} command (review)
 	 * 
@@ -130,6 +132,22 @@ public enum CorePermission {
 	 * @author Markus Peirleitner (Rengobli)
 	 */
 	COMMAND_MOD("Core.command.mod"),
+
+	/**
+	 * Grants access to the {@link CommandRedeem} command
+	 * 
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_REDEEM("Core.command.redeem"),
+
+	/**
+	 * Grants access to the {@link CommandVoucher} command
+	 * 
+	 * @since 1.0.19
+	 * @author Markus Peirleitner (Rengobli)
+	 */
+	COMMAND_VOUCHER("Core.command.voucher"),
 
 	/**
 	 * Allows to join the full server, even if {@link SettingsManager#getSlots()} is

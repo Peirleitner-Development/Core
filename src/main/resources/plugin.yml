@@ -74,3 +74,6 @@ commands:
   redeem:
     usage: </command>
     description: Redeem a Voucher
+  voucher:
+    usage: </command>
+    description: Manage Vouchers

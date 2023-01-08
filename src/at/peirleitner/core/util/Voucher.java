@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 
 import at.peirleitner.core.Core;
 import at.peirleitner.core.command.local.CommandRedeem;
+import at.peirleitner.core.util.database.SaveType;
 import at.peirleitner.core.util.database.TableType;
 import at.peirleitner.core.util.user.User;
 
@@ -30,9 +31,9 @@ public final class Voucher {
 	private final int maxRedeems;
 	private final String command;
 	private final long expiration;
+	private final SaveType saveType;
 
-	public Voucher(int id, long created, UUID creator, String code, int maxRedeems, String command, long expiration) {
-		super();
+	public Voucher(int id, long created, UUID creator, String code, int maxRedeems, String command, long expiration, SaveType saveType) {
 		this.id = id;
 		this.created = created;
 		this.creator = creator;
@@ -40,6 +41,7 @@ public final class Voucher {
 		this.maxRedeems = maxRedeems;
 		this.command = command;
 		this.expiration = expiration;
+		this.saveType = saveType;
 	}
 
 	public final int getID() {
@@ -77,7 +79,7 @@ public final class Voucher {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT COUNT(id) FROM " + TableType.VOUCHER_USERS.getTableName(true) + " WHERE voucher = ?");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("SELECT COUNT(*) FROM " + TableType.VOUCHER_USERS.getTableName(true) + " WHERE voucher = ?");
 			stmt.setInt(1, this.getID());
 			
 			ResultSet rs = stmt.executeQuery();
@@ -108,7 +110,7 @@ public final class Voucher {
 				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has already redeemed the Voucher '" + this.getID() + "'.");
 				return true;
 			} else {
-				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has not redeemed the Voucher '" + this.getID() + "'.");
+//				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' has not redeemed the Voucher '" + this.getID() + "'.");
 				return false;
 			}
 			
@@ -120,6 +122,12 @@ public final class Voucher {
 	}
 	
 	public final boolean redeem(@Nonnull User user) {
+		
+		if(this.getSaveType().getID() != Core.getInstance().getSettingsManager().getSaveType().getID()) {
+			user.sendMessage(Core.getInstance().getPluginName(), "command.redeem.error.invalid-save-type",
+					Arrays.asList("" + this.getSaveType().getName()), true);
+			return false;
+		}
 		
 		if(!(this.isRedeemable())) {
 			user.sendMessage(Core.getInstance().getPluginName(), "command.redeem.error.max-redeems-reached",
@@ -141,7 +149,35 @@ public final class Voucher {
 		
 		try {
 			
-			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("");
+			PreparedStatement stmt = Core.getInstance().getMySQL().getConnection().prepareStatement("INSERT INTO " + TableType.VOUCHER_USERS.getTableName(true) + " (uuid, voucher, redeemed) VALUES (?, ?, ?);");
+			stmt.setString(1, user.getUUID().toString());
+			stmt.setInt(2, this.getID());
+			stmt.setLong(3, System.currentTimeMillis());
+			
+			int updated = stmt.executeUpdate();
+			
+			if(updated == 1) {
+				
+				String commandToExecute = this.getCommand();
+				commandToExecute = commandToExecute.replace("{uuid}", user.getUUID().toString());
+				commandToExecute = commandToExecute.replace("{player}", user.getLastKnownName());
+				
+				if(Core.getInstance().getRunMode() == RunMode.LOCAL) {
+					org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(),commandToExecute);
+				} else {
+					net.md_5.bungee.api.ProxyServer.getInstance().getPluginManager().dispatchCommand(net.md_5.bungee.api.ProxyServer.getInstance().getConsole(), commandToExecute);
+				}
+				
+				Core.getInstance().log(getClass(), LogType.DEBUG, "User '" + user.getUUID().toString() + "' redeemed the Voucher '" + this.getID() + "'.");
+				Core.getInstance().createWebhook("User '" + user.getUUID().toString() + "' redeemed the Voucher '" + this.getID() + "'.", DiscordWebHookType.STAFF_NOTIFICATION);
+				
+				user.sendMessage(Core.getInstance().getPluginName(), "command.redeem.success", null, true);
+				
+				return true;
+			} else {
+				Core.getInstance().log(getClass(), LogType.WARNING, "Could not redeem Voucher '" + this.getID() + "' for User '" + user.getUUID().toString() + "': No rows updated.");
+				return false;
+			}
 			
 		} catch (SQLException e) {
 			Core.getInstance().log(getClass(), LogType.ERROR, "Could not redeem Voucher for User '" + user.getUUID().toString() + "'/SQL: " + e.getMessage());
@@ -170,6 +206,10 @@ public final class Voucher {
 
 	public final boolean isExpired() {
 		return this.getExpiration() == -1 ? false : System.currentTimeMillis() >= this.getExpiration();
+	}
+	
+	public final SaveType getSaveType() {
+		return saveType;
 	}
 
 }
