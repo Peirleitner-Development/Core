@@ -8,8 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -26,7 +28,9 @@ public class GlobalUtils {
 	 * @param separator
 	 * @return
 	 * @since 1.0.3
+	 * @deprecated See {@link #getUuidSetByString(String, String)}
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.20")
 	public static Collection<UUID> getUuidListByString(@Nonnull String string, @Nonnull String separator) {
 
 		Collection<UUID> list = new ArrayList<>();
@@ -38,6 +42,26 @@ public class GlobalUtils {
 		}
 
 		return list;
+	}
+	
+	/**
+	 * 
+	 * @param string
+	 * @param separator
+	 * @return
+	 * @since 1.0.20
+	 */
+	public static Set<UUID> getUuidSetByString(@Nonnull String string, @Nonnull String separator) {
+
+		Set<UUID> set = new HashSet<>();
+
+		String[] split = string.split(separator);
+
+		for (String s : split) {
+			set.add(UUID.fromString(s));
+		}
+
+		return set;
 	}
 
 	/**
@@ -95,11 +119,25 @@ public class GlobalUtils {
 	 * @param separator - Should always be :
 	 * @return Collection of CustomLocations
 	 * @since 1.0.3
+	 * @deprecated See {@link #getCustomLocationSetFromString(String)}
 	 */
+	@Deprecated(forRemoval = true, since = "1.0.20")
 	public static Collection<CustomLocation> getCustomLocationListFromString(@Nonnull String string) {
 
 		String[] s = string.split(":");
 		Collection<CustomLocation> locs = new ArrayList<>(s.length);
+
+		for (String str : s) {
+			locs.add(getCustomLocationFromString(str));
+		}
+
+		return locs;
+	}
+	
+	public static Set<CustomLocation> getCustomLocationSetFromString(@Nonnull String string) {
+
+		String[] s = string.split(":");
+		Set<CustomLocation> locs = new HashSet<>(s.length);
 
 		for (String str : s) {
 			locs.add(getCustomLocationFromString(str));
